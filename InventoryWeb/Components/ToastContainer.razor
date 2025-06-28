@@ -4,7 +4,7 @@
 <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
     @foreach (var toast in ToastService.Toasts)
     {
-        <Toast Message="@toast" OnClose="() => RemoveToast(toast)" />
+        <Toast Message="@toast.Message" Style="@toast.Style" OnClose="() => RemoveToast(toast)" />
     }
 </div>
 
@@ -14,7 +14,7 @@
         ToastService.OnToastsUpdated += StateHasChanged;
     }
 
-    void RemoveToast(string message) => ToastService.RemoveToast(message);
+    void RemoveToast(ToastComponent toastComponent) => ToastService.RemoveToast(toastComponent);
 
     public void Dispose()
     {

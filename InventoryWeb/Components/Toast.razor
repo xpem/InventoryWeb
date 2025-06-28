@@ -1,13 +1,30 @@
-﻿<div class="toast show align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+﻿@inject IJSRuntime JS
+
+<div class="toast align-items-center @Style border-0 p-2" role="alert"
+     aria-live="assertive" aria-atomic="true" data-bs-delay="5000" id="@ToastId">
     <div class="d-flex">
         <div class="toast-body">
             @Message
         </div>
-        <button type="button" class="btn-close me-2 m-auto" @onclick="OnClose"></button>
+        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close" @onclick="OnClose"></button>
     </div>
 </div>
 
 @code {
     [Parameter] public string Message { get; set; }
+    [Parameter] public string Style { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public string ToastId { get; set; } = Guid.NewGuid().ToString();
+
+    // private ElementReference toastDiv;
+    private bool _shown;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!_shown)
+        {
+            _shown = true;
+            await JS.InvokeVoidAsync("showLiveToastById", ToastId);
+        }
+    }
 }

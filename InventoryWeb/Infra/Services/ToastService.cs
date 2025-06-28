@@ -1,21 +1,24 @@
 ﻿namespace InventoryWeb.Infra.Services
 {
+
+    public record ToastComponent(string Message,string Style);
+
     public class ToastService
     {
         public event Action OnToastsUpdated;
-        private readonly List<string> _toasts = new();
+        private readonly List<ToastComponent> _toasts = new();
 
-        public IReadOnlyList<string> Toasts => _toasts;
+        public IReadOnlyList<ToastComponent> Toasts => _toasts;
 
-        public void ShowToast(string message)
+        public void ShowToast(ToastComponent toastComponent)
         {
-            _toasts.Add(message);
+            _toasts.Add(toastComponent);
             OnToastsUpdated?.Invoke();
         }
 
-        public void RemoveToast(string message)
+        public void RemoveToast(ToastComponent toastComponent)
         {
-            _toasts.Remove(message);
+            _toasts.Remove(toastComponent);
             OnToastsUpdated?.Invoke();
         }
     }

@@ -97,7 +97,7 @@
         for (int i = 0; i < 5; i++)
         {
             await Task.Delay(1000);
-            ToastService.ShowToast($"Toast message {i + 1}");
+            ToastService.ShowToast(new ToastComponent($"Toast message {i + 1}", "text-bg-success"));
         }
     }
 

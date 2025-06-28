@@ -1,7 +1,7 @@
 ﻿window.showLiveToastById = function (ToastId) {
-    const toastLiveExample = document.getElementById(ToastId);
-    if (toastLiveExample) {
-        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLiveExample);
+    const toastLive = document.getElementById(ToastId);
+    if (toastLive) {
+        const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLive);
         toastBootstrap.show();
     }
 }
