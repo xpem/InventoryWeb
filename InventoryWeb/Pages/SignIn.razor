@@ -1,0 +1,101 @@
+﻿@page "/signin"
+@using Models.UIRequests
+@inject HttpClient Http
+
+<PageTitle>Cadastrar usuário</PageTitle>
+
+<div style="display: flex; justify-content:center; flex-wrap: wrap; align-content: center; height: 100%; width:100%;">
+    <div style="display: flex; justify-content: center; flex-direction:column; width:100%;">
+        <div class="col-lg-12" style="display: flex; justify-content: center; margin-bottom: 30px; margin-top: 30px;">
+            <i class="fa-solid fa-clipboard-list" style="color: white; font-size: 70px;"></i>
+        </div>
+
+        <div class="col-lg-12" style="display: flex; justify-content:center; flex-wrap: wrap; align-content: center; width: 100%;">
+            <EditForm Model="_UIUserSignIn" OnValidSubmit="CreateUser" style="min-width:400px;">
+                <DataAnnotationsValidator />
+
+                <div class="row mb-3">
+                    <div class="form-group">
+                        <label for="inputEmail">Email</label>
+                        <InputText type="email" class="form-control" id="inputEmail" @bind-Value="@_UIUserSignIn.Email" disabled=@ReadOnlyMode />
+                        <ValidationMessage For="@(() => _UIUserSignIn.Email)" />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="form-group">
+                        <label for="inputPassword">Senha</label>
+                        <InputText type="password" class="form-control" id="userPassword" @bind-Value="@_UIUserSignIn.Password" disabled=@ReadOnlyMode />
+                        <ValidationMessage For="@(() => _UIUserSignIn.Password)" />
+                    </div>
+                </div>
+
+                @if (ReadOnlyMode == false)
+                {
+                    <div class="col-lg-12" style="display: flex; justify-content:center">
+                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-arrow-right-to-bracket"></i>&nbsp;&nbsp;Acessar</button>
+                    </div>
+                }
+
+                <div class="col-lg-12" style="margin-top: 20px">Não tem conta? <a href="/signup">Criar Conta</a></div>
+                <div class="col-lg-12" style="margin-top: 5px; margin-bottom: 20px;">Esqueceu sua Senha? <a href="#">Atualizar Senha</a></div>
+
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    // [Parameter] public EventCallback OnValidSubmit { get; set; }
+
+    [Parameter] public UIUserSignIn _UIUserSignIn { get; set; } = new UIUserSignIn();
+
+    [Parameter] public bool ReadOnlyMode { get; set; }
+
+    private async Task CreateUser()
+    {
+        Console.WriteLine(_UIUserSignIn);
+
+        // var result = await Http.PostAsJsonAsync("/api/employee/saveemployee", _UIUserSignIn);
+        // if (result != null && result.StatusCode == System.Net.HttpStatusCode.OK)
+        // {
+        //     navigationManager.NavigateTo("employee/index");
+        // }
+    }
+
+}
+
+
+@* @using System.Security.Claims
+@inject CustomAuthenticationService AuthService
+
+<input @bind="userIdentifier" />
+<button @onclick="SignIn">Sign in</button>
+
+<AuthorizeView>
+    <Authorized>
+        <p>Hello, @context.User.Identity?.Name!</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>You're not authorized.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    public string userIdentifier = string.Empty;
+
+    private void SignIn()
+    {
+        var currentUser = AuthService.CurrentUser;
+
+        var identity = new ClaimsIdentity(
+            [
+                new Claim(ClaimTypes.Name, userIdentifier),
+            ],
+            "Custom Authentication");
+
+        var newUser = new ClaimsPrincipal(identity);
+
+        AuthService.CurrentUser = newUser;
+    }
+} *@

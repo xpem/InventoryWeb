@@ -1,0 +1,43 @@
+﻿@using InventoryWeb.Components
+@using InventoryWeb.Infra.Services
+@inherits LayoutComponentBase
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ToastService ToastService
+
+<div class="page" style="height: 100%">
+    <AuthorizeView>
+        <Authorized>
+            <div class="sidebar">
+                <NavMenu />
+            </div>
+        </Authorized>
+        <NotAuthorized>
+            @* Opcional: Conteúdo para usuários não logados na sidebar, ou deixe vazio *@
+        </NotAuthorized>
+    </AuthorizeView>
+    <script src="js/toast.js"></script>
+    <main style="background-color: #262D43; height:100%;">
+            <ToastContainer />
+        <article class="content px-4" style="height: 100%;">
+            @Body
+        </article>
+    </main>
+</div>
+
+@code {
+    // private Toast toastRef;
+    // public string ToastMessage { get; set; } = string.Empty;
+
+    // protected override void OnInitialized()
+    // {
+    //     ToastService.OnShow += ShowToast;
+    // }
+
+    // public async Task ShowToast(string message)
+    // {
+    //     ToastMessage = message;
+    //     StateHasChanged();
+    //     if (toastRef != null)
+    //         await toastRef.ShowAsync();
+    // }
+}

@@ -1,0 +1,179 @@
+﻿@page "/signup"
+@using InventoryWeb.Components
+@using InventoryWeb.Infra.Services
+@using Models.UIRequests
+@using Services
+@inject HttpClient Http
+@inject IUserService userService
+@inject IJSRuntime JS
+@inject ToastService ToastService
+
+<PageTitle>Cadastrar usuário</PageTitle>
+<div style="display: flex; justify-content:center; flex-wrap: wrap; align-content: center; height: 100%; width:100%;">
+    <div style="display: flex; justify-content: center; flex-direction:column; width:100%;">
+        <div class="col-lg-12" style="display: flex; justify-content: center; margin-bottom: 30px; margin-top: 30px;">
+            <i class="fa-solid fa-user" style="color: white; font-size: 70px;"></i>
+        </div>
+
+        <div class="col-lg-12" style="display: flex; justify-content:center; flex-wrap: wrap; align-content: center; width: 100%;">
+            <EditForm Model="_UIUserSignUp" OnValidSubmit="SignUpCommand" style="min-width:400px;">
+                <DataAnnotationsValidator />
+
+                <div class="row mb-3">
+                    <div class="form-group">
+                        <label for="inputName">Nome</label>
+                        <InputText type="text" class="form-control" id="inputName" @bind-Value="@_UIUserSignUp.Name" />
+                        <ValidationMessage For="@(() => _UIUserSignUp.Name)" />
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="form-group">
+                        <label for="inputEmail">Email</label>
+                        <InputText type="email" class="form-control" id="inputEmail" @bind-Value="@_UIUserSignUp.Email" />
+                        <ValidationMessage For="@(() => _UIUserSignUp.Email)" />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="form-group">
+                        <label for="inputPassword">Senha</label>
+                        <InputText type="password" class="form-control" id="inputPassword" @bind-Value="@_UIUserSignUp.Password" />
+                        <ValidationMessage For="@(() => _UIUserSignUp.Password)" />
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="form-group">
+                        <label for="inputConfirmPassword">Confirme a Senha</label>
+                        <InputText type="password" class="form-control" id="inputConfirmPassword" @bind-Value="@_UIUserSignUp.ConfirmPassword" />
+                        <ValidationMessage For="@(() => _UIUserSignUp.ConfirmPassword)" />
+                    </div>
+                </div>
+
+                <div class="d-grid" disabled=@BtnSignInEnabled>
+                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-user-plus"></i>&nbsp;&nbsp;Acessar</button>
+                </div>
+
+                @if (AlertVisible)
+                {
+                    <div class="alert alert-info alert-dismissible fade show" style="margin-top: 20px;" role="alert">
+                        @AlertMessage
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @onclick="() => AlertVisible = false"></button>
+                    </div>
+                }
+                <div class="col-lg-12" style="margin-top: 20px"><a href="/signin"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
+
+                <button type="button" class="btn btn-primary" @onclick="ShowToast">Show live toast</button>
+
+                @* <Toast @ref="toastRef" Message="Usuário cadastrado com sucesso!" ToastId="liveToast" /> *@
+
+                @*     <div aria-live="polite" aria-atomic="true" class="d-flex justify-content-center align-items-center w-100">
+                    <div class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                Hello, world! This is a toast message.
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                </div> *@
+            </EditForm>
+        </div>
+    </div>
+</div>
+@code {
+    private UIUserSignUp _UIUserSignUp { get; set; } = new UIUserSignUp() { Name = string.Empty, ConfirmPassword = string.Empty, Email = string.Empty, Password = string.Empty };
+
+    private bool AlertVisible { get; set; } = false;
+
+    private bool BtnSignInEnabled { get; set; } = true;
+
+    private string AlertMessage { get; set; }
+
+    private Toast toastRef;
+
+    private async Task ShowToast()
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            await Task.Delay(1000);
+            ToastService.ShowToast($"Toast message {i + 1}");
+        }
+    }
+
+    public async Task SignUpCommand()
+    {
+
+        // if (VerifyFileds())
+        // {
+        BtnSignInEnabled = false;
+
+        //
+        Models.Resps.ServResp resp = userService.AddUser(_UIUserSignUp.Name, _UIUserSignUp.Email, _UIUserSignUp.Password);
+
+        if (!resp.Success)
+        {
+            AlertMessage = "Não foi possível cadastrar o usuário!";
+            AlertVisible = true;
+        }
+        // else
+        // {
+        //     bool res = await Application.Current.Windows[0].Page.DisplayAlert("Aviso", "Usuário cadastrado!", null, "Ok");
+
+        //     if (!res)
+        //         await Shell.Current.GoToAsync("..");
+        // }
+        // }
+    }
+
+    // public async Task CreateUser()
+    // {
+    //     try
+    //     {
+    //         if (!string.IsNullOrEmpty(_UIUserSignUp.Email) && !string.IsNullOrEmpty(_UIUserSignUp.Password))
+    //         {
+    //             // AlertMessage = "teste";
+    //             // AlertVisible = true;
+    //             // if (_UIUserSignUp.Password.Length > 3)
+    //             // {
+    //             // btnSignInText = "Acessando...";
+    //             BtnSignInEnabled = false;
+
+    //             Models.Resps.ServResp resp = userServ.AddUser(name, email, password);
+
+    //             // if (resp.Success)
+    //             // {
+    //             //     if (resp.Content is not null and int)
+    //             //         ((App)App.Current).Uid = (int)resp.Content;
+
+    //             //     await Shell.Current.GoToAsync($"{nameof(FirstSync)}", false);
+
+    //             // }
+    //             // else
+    //             // {
+    //             //     string errorMessage = resp.Error == Models.Resps.ErrorTypes.WrongEmailOrPassword
+    //             //         ? "Email/senha incorretos"
+    //             //         : resp.Error == Models.Resps.ErrorTypes.ServerUnavaliable
+    //             //         ? "Servidor indisponível, favor entrar em contato com o desenvolvedor."
+    //             //         : "Erro não mapeado, favor entrar em contato com o desenvolvedor.";
+    //             //     await Application.Current.Windows[0].Page.DisplayAlert("Aviso", errorMessage, null, "Ok");
+    //             // }
+
+    //             BtnSignInEnabled = true;
+    //             // btnSignInText = "Acessar";
+    //             // }
+    //             // else
+    //             //     await Application.Current.Windows[0].Page.DisplayAlert("Aviso", "Digite uma senha com mais de 3 dígitos", null, "Continuar");
+    //         }
+    //         else
+    //         {
+    //             AlertMessage = "Insira seu email e senha.";
+    //             AlertVisible = true;
+    //         }
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         throw;
+    //     }
+    // }
+}

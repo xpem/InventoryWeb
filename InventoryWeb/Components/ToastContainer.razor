@@ -1,0 +1,23 @@
+﻿@using InventoryWeb.Infra.Services
+@inject ToastService ToastService
+
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+    @foreach (var toast in ToastService.Toasts)
+    {
+        <Toast Message="@toast" OnClose="() => RemoveToast(toast)" />
+    }
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        ToastService.OnToastsUpdated += StateHasChanged;
+    }
+
+    void RemoveToast(string message) => ToastService.RemoveToast(message);
+
+    public void Dispose()
+    {
+        ToastService.OnToastsUpdated -= StateHasChanged;
+    }
+}

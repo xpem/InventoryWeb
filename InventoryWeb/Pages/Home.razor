@@ -1,0 +1,22 @@
+﻿@page "/"
+@inject NavigationManager Navigation
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Redireciona para a página de cadastro
+        Navigation.NavigateTo("/signin", forceLoad: true);
+
+        // Se você quiser que o redirecionamento seja mais "forçado"
+        // e limpe o histórico de navegação para que o usuário não possa voltar
+        // para a página de redirecionamento usando o botão "Voltar" do navegador:
+        // Navigation.NavigateTo("/cadastro", forceLoad: true);
+    }
+}
