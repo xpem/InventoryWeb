@@ -7,6 +7,7 @@
 @inject IUserService userService
 @inject IJSRuntime JS
 @inject ToastService ToastService
+@inject NavigationManager NavigationManager
 
 <PageTitle>Cadastrar usuário</PageTitle>
 <div style="display: flex; justify-content:center; flex-wrap: wrap; align-content: center; height: 100%; width:100%;">
@@ -54,29 +55,16 @@
                     <button type="submit" class="btn btn-primary"><i class="fa-solid fa-user-plus"></i>&nbsp;&nbsp;Acessar</button>
                 </div>
 
-                @if (AlertVisible)
+@*                 @if (AlertVisible)
                 {
                     <div class="alert alert-info alert-dismissible fade show" style="margin-top: 20px;" role="alert">
                         @AlertMessage
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" @onclick="() => AlertVisible = false"></button>
                     </div>
-                }
+                } *@
                 <div class="col-lg-12" style="margin-top: 20px"><a href="/signin"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
 
-                <button type="button" class="btn btn-primary" @onclick="ShowToast">Show live toast</button>
-
-                @* <Toast @ref="toastRef" Message="Usuário cadastrado com sucesso!" ToastId="liveToast" /> *@
-
-                @*     <div aria-live="polite" aria-atomic="true" class="d-flex justify-content-center align-items-center w-100">
-                    <div class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
-                        <div class="d-flex">
-                            <div class="toast-body">
-                                Hello, world! This is a toast message.
-                            </div>
-                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-                        </div>
-                    </div>
-                </div> *@
+                @*                 <button type="button" class="btn btn-primary" @onclick="ShowToast">Show live toast</button> *@
             </EditForm>
         </div>
     </div>
@@ -88,92 +76,24 @@
 
     private bool BtnSignInEnabled { get; set; } = true;
 
-    private string AlertMessage { get; set; }
-
-    private Toast toastRef;
-
-    private async Task ShowToast()
-    {
-        for (int i = 0; i < 5; i++)
-        {
-            await Task.Delay(1000);
-            ToastService.ShowToast(new ToastComponent($"Toast message {i + 1}", "text-bg-success"));
-        }
-    }
-
     public async Task SignUpCommand()
     {
+        try{
+            BtnSignInEnabled = false;
 
-        // if (VerifyFileds())
-        // {
-        BtnSignInEnabled = false;
+            //
+            Models.Resps.ServResp resp = await userService.AddUser(_UIUserSignUp.Name, _UIUserSignUp.Email, _UIUserSignUp.Password);
 
-        //
-        Models.Resps.ServResp resp = userService.AddUser(_UIUserSignUp.Name, _UIUserSignUp.Email, _UIUserSignUp.Password);
+            if (!resp.Success)
+            {
+                ToastService.ShowToast(new ToastComponent($"Não foi possível cadastrar o usuário!", "text-bg-danger"));
+            }
+            else
+            {
+                ToastService.ShowToast(new ToastComponent($"Usuário Cadastrado!", "text-bg-success"));
 
-        if (!resp.Success)
-        {
-            AlertMessage = "Não foi possível cadastrar o usuário!";
-            AlertVisible = true;
-        }
-        // else
-        // {
-        //     bool res = await Application.Current.Windows[0].Page.DisplayAlert("Aviso", "Usuário cadastrado!", null, "Ok");
-
-        //     if (!res)
-        //         await Shell.Current.GoToAsync("..");
-        // }
-        // }
+                NavigationManager.NavigateTo("/signin");
+            }
+        }catch(Exception ex){ throw ex; }
     }
-
-    // public async Task CreateUser()
-    // {
-    //     try
-    //     {
-    //         if (!string.IsNullOrEmpty(_UIUserSignUp.Email) && !string.IsNullOrEmpty(_UIUserSignUp.Password))
-    //         {
-    //             // AlertMessage = "teste";
-    //             // AlertVisible = true;
-    //             // if (_UIUserSignUp.Password.Length > 3)
-    //             // {
-    //             // btnSignInText = "Acessando...";
-    //             BtnSignInEnabled = false;
-
-    //             Models.Resps.ServResp resp = userServ.AddUser(name, email, password);
-
-    //             // if (resp.Success)
-    //             // {
-    //             //     if (resp.Content is not null and int)
-    //             //         ((App)App.Current).Uid = (int)resp.Content;
-
-    //             //     await Shell.Current.GoToAsync($"{nameof(FirstSync)}", false);
-
-    //             // }
-    //             // else
-    //             // {
-    //             //     string errorMessage = resp.Error == Models.Resps.ErrorTypes.WrongEmailOrPassword
-    //             //         ? "Email/senha incorretos"
-    //             //         : resp.Error == Models.Resps.ErrorTypes.ServerUnavaliable
-    //             //         ? "Servidor indisponível, favor entrar em contato com o desenvolvedor."
-    //             //         : "Erro não mapeado, favor entrar em contato com o desenvolvedor.";
-    //             //     await Application.Current.Windows[0].Page.DisplayAlert("Aviso", errorMessage, null, "Ok");
-    //             // }
-
-    //             BtnSignInEnabled = true;
-    //             // btnSignInText = "Acessar";
-    //             // }
-    //             // else
-    //             //     await Application.Current.Windows[0].Page.DisplayAlert("Aviso", "Digite uma senha com mais de 3 dígitos", null, "Continuar");
-    //         }
-    //         else
-    //         {
-    //             AlertMessage = "Insira seu email e senha.";
-    //             AlertVisible = true;
-    //         }
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         throw;
-    //     }
-    // }
 }

@@ -7,17 +7,18 @@ namespace Services
 {
     public interface IUserService
     {
-        ServResp AddUser(string name, string email, string password);
+        Task<ServResp> AddUser(string name, string email, string password);
         Task<(bool, string?)> GetUserTokenAsync(string email, string password);
         Task<string?> RecoverPasswordAsync(string email);
+        Task<ServResp> SignIn(string email, string password);
     }
 
     public class UserService(IUserApiRepo userApiDAL) : IUserService
     {
-        public ServResp AddUser(string name, string email, string password)
+        public async Task<ServResp> AddUser(string name, string email, string password)
         {
             email = email.ToLower();
-            ApiResp? resp = userApiDAL.AddUserAsync(name, email, password).Result;
+            ApiResp? resp = await userApiDAL.AddUserAsync(name, email, password);
 
             if (resp is not null && resp.Success && resp.Content is not null and string)
             {
@@ -37,7 +38,7 @@ namespace Services
                 }
             }
 
-            return new ServResp() { Success = false, Content = null };
+            return new ServResp() { Success = false, Content = resp.Content };
         }
 
         public async Task<string?> RecoverPasswordAsync(string email)
@@ -61,48 +62,45 @@ namespace Services
 
         //public void RemoveUserLocal() => userRepo.RemoveUserLocal();
 
-        //public async Task<ServResp> SignIn(string email, string password)
-        //{
-        //    try
-        //    {
-        //        email = email.ToLower();
+        public async Task<ServResp> SignIn(string email, string password)
+        {
+            try
+            {
+                email = email.ToLower();
 
-        //        (bool success, string? userTokenRes) = await GetUserTokenAsync(email, password);
+                (bool success, string? userTokenRes) = await GetUserTokenAsync(email, password);
 
-        //        if (success && userTokenRes != null)
-        //        {
-        //            ApiResp resp = await userApiDAL.GetUserAsync(userTokenRes);
+                if (success && userTokenRes != null)
+                {
+                    ApiResp resp = await userApiDAL.GetUserAsync(userTokenRes);
 
-        //            if (resp.Success && resp.Content is not null and string)
-        //            {
-        //                JsonNode? userResponse = JsonNode.Parse((string)resp.Content);
+                    if (resp.Success && resp.Content is not null and string)
+                    {
+                        JsonNode? userResponse = JsonNode.Parse((string)resp.Content);
 
-        //                if (userResponse is not null)
-        //                {
-        //                    UserDTO? user = new()
-        //                    {
-        //                        Id = userResponse["id"]?.GetValue<int>() ?? 0,
-        //                        Name = userResponse["name"]?.GetValue<string>(),
-        //                        Email = userResponse["email"]?.GetValue<string>(),
-        //                        Token = userTokenRes,
-        //                        Password = EncryptionService.Encrypt(password)
-        //                    };
+                        if (userResponse is not null)
+                        {
+                            User? user = new()
+                            {
+                                Id = userResponse["id"]?.GetValue<int>() ?? 0,
+                                Name = userResponse["name"]?.GetValue<string>(),
+                                Email = userResponse["email"]?.GetValue<string>(),
+                                Token = userTokenRes
+                            };
 
-        //                    _ = userRepo.AddUserAsync(user);
+                            return new ServResp() { Success = true, Content = user };
+                        }
+                    }
+                }
+                //maybe use a errorcodes instead a message?
+                else return !success && userTokenRes is not null && userTokenRes == "User/Password incorrect"
+                    ? new ServResp() { Success = false, Error = ErrorTypes.WrongEmailOrPassword }
+                    : throw new Exception("Erro não mapeado");
 
-        //                    return new ServResp() { Success = true, Content = user.Id };
-        //                }
-        //            }
-        //        }
-        //        //maybe use a errorcodes instead a message?
-        //        else return !success && userTokenRes is not null && userTokenRes == "User/Password incorrect"
-        //            ? new ServResp() { Success = false, Error = ErrorTypes.WrongEmailOrPassword }
-        //            : throw new Exception("Erro não mapeado");
-
-        //        return new ServResp() { Success = false, Error = ErrorTypes.Unknown };
-        //    }
-        //    catch { throw; }
-        //}
+                return new ServResp() { Success = false, Error = ErrorTypes.Unknown };
+            }
+            catch { throw; }
+        }
 
         //public void UpdateLastUpdate(int uid) => userRepo.ExecuteUpdateLastUpdateUser(DateTime.Now, uid);
 

@@ -8,7 +8,7 @@ namespace Models
 {
     public record User
     {
-        public required int Id { get; set; }
+        public  int Id { get; set; }
 
         public string? Name { get; set; }
 

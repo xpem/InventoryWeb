@@ -1,22 +1,43 @@
 ﻿@page "/"
+@using System.Security.Claims
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1>Hello, @userEmail!</h1>
 
-Welcome to your new app.
-
+Welcome to your new app. 
 
 @code {
-    protected override void OnInitialized()
-    {
-        // Redireciona para a página de cadastro
-        Navigation.NavigateTo("/signin", forceLoad: true);
+    private string? userEmail;
 
-        // Se você quiser que o redirecionamento seja mais "forçado"
-        // e limpe o histórico de navegação para que o usuário não possa voltar
-        // para a página de redirecionamento usando o botão "Voltar" do navegador:
-        // Navigation.NavigateTo("/cadastro", forceLoad: true);
+    protected override async Task OnInitializedAsync()
+    {
+        // Obtém o estado de autenticação atual
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User; // O ClaimsPrincipal do usuário
+
+        // Verifica se o usuário está autenticado
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            // Recupera o nome de usuário (geralmente do ClaimTypes.Name)
+            // userEmail = user.Identity.Name;
+            // Ou você pode usar uma claim específica, se necessário
+             userEmail = user.FindFirst(ClaimTypes.Email)?.Value;
+
+            // Verifica se o usuário pertence a um papel
+            // isAdmin = user.IsInRole("Admin");
+
+            // Você pode acessar outras claims assim:
+            // var userEmail = user.FindFirst(ClaimTypes.Email)?.Value;
+            // var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        }
+        else
+        {
+            Navigation.NavigateTo("/signin");
+            // userName = "Visitante"; // Ou qualquer lógica para usuário não logado
+            // isAdmin = false;
+        }
     }
 }

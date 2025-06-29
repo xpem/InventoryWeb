@@ -11,13 +11,14 @@
                 <NavMenu />
             </div>
         </Authorized>
-        <NotAuthorized>
-            @* Opcional: Conteúdo para usuários não logados na sidebar, ou deixe vazio *@
-        </NotAuthorized>
+@*         <NotAuthorized>
+            <p>Por favor, faça login para acessar esta seção.</p>
+            <a href="/signin">Login</a>
+        </NotAuthorized> *@
     </AuthorizeView>
     <script src="js/toast.js"></script>
     <main style="background-color: #262D43; height:100%;">
-            <ToastContainer />
+        <ToastContainer />
         <article class="content px-4" style="height: 100%;">
             @Body
         </article>

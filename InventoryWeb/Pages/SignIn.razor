@@ -1,7 +1,16 @@
 ﻿@page "/signin"
+@using InventoryWeb.Infra
+@using InventoryWeb.Infra.Services
+@using Models
 @using Models.UIRequests
+@using Services
+@using System.Security.Claims
 @inject HttpClient Http
-
+@inject IUserService userService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+@inject ToastService ToastService
+@inject CustomAuthenticationService customAuthenticationService
 <PageTitle>Cadastrar usuário</PageTitle>
 
 <div style="display: flex; justify-content:center; flex-wrap: wrap; align-content: center; height: 100%; width:100%;">
@@ -11,7 +20,7 @@
         </div>
 
         <div class="col-lg-12" style="display: flex; justify-content:center; flex-wrap: wrap; align-content: center; width: 100%;">
-            <EditForm Model="_UIUserSignIn" OnValidSubmit="CreateUser" style="min-width:400px;">
+            <EditForm Model="_UIUserSignIn" OnValidSubmit="SignInCommand" style="min-width:400px;">
                 <DataAnnotationsValidator />
 
                 <div class="row mb-3">
@@ -24,17 +33,13 @@
                 <div class="row mb-3">
                     <div class="form-group">
                         <label for="inputPassword">Senha</label>
-                        <InputText type="password" class="form-control" id="userPassword" @bind-Value="@_UIUserSignIn.Password" disabled=@ReadOnlyMode />
+                        <InputText type="password" class="form-control" id="inputPassword" @bind-Value="@_UIUserSignIn.Password" disabled=@ReadOnlyMode />
                         <ValidationMessage For="@(() => _UIUserSignIn.Password)" />
                     </div>
                 </div>
-
-                @if (ReadOnlyMode == false)
-                {
-                    <div class="col-lg-12" style="display: flex; justify-content:center">
-                        <button type="submit" class="btn btn-primary"><i class="fa-solid fa-arrow-right-to-bracket"></i>&nbsp;&nbsp;Acessar</button>
-                    </div>
-                }
+                <div class="col-lg-12" style="display: flex; justify-content:center">
+                    <button type="submit" class="btn btn-primary" disabled=@ReadOnlyMode><i class="fa-solid fa-arrow-right-to-bracket"></i>&nbsp;&nbsp;@BtnSignInText</button>
+                </div>
 
                 <div class="col-lg-12" style="margin-top: 20px">Não tem conta? <a href="/signup">Criar Conta</a></div>
                 <div class="col-lg-12" style="margin-top: 5px; margin-bottom: 20px;">Esqueceu sua Senha? <a href="#">Atualizar Senha</a></div>
@@ -46,56 +51,86 @@
 
 @code {
 
-    // [Parameter] public EventCallback OnValidSubmit { get; set; }
-
-    [Parameter] public UIUserSignIn _UIUserSignIn { get; set; } = new UIUserSignIn();
+    [Parameter] public UIUserSignIn _UIUserSignIn { get; set; } = new UIUserSignIn() { Email = string.Empty, Password = string.Empty };
 
     [Parameter] public bool ReadOnlyMode { get; set; }
 
-    private async Task CreateUser()
-    {
-        Console.WriteLine(_UIUserSignIn);
+    [Parameter] public string BtnSignInText { get; set; } = "Acessar";
 
-        // var result = await Http.PostAsJsonAsync("/api/employee/saveemployee", _UIUserSignIn);
-        // if (result != null && result.StatusCode == System.Net.HttpStatusCode.OK)
-        // {
-        //     navigationManager.NavigateTo("employee/index");
-        // }
+    private ClaimsPrincipal? usuario;
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     if (authStateProvider is CustomAuthStateProvider customAuth)
+    //     {
+    //         var authState = await customAuth.GetAuthenticationStateAsync();
+    //         usuario = authState.User;
+
+    //         // Exemplo: acessar o nome do usuário autenticado
+    //         var nome = usuario.Identity?.Name;
+    //     }
+    // }
+
+    private async Task SignInCommand()
+    {
+        ReadOnlyMode = true;
+
+        try
+        {
+            BtnSignInText = "Acessando...";
+
+            Models.Resps.ServResp resp = await userService.SignIn(_UIUserSignIn.Email, _UIUserSignIn.Password);
+
+            if (resp.Success)
+            {
+                if (resp.Content is not null and User _user)
+                {
+                    await customAuthenticationService.Login(_user);
+
+                }
+                NavigationManager.NavigateTo("/");
+
+            }
+            else
+            {
+                string errorMessage = resp.Error == Models.Resps.ErrorTypes.WrongEmailOrPassword
+                    ? "Email/senha incorretos"
+                    : resp.Error == Models.Resps.ErrorTypes.ServerUnavaliable
+                    ? "Servidor indisponível, favor entrar em contato com o desenvolvedor."
+                    : "Erro não mapeado, favor entrar em contato com o desenvolvedor.";
+
+                ToastService.ShowToast(new ToastComponent(errorMessage, "text-bg-danger"));
+            }
+
+            BtnSignInText = "Acessar";
+
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+
+        ReadOnlyMode = false;
     }
 
 }
 
+@* 
+    // Código comentado para logout, caso necessário no futuro.
+    // Este código pode ser usado para implementar a funcionalidade de logout
+    // em uma página ou componente separado, se necessário.
+                             [Inject]
+    private NavigationManager Navigation { get; set; }
 
-@* @using System.Security.Claims
-@inject CustomAuthenticationService AuthService
+    [Inject]
+    private CustomAuthenticationService AuthService { get; set; }
 
-<input @bind="userIdentifier" />
-<button @onclick="SignIn">Sign in</button>
+    [Inject]
+    private CustomAuthStateProvider AuthStateProvider { get; set; }
 
-<AuthorizeView>
-    <Authorized>
-        <p>Hello, @context.User.Identity?.Name!</p>
-    </Authorized>
-    <NotAuthorized>
-        <p>You're not authorized.</p>
-    </NotAuthorized>
-</AuthorizeView>
-
-@code {
-    public string userIdentifier = string.Empty;
-
-    private void SignIn()
+    private async Task Logout()
     {
-        var currentUser = AuthService.CurrentUser;
-
-        var identity = new ClaimsIdentity(
-            [
-                new Claim(ClaimTypes.Name, userIdentifier),
-            ],
-            "Custom Authentication");
-
-        var newUser = new ClaimsPrincipal(identity);
-
-        AuthService.CurrentUser = newUser;
-    }
-} *@
+        await AuthService.Logout();
+        AuthStateProvider.NotifyUserLogout(); // Garante que o estado seja limpo imediatamente
+        Navigation.NavigateTo("/", forceLoad: true); // Redireciona para a página inicial
+    } *@
