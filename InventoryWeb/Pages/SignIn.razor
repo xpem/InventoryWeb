@@ -37,12 +37,12 @@
                         <ValidationMessage For="@(() => _UIUserSignIn.Password)" />
                     </div>
                 </div>
-                <div class="col-lg-12" style="display: flex; justify-content:center">
+                <div class="d-grid gap" >
                     <button type="submit" class="btn btn-primary" disabled=@ReadOnlyMode><i class="fa-solid fa-arrow-right-to-bracket"></i>&nbsp;&nbsp;@BtnSignInText</button>
                 </div>
 
                 <div class="col-lg-12" style="margin-top: 20px">Não tem conta? <a href="/signup">Criar Conta</a></div>
-                <div class="col-lg-12" style="margin-top: 5px; margin-bottom: 20px;">Esqueceu sua Senha? <a href="#">Atualizar Senha</a></div>
+                <div class="col-lg-12" style="margin-top: 5px; margin-bottom: 20px;">Esqueceu sua Senha? <a href="/updatepassword">Atualizar Senha</a></div>
 
             </EditForm>
         </div>
