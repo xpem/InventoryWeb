@@ -6,7 +6,7 @@
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href=""> XPEM Inventário</a>
+       @*  <a class="navbar-brand" href="">  *@XPEM Inventário@* </a> *@
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -22,6 +22,11 @@
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <i class="fa-solid fa-rectangle-list"></i>&nbsp;&nbsp; Home
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/category/list" Match="NavLinkMatch.All">
+                <i class="fa-solid fa-tags"></i>&nbsp;&nbsp; Categorias
             </NavLink>
         </div>
         <div class="nav-item px-3" style="position: absolute; bottom: 5px; width: 100%;">

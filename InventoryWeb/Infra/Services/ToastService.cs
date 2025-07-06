@@ -6,6 +6,7 @@
     public class ToastService
     {
         public event Action OnToastsUpdated;
+
         private readonly List<ToastComponent> _toasts = new();
 
         public IReadOnlyList<ToastComponent> Toasts => _toasts;

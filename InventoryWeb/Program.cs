@@ -43,9 +43,12 @@ builder.Services.AddScoped<CustomAuthorizationMessageHandler>();
 
 builder.Services.AddSingleton<ToastService>();
 
-builder.Services.AddTransient<IUserApiRepo, UserApiRepo>();
+builder.Services.AddScoped<IHttpClientFunctions, HttpClientFunctions>();
 
-builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddScoped<IUserApiRepo, UserApiRepo>();
+builder.Services.AddScoped<ICategoryApiRepo, CategoryApiRepo>();
 
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 await builder.Build().RunAsync();

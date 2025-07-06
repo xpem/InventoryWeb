@@ -114,3 +114,11 @@ code {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+/*Customs*/
+
+.category-circle {
+    width: 30px; /* Define a largura do círculo */
+    height: 30px; /* Define a altura do círculo (igual à largura para ser um círculo perfeito) */
+    border-radius: 50%; /* Transforma o quadrado em um círculo */
+}

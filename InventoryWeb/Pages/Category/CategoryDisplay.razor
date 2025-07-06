@@ -1,0 +1,25 @@
+﻿@page "/category/display"
+
+@using Models.UIRequests
+
+<PageTitle>Categoria</PageTitle>
+
+<div style="display: flex; justify-content:center; flex-wrap: wrap; align-content: center; height: 100%; width:100%;">
+    <div style="display: flex; justify-content: center; flex-direction:column; width:100%;">
+        <div class="col-lg-12" style="display: flex; justify-content:center; flex-wrap: wrap; align-content: center; width: 100%;">
+            <div class="col-lg-12">
+                <div class="category-circle" style="background: @_category.Color"></div>
+            </div>
+            <div class="col-lg-4">
+                <div class="form-group">
+                    <p>@_category.Name</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+
+    UICategory _category { get; set; } = new UICategory() { Name = "Teste", Color = "#a3e4d7" };
+
+}
