@@ -11,7 +11,7 @@ namespace ApiRepos
         Task<ApiResp> UpdateCategoryAsync(CategoryDTO category, string userToken);
         Task<ApiResp> DelCategoryAsync(int id, string userToken);
         Task<ApiResp> GetCategoriesAsync(string userToken);
-        Task<ApiResp> GetCategoriesWithSubCategoriesAsync(string userToken);
+        Task<ApiResp> GetCategoriesWithSubCategoriesAsync(string userToken, int? id = null);
         Task<ApiResp> GetCategoryByIdAsync(string id, string userToken);
     }
 
@@ -20,8 +20,16 @@ namespace ApiRepos
         public async Task<ApiResp> GetCategoriesAsync(string userToken) =>
           await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/category", userToken);
 
-        public async Task<ApiResp> GetCategoriesWithSubCategoriesAsync(string userToken) =>
-            await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/category/subcategory", userToken);
+        public async Task<ApiResp> GetCategoriesWithSubCategoriesAsync(string userToken, int? id = null)
+        {
+            string url = ApiKeys.ApiAddress + "/Inventory/category/subcategory";
+
+            if (id is not null)
+                url += "/" + id;
+
+            return await httpClientFunctions.RequestAsync(RequestsTypes.Get, url, userToken);
+        }
+
 
         public async Task<ApiResp> GetCategoryByIdAsync(string id, string userToken) =>
             await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/category/" + id, userToken);

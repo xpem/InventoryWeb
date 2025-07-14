@@ -17,7 +17,7 @@ namespace Services
         Task<ServResp> UpdateCategoryAsync(CategoryDTO category, string userToken);
         Task<ServResp> DelCategoryAsync(int id, string userToken);
         Task<ServResp> GetCategoriesAsync(string userToken);
-        Task<ServResp> GetCategoriesWithSubCategoriesAsync(string userToken);
+        Task<ServResp> GetCategoriesWithSubCategoriesAsync(string userToken, int? id = null);
         Task<ServResp> GetCategoryByIdAsync(string id, string userToken);
     }
 
@@ -25,7 +25,7 @@ namespace Services
     {
         public async Task<ServResp> GetCategoriesAsync(string userToken) => ApiRespHandler.Handler<List<CategoryDTO>>(await categoryApiRepo.GetCategoriesAsync(userToken));
 
-        public async Task<ServResp> GetCategoriesWithSubCategoriesAsync(string userToken) => ApiRespHandler.Handler<List<CategoryDTO>>(await categoryApiRepo.GetCategoriesWithSubCategoriesAsync(userToken));
+        public async Task<ServResp> GetCategoriesWithSubCategoriesAsync(string userToken, int? id = null) => ApiRespHandler.Handler<List<CategoryDTO>>(await categoryApiRepo.GetCategoriesWithSubCategoriesAsync(userToken, id));
 
         public async Task<ServResp> GetCategoryByIdAsync(string id, string userToken) => ApiRespHandler.Handler<CategoryDTO>(await categoryApiRepo.GetCategoryByIdAsync(id, userToken));
 

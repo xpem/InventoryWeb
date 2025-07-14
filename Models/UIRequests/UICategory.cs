@@ -20,6 +20,8 @@ namespace Models.UIRequests
 
         public bool HaveSubcategories { get; set; }
 
+        public bool SystemDefault { get; set; }
+
         public List<SubCategoryDTO> SubCategories { get; set; }
     }
 }

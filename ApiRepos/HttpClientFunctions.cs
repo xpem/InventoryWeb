@@ -83,11 +83,23 @@ namespace ApiRepos
                     Content = await httpResponse.Content.ReadAsStringAsync()
                 };
             }
+            catch (HttpRequestException ex)
+            {
+                // todo, atualizar o backend e ver se resolve esse problema
+                if (ex.Message.Equals("TypeError: Failed to fetch"))
+                {
+                    return new ApiResp() { Success = false, Content = null, Error = ErrorTypes.TokenExpired };
+                }
+                else
+                    throw;
+            }
             catch (Exception ex)
             {
-                return ex.InnerException is not null && (ex.InnerException.Message == "Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente." || ex.InnerException.Message.Contains("Este host não é conhecido."))
-                    ? new ApiResp() { Success = false, Content = null, Error = ErrorTypes.ServerUnavaliable }
-                    : throw ex;
+                if (ex.InnerException is not null && (ex.InnerException.Message == "Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente." || ex.InnerException.Message.Contains("Este host não é conhecido.")))
+                {
+                    return new ApiResp() { Success = false, Content = null, Error = ErrorTypes.ServerUnavaliable };
+                }
+                else throw;
             }
         }
     }

@@ -1,13 +1,13 @@
-﻿namespace Models.DTO
+﻿namespace Models.UIRequests
 {
-    public class SubCategoryDTO : DTOBase
+    public class UISubCategory
     {
+        public int? Id { get; set; }
+
         public string? Name { get; set; }
 
         public string? Icon { get; set; }
 
         public bool SystemDefault { get; set; }
-
-        public int CategoryId { get; set; }
     }
 }

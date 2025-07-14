@@ -23,32 +23,16 @@ builder.Services.AddScoped<CustomAuthenticationService>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 builder.Services.AddScoped<CustomAuthorizationMessageHandler>();
 
-#region teste
-// Configura o HttpClient para se comunicar com sua API de backend
-// Usa HttpClientFactory para gerenciar instâncias de HttpClient
-//builder.Services.AddHttpClient("API", client =>
-//{
-//    // URL base da sua API de backend (ajuste conforme necessário)
-//    // Ex: "https://localhost:7001/" se sua API rodar localmente na porta 7001
-//    client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress); // Ou a URL explícita da sua API
-//})
-//// Adiciona o handler para injetar o token JWT nas requisições
-//.AddHttpMessageHandler<CustomAuthorizationMessageHandler>();
-
-//// Registra o HttpClient padrão para ser injetado diretamente em componentes/serviços
-//// Ele usará a configuração "API" definida acima
-//builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("API"));
-
-#endregion
-
 builder.Services.AddSingleton<ToastService>();
 
 builder.Services.AddScoped<IHttpClientFunctions, HttpClientFunctions>();
 
 builder.Services.AddScoped<IUserApiRepo, UserApiRepo>();
 builder.Services.AddScoped<ICategoryApiRepo, CategoryApiRepo>();
+builder.Services.AddScoped<ISubCategoryApiRepo, SubCategoryApiRepo>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ISubCategoryService, SubCategoryService>();
 
 await builder.Build().RunAsync();

@@ -69,7 +69,7 @@
                     </div>
                 </div> *@
 
-                <div class="d-grid" disabled=@BtnSignInEnabled>
+                <div class="d-grid" disabled=@BtnEnabled>
                     @if (isInsert)
                     {
                         <button type="submit" class="btn btn-primary">
@@ -111,7 +111,7 @@
 
     bool colorPickerVisible { get; set; } = false;
 
-    private bool BtnSignInEnabled { get; set; } = true;
+    private bool BtnEnabled { get; set; } = true;
 
     private string? userToken;
 
@@ -130,7 +130,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        BtnSignInEnabled = true;
+        BtnEnabled = true;
         try
         {
             // Obtém o estado de autenticação atual
@@ -152,8 +152,22 @@
                 if (queryParameters.TryGetValue("x", out var _queryId))
                 {
                     if (int.TryParse(_queryId, out int _categoryId))
+                    {
                         _category.Id = _categoryId;
-                    Console.WriteLine($"Valor de x: {_queryId}");
+
+                        var resp = await categoryService.GetCategoryByIdAsync(_category.Id.ToString(), userToken);
+
+                        if (resp.Success)
+                        {
+                            var  category = resp.Content as Models.DTO.CategoryDTO;
+
+                            _category.Name = category.Name;
+                            _category.Color = category.Color;
+                            isInsert = false;
+                        }
+
+                        Console.WriteLine($"Valor de x: {_queryId}");
+                    }
 
                 }
             }
@@ -166,14 +180,14 @@
         }
         catch (Exception ex) { throw ex; }
 
-        BtnSignInEnabled = false;
+        BtnEnabled = false;
     }
 
     public async Task UpInsertCategoryCommand()
     {
         try
         {
-            BtnSignInEnabled = false;
+            BtnEnabled = false;
             string message = "";
             // if (Id > 0)
             // {
@@ -188,18 +202,32 @@
             // {
 
             CategoryDTO categoryDTO = new() { Name = _category.Name, Color = _category.Color };
+            ServResp? resp = null;
 
-            ServResp resp = await categoryService.InsertCategoryAsync(categoryDTO, userToken);
+            if (_category.Id > 0)
+            {
+                categoryDTO.Id = _category.Id;
 
-            if (resp.Success)
-                message = "Categoria Adicionada!";
-            else throw new Exception(resp.ErrorMessage);
+                resp = await categoryService.UpdateCategoryAsync(categoryDTO, userToken);
+
+                if (resp.Success)
+                    message = "Categoria Atualizada!";
+                else throw new Exception(resp.ErrorMessage);
+            }
+            else
+            {
+                resp = await categoryService.InsertCategoryAsync(categoryDTO, userToken);
+
+                if (resp.Success)
+                    message = "Categoria Adicionada!";
+                else throw new Exception(resp.ErrorMessage);
+            }
 
             ToastService.ShowToast(new ToastComponent(message, "text-bg-success"));
 
             Navigation.NavigateTo("/category/list");
 
-            BtnSignInEnabled = true;
+            BtnEnabled = true;
         }
         catch (Exception ex) { throw ex; }
     }

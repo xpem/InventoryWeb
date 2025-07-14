@@ -1,11 +1,14 @@
 ﻿@page "/category/list"
 @using System.Security.Claims
+@using InventoryWeb.Infra
+@using InventoryWeb.Infra.Services
 @using Models.Resps
 @using Models.UIRequests
 @using Services
 @inject ICategoryService categoryService
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
+@inject CustomAuthenticationService customAuthenticationService
 
 <style>
     .table td {
@@ -101,13 +104,21 @@ else
                 ServResp resp = await categoryService.GetCategoriesAsync(userToken);
 
                 if (resp is not null && resp.Success)
+                {
                     list = resp.Content as List<Models.DTO.CategoryDTO>;
 
-                if (list != null && list.Count > 0)
-                    foreach (var i in list)
-                    {
-                        categories.Add(new UICategory() { Id = i.Id.Value, Name = i.Name, Color = i.Color });
-                    }
+                    if (list != null && list.Count > 0)
+                        foreach (var i in list)
+                        {
+                            categories.Add(new UICategory() { Id = i.Id.Value, Name = i.Name, Color = i.Color });
+                        }
+                }
+                else if(resp.Error == ErrorTypes.TokenExpired)
+                {
+                    await customAuthenticationService.Logout();
+                    Navigation.NavigateTo("/signin", forceLoad: true);
+
+                }
             }
             else
             {

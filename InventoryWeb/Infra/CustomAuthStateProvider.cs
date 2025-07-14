@@ -53,7 +53,7 @@
         {
             // Garante que 'user' nunca seja nulo devido à inicialização no AuthService
             // e o tratamento de token nulo/inválido lá.
-            if (user == null || string.IsNullOrEmpty(user.Token)) // Check defensivo adicional, embora menos provável agora
+            if (user == null || string.IsNullOrEmpty(user.Token)) 
             {
                 return anonymousUser;
             }

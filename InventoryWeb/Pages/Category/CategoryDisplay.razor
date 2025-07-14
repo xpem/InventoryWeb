@@ -1,25 +1,225 @@
 ﻿@page "/category/display"
 
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+@using InventoryWeb.Infra.Services
+@using Models.DTO
+@using Services
+@inject ICategoryService categoryService
+@inject ISubCategoryService subCategoryService
+@using Models.Resps
 @using Models.UIRequests
+@inject ToastService ToastService
+
+<style>
+    .category-circle-md {
+        width: 35px; /* Define a largura do círculo */
+        height: 35px; /* Define a altura do círculo (igual à largura para ser um círculo perfeito) */
+        border-radius: 50%; /* Transforma o quadrado em um círculo */
+    }
+
+    .btn-sml {
+        --bs-btn-padding-y: .25rem;
+        --bs-btn-padding-x: .5rem;
+        --bs-btn-font-size: .75rem;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .table {
+        width: fit-content;
+        min-width: 400px;
+    }
+
+        .table tr {
+            cursor: pointer; /* Muda o cursor para indicar que é clicável */
+        }
+
+            .table tr:hover {
+                background-color: #e0e0e0; /* Muda a cor de fundo ao passar o mouse */
+            }
+</style>
 
 <PageTitle>Categoria</PageTitle>
 
 <div style="display: flex; justify-content:center; flex-wrap: wrap; align-content: center; height: 100%; width:100%;">
-    <div style="display: flex; justify-content: center; flex-direction:column; width:100%;">
-        <div class="col-lg-12" style="display: flex; justify-content:center; flex-wrap: wrap; align-content: center; width: 100%;">
-            <div class="col-lg-12">
-                <div class="category-circle" style="background: @_category.Color"></div>
-            </div>
-            <div class="col-lg-4">
-                <div class="form-group">
-                    <p>@_category.Name</p>
+    <div style="display: flex; justify-content: center; flex-direction:column;">
+        <div class="col-lg-12" style="display: flex; justify-content:center; flex-wrap: wrap; align-content: center; align-items: center;">
+
+            <div class="col-lg-12" style="display: flex; justify-content: space-between; flex-direction: row;">
+                <div style="flex-wrap: wrap; display: flex; align-content: center; align-items: center;">
+                    <div class="category-circle-md" style="background: @_category.Color"></div>
+                    <span style="margin-left: 10px; font-size: 2rem;">@_category.Name</span>
                 </div>
+                @if (!_category.SystemDefault)
+                {
+                    <div style="display: flex; align-items: center;">
+
+                        <button type="button" class="btn btn-warning btn-sml" style="margin-right: 10px;" @onclick='() => CallUpdateCategory()'><i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Editar</button>
+                        <button type="button" class="btn btn-danger btn-sml" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal"><i class="fa-solid fa-trash"></i>&nbsp;&nbsp;Excluir</button>
+                    </div>
+                }
+            </div>
+            <div class="col-lg-12" style="margin-bottom: 10px; margin-top:20px;">
+                <button type="button" class="btn btn-primary btn-sml" @onclick='() => Navigation.NavigateTo("/category/subcategory/edit?y="+CategoryId)'><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Adicionar Sub Categoria</button>
+            </div>
+
+            <div class="col-lg-12" style="margin-top: 10px;">
+                @if (SubCategoryObsCol.Count() > 1)
+                {
+                    <h5>Sub Categorias</h5>
+                    <table class="table">
+                        <tbody>
+                            @foreach (var subCategory in SubCategoryObsCol)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="category-circle-md" style="background: @_category.Color; display: flex; justify-content: center; align-items: center; ">
+                                            <i class="fa-solid fa-clipboard-list" style="font-size: 20px;"></i>
+                                        </div>
+                                    </td>
+                                    <td>@subCategory.Name</td>
+                                    <td>
+                                        @if (!subCategory.SystemDefault)
+                                        {
+                                            <div style="display: flex; align-items: center;">
+                                                <button type="button" class="btn btn-warning btn-sml" style="margin-right: 10px;"><i class="fa-solid fa-pen"></i></button>
+                                                <button type="button" class="btn btn-danger btn-sml"><i class="fa-solid fa-trash"></i></button>
+                                            </div>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+
+            <div class="col-lg-12" style="margin-top: 20px"><a href="/category/list"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
+
+        </div>
+
+    </div>
+</div>
+<!-- Modal Delete Category-->
+<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModal" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #dc3545; color: #fff ">
+                <h5 class="modal-title" id="deleteCategoryModalLabel">Deseja excluir esta Categoria?</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="color: #fff"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp; Voltar</button>
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick='() => DeleteCategory()'><i class="fa-solid fa-trash"></i>&nbsp;&nbsp; Excluir</button>
             </div>
         </div>
     </div>
 </div>
 @code {
 
-    UICategory _category { get; set; } = new UICategory() { Name = "Teste", Color = "#a3e4d7" };
+    UICategory _category { get; set; } = new UICategory() { Name = "", Color = "#000", SystemDefault = true };
+    private string? userToken;
+
+    private int CategoryId { get; set; }
+
+    List<UISubCategory> SubCategoryObsCol { get; set; } = new List<UISubCategory>();
+
+    // public int CurrentPage { get; set; } = 1;
+
+    public async Task CallUpdateCategory() => Navigation.NavigateTo("/category/edit?x=" + CategoryId);
+
+    public async Task DeleteCategory()
+    {
+        if (SubCategoryObsCol.Count > 0)
+        {
+            ToastService.ShowToast(new ToastComponent("Não é possivel excluir uma categoria que tenha subcategorias relacionadas", "text-bg-danger"));
+        }
+        else
+        {
+            bool success = false;
+            string message = null;
+            ServResp resp = await categoryService.DelCategoryAsync(CategoryId, userToken);
+
+            if (resp.Success)
+            {
+                success = resp.Success;
+                message = resp.Content as string;
+            }
+
+            if (success)
+            {
+                ToastService.ShowToast(new ToastComponent("Categoria excluída", "text-bg-success"));
+                Navigation.NavigateTo("/category/list");
+            }
+            else
+            {
+                if (message != null)
+                    ToastService.ShowToast(new ToastComponent(message, "text-bg-danger"));
+                else
+                    throw new Exception("Houve um erro ao tentar excluir A Categoria");
+            }
+
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Obtém o estado de autenticação atual
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User; // O ClaimsPrincipal do usuário
+
+            // Verifica se o usuário está autenticado
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                userToken = user.FindFirst("Token")?.Value;
+
+                var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+
+                // Use QueryHelpers para uma forma mais robusta de parsear a query string
+                // Você precisará adicionar o pacote NuGet Microsoft.AspNetCore.WebUtilities
+                // se ainda não o tiver.
+                var queryParameters = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
+                if (queryParameters.TryGetValue("x", out var _queryId))
+                {
+                    if (int.TryParse(_queryId, out int _categoryId))
+                    {
+                        CategoryId = _categoryId;
+                        Models.DTO.CategoryDTO? category = null;
+
+                        ServResp resp = await categoryService.GetCategoriesWithSubCategoriesAsync(userToken, CategoryId);
+
+                        if (resp.Success)
+                            category = (resp.Content as List<CategoryDTO>).First();
+
+                        _category.Color = category.Color;
+                        _category.Name = category.Name;
+                        _category.SystemDefault = category.SystemDefault ?? false;
+
+                        foreach (var subCategory in category.SubCategories)
+                        {
+                            SubCategoryObsCol.Add(new UISubCategory() { Id = subCategory.Id, Icon = "" /* SubCategoryIconsList.GetIconCode(subCategory.IconName) */, Name = subCategory.Name, SystemDefault = !subCategory.SystemDefault });
+                        }
+                    }
+
+                    Console.WriteLine($"Valor de x: {_queryId}");
+
+                }
+                else Navigation.NavigateTo("/category/list");
+            }
+            else
+            {
+                Navigation.NavigateTo("/");
+                // userName = "Visitante"; // Ou qualquer lógica para usuário não logado
+                // isAdmin = false;
+            }
+        }
+        catch (Exception ex) { throw ex; }
+    }
 
 }
