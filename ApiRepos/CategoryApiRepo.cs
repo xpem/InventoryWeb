@@ -22,14 +22,16 @@ namespace ApiRepos
 
         public async Task<ApiResp> GetCategoriesWithSubCategoriesAsync(string userToken, int? id = null)
         {
-            string url = ApiKeys.ApiAddress + "/Inventory/category/subcategory";
+
+            string url = ApiKeys.ApiAddress + "/Inventory/category";
 
             if (id is not null)
                 url += "/" + id;
 
+            url += "/subcategory";
+
             return await httpClientFunctions.RequestAsync(RequestsTypes.Get, url, userToken);
         }
-
 
         public async Task<ApiResp> GetCategoryByIdAsync(string id, string userToken) =>
             await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/category/" + id, userToken);

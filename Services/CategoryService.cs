@@ -35,18 +35,9 @@ namespace Services
 
             if (resp is not null && resp.Content is not null and string)
             {
-                JsonNode? jResp = JsonNode.Parse(resp.Content as string);
-                if (resp.Success && jResp is not null)
+                if (resp.Success)
                 {
-                    CategoryDTO categoryResp = new()
-                    {
-                        Id = jResp["Id"]?.GetValue<int>() ?? 0,
-                        Name = jResp["Name"]?.GetValue<string>(),
-                        Color = jResp["Color"]?.GetValue<string>(),
-                        SystemDefault = jResp["SystemDefault"]?.GetValue<bool>()
-                    };
-
-                    return new ServResp() { Success = resp.Success, Content = categoryResp };
+                    return new ServResp() { Success = resp.Success, Content = null };
                 }
                 else return new ServResp() { Success = false, Content = resp.Content };
             }

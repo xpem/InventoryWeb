@@ -30,9 +30,13 @@ builder.Services.AddScoped<IHttpClientFunctions, HttpClientFunctions>();
 builder.Services.AddScoped<IUserApiRepo, UserApiRepo>();
 builder.Services.AddScoped<ICategoryApiRepo, CategoryApiRepo>();
 builder.Services.AddScoped<ISubCategoryApiRepo, SubCategoryApiRepo>();
+builder.Services.AddScoped<IItemSituationApiRepo, ItemSituationApiRepo>();
+builder.Services.AddScoped<IAcquisitionTypeApiRepo, AcquisitionTypeApiRepo>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ISubCategoryService, SubCategoryService>();
+builder.Services.AddScoped<IItemSituationService, ItemSituationService>();
+builder.Services.AddScoped<IAcquisitionTypeService, AcquisitionTypeService>();
 
 await builder.Build().RunAsync();

@@ -113,7 +113,7 @@ else
                             categories.Add(new UICategory() { Id = i.Id.Value, Name = i.Name, Color = i.Color });
                         }
                 }
-                else if(resp.Error == ErrorTypes.TokenExpired)
+                else if (resp.Error is ErrorTypes.TokenExpired or ErrorTypes.Unauthorized)
                 {
                     await customAuthenticationService.Logout();
                     Navigation.NavigateTo("/signin", forceLoad: true);

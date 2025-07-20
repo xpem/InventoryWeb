@@ -14,6 +14,7 @@
 
 
 <PageTitle>Categoria</PageTitle>
+<h3>Categoria</h3>
 
 <div style="display: flex; justify-content:center; flex-wrap: wrap; align-content: center; height: 100%; width:100%;">
     <div style="display: flex; justify-content: center; flex-direction:column; width:100%;">
@@ -159,7 +160,7 @@
 
                         if (resp.Success)
                         {
-                            var  category = resp.Content as Models.DTO.CategoryDTO;
+                            var category = resp.Content as Models.DTO.CategoryDTO;
 
                             _category.Name = category.Name;
                             _category.Color = category.Color;
@@ -203,6 +204,7 @@
 
             CategoryDTO categoryDTO = new() { Name = _category.Name, Color = _category.Color };
             ServResp? resp = null;
+            bool isSuccess = true;
 
             if (_category.Id > 0)
             {
@@ -220,10 +222,20 @@
 
                 if (resp.Success)
                     message = "Categoria Adicionada!";
-                else throw new Exception(resp.ErrorMessage);
-            }
+                else if (resp.Content is not null)
+                {
+                    message = resp.Content as string;
+                    isSuccess = false;
+                }
 
-            ToastService.ShowToast(new ToastComponent(message, "text-bg-success"));
+                // throw new Exception(resp.ErrorMessage);
+            }
+            string styleMessage = "text-bg-success";
+
+            if (!isSuccess)
+                styleMessage = "text-bg-danger";
+
+            ToastService.ShowToast(new ToastComponent(message, styleMessage));
 
             Navigation.NavigateTo("/category/list");
 

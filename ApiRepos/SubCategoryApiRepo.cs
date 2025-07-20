@@ -13,7 +13,7 @@ namespace ApiRepos
         Task<ApiResp> GetByLastUpdateAsync(DateTime lastUpdate, int page, string userToken);
         Task<ApiResp> GetSubCategoriesByCategoryId(string subCategoryId, string userToken);
         Task<ApiResp> GetSubCategoryById(string id, string userToken);
-        Task<ApiResp> UpdateApiAsync(SubCategoryDTO subCategory, string userToken);
+        Task<ApiResp> UpdateAsync(SubCategoryDTO subCategory, string userToken);
         Task<ApiResp> GetById(string id, string userToken);
     }
 
@@ -25,11 +25,11 @@ namespace ApiRepos
         public async Task<ApiResp> GetSubCategoryById(string id, string userToken) =>
             await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/subcategory/" + id, userToken);
 
-        public async Task<ApiResp> UpdateApiAsync(SubCategoryDTO subCategory, string userToken)
+        public async Task<ApiResp> UpdateAsync(SubCategoryDTO subCategory, string userToken)
         {
             try
             {
-                string json = JsonSerializer.Serialize(new { subCategory.Name, subCategory.Icon, });
+                string json = JsonSerializer.Serialize(new { subCategory.Name, subCategory.IconName, subCategory.CategoryId });
 
                 return await httpClientFunctions.RequestAsync(RequestsTypes.Put, ApiKeys.ApiAddress + "/Inventory/subcategory/" + subCategory.Id, userToken, json);
             }
@@ -40,7 +40,7 @@ namespace ApiRepos
         {
             try
             {
-                string json = JsonSerializer.Serialize(new { subCategory.Name, subCategory.Icon, subCategory.CategoryId });
+                string json = JsonSerializer.Serialize(new { subCategory.Name, subCategory.IconName, subCategory.CategoryId });
 
                 return await httpClientFunctions.RequestAsync(RequestsTypes.Post, ApiKeys.ApiAddress + "/Inventory/subcategory", userToken, json);
             }

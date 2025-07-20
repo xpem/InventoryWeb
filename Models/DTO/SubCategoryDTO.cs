@@ -4,7 +4,7 @@
     {
         public string? Name { get; set; }
 
-        public string? Icon { get; set; }
+        public string? IconName { get; set; }
 
         public bool SystemDefault { get; set; }
 

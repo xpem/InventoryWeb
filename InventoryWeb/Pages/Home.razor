@@ -7,7 +7,11 @@
 
 <h1>Hello, @userEmail!</h1>
 
-Welcome to your new app. 
+Welcome to your new app.
+
+<div class="col-lg-12" style="margin-bottom: 10px; margin-top:20px;">
+    <button type="button" class="btn btn-primary" @onclick='() => Navigation.NavigateTo("/item/edit")'><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Adicionar Item</button>
+</div>
 
 @code {
     private string? userEmail;
@@ -24,7 +28,7 @@ Welcome to your new app.
             // Recupera o nome de usuário (geralmente do ClaimTypes.Name)
             // userEmail = user.Identity.Name;
             // Ou você pode usar uma claim específica, se necessário
-             userEmail = user.FindFirst(ClaimTypes.Email)?.Value;
+            userEmail = user.FindFirst(ClaimTypes.Email)?.Value;
 
             // Verifica se o usuário pertence a um papel
             // isAdmin = user.IsInRole("Admin");

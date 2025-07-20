@@ -1,0 +1,501 @@
+﻿@page "/item/edit"
+@using InventoryWeb.Utils
+@using Models.Item
+@using Models.Resps
+@using Models.UIRequests
+@using Services
+@using System.Globalization
+@inject ICategoryService categoryService
+@inject IItemSituationService itemSituationService
+@inject IAcquisitionTypeService acquisitionTypeService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+@inject IJSRuntime JS
+
+<PageTitle>Item</PageTitle>
+<h3>Item</h3>
+
+<style>
+    .category-circle-md {
+        width: 35px; /* Define a largura do círculo */
+        height: 35px; /* Define a altura do círculo (igual à largura para ser um círculo perfeito) */
+        border-radius: 50%; /* Transforma o quadrado em um círculo */
+    }
+</style>
+
+<div style="display: flex; justify-content:center; flex-wrap: wrap; align-content: center; height: 100%; width:100%;">
+    <div style="display: flex; justify-content: center; flex-direction:column; width:100%;">
+        <div class="col-lg-12" style="display: flex; justify-content:center; flex-wrap: wrap; align-content: center; width: 100%;">
+            <EditForm Model="Item" OnValidSubmit="UpInsertItemCommand" style="min-width:400px;">
+                <DataAnnotationsValidator />
+
+                <div class="row mb-3">
+                    <div class="form-group">
+                        <label for="inputName">Nome</label>
+                        <InputText type="text" class="form-control" id="inputName" @bind-Value="@Item.Name" />
+                        <ValidationMessage For="@(() => Item.Name)" />
+                    </div>
+                </div>
+
+                <div class="col-lg-12" style="display: flex;">
+                    <div class="col-lg-6">
+                        <label for="btnCategory">Categoria</label>
+                        <button id="btnCategory" type="button" class="btn btn-success"
+                                style="width: 100%;"
+                                data-bs-toggle="modal" data-bs-target="#ModalCategories">
+                            @BtnCategoryText
+                        </button>
+                    </div>
+
+                    <div class="col-lg-6 row mb-3" style="margin-left: 10px;">
+                        <div class="form-group">
+                            <label for="inputSituation">Situação</label>
+                            <InputSelect class="form-select" id="inputSituation" @bind-Value="@SelectedItemSituationId">
+                                @foreach (var situation in ItemSituationList)
+                                {
+                                    <option value="@situation.Id">@situation.Name</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="card" style="background-color: transparent">
+                    <div class="card-body">
+                        <div class="card-title">Aquisição</div>
+                        <div class="col-lg-12" style="display: flex; margin-bottom: 10px;">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label for="inputAcquisitionType">Tipo</label>
+                                    <InputSelect class="form-select" id="inputAcquisitionType" @bind-Value="@SelectedAcquisitionTypeId">
+                                        @foreach (var acquisitionType in AcquisitionTypeList)
+                                        {
+                                            <option value="@acquisitionType.Id">@acquisitionType.Name</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                            </div>
+                            <div class="col-lg-6" style="margin-left: 10px;">
+                                <div class="form-group">
+                                    <label for="inputAcquisitionDate">Data</label>
+                                    <InputDate class="form-control" id="inputAcquisitionDate" TValue="DateOnly" @bind-Value="@Item.AcquisitionDate">
+
+                                    </InputDate>
+                                    <ValidationMessage For="@(() => Item.AcquisitionDate)" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12" style="display: flex; margin-bottom: 10px;">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label for="inputPurchaseValue">Valor</label>
+                                    <InputText type="text" class="form-control" id="inputPurchaseValue" @bind-Value="@Item.PurchaseValue" />
+                                    <ValidationMessage For="@(() => Item.PurchaseValue)" />
+                                </div>
+                            </div>
+                            <div class="col-lg-6" style="margin-left: 10px;">
+                                <div class="form-group">
+                                    <label for="inputStore">Loja</label>
+                                    <InputText class="form-control" @bind-Value="@Item.PurchaseStore">
+                                        <ValidationMessage For="@(() => Item.PurchaseStore)" />
+                                    </InputText>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="row mb-3" style="margin-top: 10px;">
+                    <div class="form-group">
+                        <label for="inputDescription">Descrição técnica</label>
+                        <InputTextArea type="text" class="form-control" id="inputDescription" @bind-Value="@Item.TechnicalDescription" rows="2" />
+                        <ValidationMessage For="@(() => Item.TechnicalDescription)" />
+                    </div>
+                </div>
+
+                @* 
+                <div class="d-grid" disabled=@BtnEnabled>
+                    @if (isInsert)
+                    {
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Cadastrar
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Alterar
+                        </button>
+                    }
+                </div> *@
+
+                <div class="col-lg-12" style="margin-top: 20px"><a href="/"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
+
+            </EditForm>
+        </div>
+    </div>
+</div>
+<!-- Modal Categories-->
+<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="ModalCategories" tabindex="-1" aria-labelledby="ModalCategories" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: var(--bs-primary-bg-subtle); color: #fff ">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Categorias</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="list-group">
+                    @foreach (var category in _categories)
+                    {
+                        @if (category.SubCategories?.Count > 0)
+                        {
+                            <a class="list-group-item list-group-item-action" href="#" data-bs-toggle="modal" data-bs-target="#ModalSubCategories" @onclick="() => SetSubCategoryToShow(category.Id.Value)">
+                                <div class="row">
+                                    <div class="col text-start" style="display: flex; align-items: center;">
+                                        <div class="category-circle" style="background: @category.Color; margin-right: 10px;"></div>
+                                        @category.Name
+                                    </div>
+                                    <div class="col text-end">
+                                        <i class="fa-solid fa-angle-right"></i>
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="list-group-item list-group-item-action" href="#" data-bs-dismiss="modal" @onclick="() => SetSelectedCategory(category.Id.Value)">
+                                <div class="row">
+                                    <div class="col text-start" style="display: flex; align-items: center;">
+                                        <div class="category-circle" style="background: @category.Color; margin-right: 10px;"></div>
+                                        @category.Name
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="color: #fff"><i class="bi bi-arrow-left-short"></i> Voltar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal Sub Categories-->
+<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="ModalSubCategories" tabindex="-1" aria-labelledby="ModalSubCategories" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: var(--bs-primary-bg-subtle); color: #fff ">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Sub Categorias</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @*                 <button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn btn-outline-light" style="margin-bottom: 10px;" >[Sem Sub Categoria]</button> *@
+                <div class="list-group">
+                    @if (SelectedCaregory is not null && SelectedCaregory.SubCategories is not null)
+                    {
+                        <a class="list-group-item list-group-item-action" href="#" data-bs-dismiss="modal" @onclick="() => SetSelectedSubCategory(null)">
+                            <div class="row">
+                                <div class="col text-start" style="display: flex; align-items: center;">
+                                    <div class="category-circle-md" style="background: @SelectedCaregory.Color; display: flex; justify-content: center; align-items: center; margin-right: 10px;">
+                                        @*      <i class="fa-solid fa-@(SubCategoryIconsList.GetIconFaName(subCategory.IconName) ?? "tag")" style="font-size: 20px; color: white;"></i> *@
+                                        @*   <i class="fa-solid fa-@subCategory.IconName" style="font-size: 20px;"></i> *@
+                                    </div>
+                                    [ @SelectedCaregory.Name ]
+                                </div>
+                            </div>
+                        </a>
+
+                        @foreach (var subCategory in SelectedCaregory.SubCategories)
+                        {
+                            <a class="list-group-item list-group-item-action" href="#" data-bs-dismiss="modal" @onclick="() => SetSelectedSubCategory(subCategory.Id.Value)">
+                                <div class="row">
+                                    <div class="col text-start" style="display: flex; align-items: center;">
+                                        <div class="category-circle-md" style="background: @SelectedCaregory.Color; display: flex; justify-content: center; align-items: center; margin-right: 10px;">
+                                            <i class="fa-solid fa-@(SubCategoryIconsList.GetIconFaName(subCategory.IconName) ?? "tag")" style="font-size: 20px; color: white;"></i>
+                                            @*   <i class="fa-solid fa-@subCategory.IconName" style="font-size: 20px;"></i> *@
+                                        </div>
+                                        @subCategory.Name
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-target="#ModalCategories" data-bs-toggle="modal" style="color: #fff"><i class="bi bi-arrow-left-short"></i> Voltar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function formatCurrency(inputElementId) {
+        const input = document.getElementById(inputElementId);
+        if (!input) {
+            console.warn(`Element with ID '${inputElementId}' not found.`);
+            return;
+        }
+
+        // Apply initial formatting if there's an existing value
+        input.value = formatValue(input.value);
+
+        input.addEventListener("input", function () {
+            this.value = formatValue(this.value);
+        });
+
+        // Add a blur event listener to finalize formatting
+        input.addEventListener("blur", function() {
+            // This is especially useful for when the user might leave the field with "0,01"
+            // but for a new item, it should just be "0,00" or empty if not touched.
+            if (this.value === "0,00" && this.dataset.initialValue === undefined) {
+                 // If it's a new field and only has "0,00", clear it on blur.
+                 // We can use a data attribute to track if it's an initial load or user input.
+                 // This part requires a bit more thought depending on your desired UX for initial "0,00".
+                 // For now, let's keep it simple and just re-format.
+                 this.value = formatValue(this.value);
+            }
+        });
+
+
+        function formatValue(value) {
+            let cleanedValue = value.replace(/[^\d]+/g, ''); // Remove non-numeric characters
+
+            if (cleanedValue.length === 0) {
+                return ""; // Handle empty input, return empty string
+            }
+
+            // Pad with leading zeros if less than 3 digits (e.g., "1" becomes "001" for "0,01")
+            while (cleanedValue.length < 3) {
+                cleanedValue = "0" + cleanedValue;
+            }
+
+            const decimalPart = cleanedValue.slice(-2);
+            let wholePart = cleanedValue.slice(0, -2);
+
+            // --- THE FIX IS HERE ---
+            // Remove leading zeros from the whole part, but keep one if it's "0" itself
+            wholePart = parseInt(wholePart, 10).toString();
+            // If wholePart becomes empty after parsing "000" to "0", ensure it's "0"
+            if (wholePart === "") {
+                wholePart = "0";
+            }
+            // --- END OF FIX ---
+
+            // Format the whole part with thousands separators
+            let formattedValue = wholePart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+            // Add the decimal point and the last two digits
+            formattedValue += `,${decimalPart}`;
+
+            return formattedValue;
+        }
+    }
+</script>
+
+
+@code {
+    public Models.UIRequests.UIItem Item { get; set; } = new UIItem() { Name = "" };
+
+
+    private string? userToken;
+
+    // public Models.Item.Item _item { get; set; } = new Models.Item.Item();
+
+    private List<Models.DTO.CategoryDTO> _categories = new List<Models.DTO.CategoryDTO>();
+
+    List<ItemSituation> ItemSituationList = new List<ItemSituation>();
+
+    int? SelectedItemSituationId { get; set; }
+
+    List<AcquisitionType> AcquisitionTypeList = new List<AcquisitionType>();
+
+    int? SelectedAcquisitionTypeId { get; set; }
+
+    Models.DTO.CategoryDTO SelectedCaregory { get; set; } = new Models.DTO.CategoryDTO() { Name = "", Color = "#a3e4d7" };
+
+    int SelectedSubCategoryId { get; set; } = 0;
+
+    string BtnCategoryText { get; set; } = "";
+
+
+    private bool _shown;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!_shown)
+        {
+            _shown = true;
+            await JS.InvokeVoidAsync("formatCurrency", "inputPurchaseValue");
+        }
+    }
+
+    public void SetSelectedCategory(int categoryId)
+    {
+        SelectedCaregory = _categories.Where(x => x.Id == categoryId).First();
+        BtnCategoryText = SelectedCaregory.Name;
+    }
+
+    public void SetSelectedSubCategory(int? subCategoryId)
+    {
+        if (subCategoryId is not null)
+        {
+            SelectedSubCategoryId = subCategoryId.Value;
+            BtnCategoryText = SelectedCaregory.Name + "/" + SelectedCaregory.SubCategories.Where(x => x.Id == subCategoryId).First().Name;
+        }
+        else
+        {
+            BtnCategoryText = SelectedCaregory.Name;
+        }
+    }
+
+    public void SetSubCategoryToShow(int categoryId)
+    {
+        SelectedCaregory = _categories.Where(x => x.Id == categoryId).First();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Obtém o estado de autenticação atual
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User; // O ClaimsPrincipal do usuário
+
+            // Verifica se o usuário está autenticado
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                userToken = user.FindFirst("Token")?.Value;
+
+                var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+
+                // Use QueryHelpers para uma forma mais robusta de parsear a query string
+                // Você precisará adicionar o pacote NuGet Microsoft.AspNetCore.WebUtilities
+                // se ainda não o tiver.
+                var queryParameters = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
+                if (queryParameters.TryGetValue("x", out var _queryId))
+                {
+                    if (int.TryParse(_queryId, out int _itemId))
+                    {
+                        Console.WriteLine($"Valor de x: {_queryId}");
+                    }
+                }
+
+
+                // Convert the decimal PurchaseValue to the formatted string for display
+                // if (Item.PurchaseValue != 0) // Only if there's an actual value
+                // {
+                //     // Format the decimal to "0.00" string first, then use your JS logic's formatValue
+                //     // For example, if Item.PurchaseValue is 1234.56m, this will make "123456"
+                //     string rawValue = (Item.PurchaseValue * 100).ToString("F0", CultureInfo.InvariantCulture);
+                //     Item.PurchaseValue = await JS.InvokeAsync<string>("eval", $"formatValue('{rawValue}')");
+                //     // Note: The eval might be tricky, it's better to format directly in C# if possible
+                //     // or ensure your JS formatCurrency can handle a pre-formatted value.
+                //     // A simpler way:
+                //     Item.PurchaseValue = Item.PurchaseValue.ToString("N2", new CultureInfo("pt-BR")); // "1.234,56"
+                // }
+                // else
+                // {
+                Item.PurchaseValue = ""; // Default for new items
+                // }
+
+                //to do, criar uma rota no backend que retorne todos estes parametros em um unico get.
+                await SetAcquisitionType(userToken);
+
+                await SetItemSituation(userToken);
+
+                await SetCategory(userToken);
+            }
+            else
+            {
+                Navigation.NavigateTo("/");
+                // userName = "Visitante"; // Ou qualquer lógica para usuário não logado
+                // isAdmin = false;
+            }
+        }
+        catch (Exception ex) { throw ex; }
+    }
+
+    private async Task SetAcquisitionType(string userToken)
+    {
+        ServResp? respAcquisitionTypeList = await acquisitionTypeService.GetAcquisitionType(userToken);
+
+        if (respAcquisitionTypeList is not null && respAcquisitionTypeList.Success)
+            AcquisitionTypeList = respAcquisitionTypeList.Content as List<Models.Item.AcquisitionType>;
+
+        var noAcquisitionTypeList = new AcquisitionType() { Id = -1, Name = "Selecione" };
+
+        AcquisitionTypeList.Insert(0, noAcquisitionTypeList);
+    }
+
+    private async Task SetItemSituation(string userToken)
+    {
+        ServResp? respItemSituationList = await itemSituationService.GetItemSituation(userToken);
+
+        if (respItemSituationList is not null && respItemSituationList.Success)
+            ItemSituationList = respItemSituationList.Content as List<ItemSituation>;
+
+        var noSituation = new ItemSituation() { Id = -1, Name = "Selecione" };
+
+        ItemSituationList.Insert(0, noSituation);
+    }
+
+    private async Task SetCategory(string userToken)
+    {
+        ServResp resp = await categoryService.GetCategoriesWithSubCategoriesAsync(userToken);
+
+        if (resp is not null && resp.Success)
+        {
+            _categories = resp.Content as List<Models.DTO.CategoryDTO>;
+        }
+
+        // Cria uma nova categoria para ser o primeiro item
+        var unCategorized = new Models.DTO.CategoryDTO
+        {
+            Id = -1,
+            Name = "[Sem Categoria]",
+            Color = "#2F9300",
+            SystemDefault = true,
+            SubCategory = null
+        };
+
+        // Adiciona a categoria no início da lista
+        _categories.Insert(0, unCategorized);
+
+        SelectedCaregory = unCategorized;
+        BtnCategoryText = SelectedCaregory.Name;
+    }
+
+    public async Task UpInsertItemCommand()
+    {
+        // Before submitting, convert the formatted string back to a decimal
+        // if (!string.IsNullOrWhiteSpace(Item.PurchaseValueString))
+        // {
+        //     // Remove dots (thousands separator) and replace comma with dot (decimal separator)
+        //     string cleanValue = Item.PurchaseValueString.Replace(".", "").Replace(",", ".");
+        //     if (decimal.TryParse(cleanValue, NumberStyles.Currency, CultureInfo.InvariantCulture, out decimal parsedValue))
+        //     {
+        //         Item.PurchaseValue = parsedValue;
+        //     }
+        //     else
+        //     {
+        //         // Handle parsing error, e.g., show a validation message
+        //         Console.WriteLine("Could not parse PurchaseValueString to decimal.");
+        //         // You might want to add a custom validation here or rely on DataAnnotations if set up.
+        //         return; // Prevent submission if parsing fails
+        //     }
+        // }
+        // else
+        // {
+        //     Item.PurchaseValue = 0; // Or handle as needed for empty string
+        // }
+
+        // // Now, Item.PurchaseValue (decimal) is ready to be sent to your service
+        // Console.WriteLine($"Submitting Item Name: {Item.Name}, PurchaseValue: {Item.PurchaseValue}");
+        // // Call your item service to save/update here
+    }
+}
