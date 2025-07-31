@@ -1,13 +1,13 @@
-﻿using Models.DTO;
+﻿using Models.Item;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Models.Item
+namespace Models.DTO
 {
-    public record Item
+    public record ItemDTO
     {
         public int? Id { get; set; }
 

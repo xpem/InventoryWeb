@@ -26,7 +26,7 @@ namespace Models.UIRequests
 
         public string? PurchaseStore { get; set; }
 
-        public decimal? ResaleValue { get; set; }
+        public string? ResaleValue { get; set; }
 
         public ItemSituation? Situation { get; set; }
 
@@ -38,7 +38,7 @@ namespace Models.UIRequests
 
         public DateTime UpdatedAt { get; set; }
 
-        public DateTime? WithdrawalDate { get; set; }
+        public DateOnly WithdrawalDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
         public string? Image1 { get; set; }
 

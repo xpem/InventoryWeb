@@ -1,16 +1,21 @@
 ﻿@page "/item/edit"
 @using InventoryWeb.Utils
+@using Models.DTO
 @using Models.Item
 @using Models.Resps
 @using Models.UIRequests
 @using Services
 @using System.Globalization
+@using InventoryWeb.Infra.Services
 @inject ICategoryService categoryService
 @inject IItemSituationService itemSituationService
+@inject IItemService itemService
 @inject IAcquisitionTypeService acquisitionTypeService
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IJSRuntime JS
+@inject ToastService ToastService
+@using Microsoft.JSInterop
 
 <PageTitle>Item</PageTitle>
 <h3>Item</h3>
@@ -45,6 +50,10 @@
                                 data-bs-toggle="modal" data-bs-target="#ModalCategories">
                             @BtnCategoryText
                         </button>
+                        @if (!string.IsNullOrEmpty(CategoryValidationError))
+                        {
+                            <div class="text-danger">@CategoryValidationError</div>
+                        }
                     </div>
 
                     <div class="col-lg-6 row mb-3" style="margin-left: 10px;">
@@ -56,10 +65,43 @@
                                     <option value="@situation.Id">@situation.Name</option>
                                 }
                             </InputSelect>
+                            @if (!string.IsNullOrEmpty(SituationValidationError))
+                            {
+                                <div class="text-danger">@SituationValidationError</div>
+                            }
+                            <ValidationMessage For="@(() => SelectedItemSituationId)" />
                         </div>
                     </div>
                 </div>
 
+                @if (SelectedItemSituationId == ResaleStatusId)
+                {
+                    <div class="card" style="background-color: transparent; margin-bottom: 10px;">
+                        <div class="card-body">
+                            <div class="card-title">Revenda</div>
+                            <div class="col-lg-12" style="display: flex; margin-bottom: 10px;">
+                                <div class="col-lg-6">
+                                    <div class="form-group">
+                                        <label for="inputResaleValue">Valor</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">R$</span>
+                                            <InputText type="text" class="form-control" id="inputResaleValue" @bind-Value="@Item.ResaleValue" />
+                                        </div>
+                                        <ValidationMessage For="@(() => Item.ResaleValue)" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-6" style="margin-left: 10px;">
+                                    <div class="form-group">
+                                        <label for="inputWithdrawalDate">Data</label>
+                                        <InputDate class="form-control" id="inputWithdrawalDate" TValue="DateOnly" @bind-Value="@Item.WithdrawalDate">
+                                        </InputDate>
+                                        <ValidationMessage For="@(() => Item.WithdrawalDate)" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
 
                 <div class="card" style="background-color: transparent">
                     <div class="card-body">
@@ -74,6 +116,11 @@
                                             <option value="@acquisitionType.Id">@acquisitionType.Name</option>
                                         }
                                     </InputSelect>
+                                    @if (!string.IsNullOrEmpty(AcquisitionTypeValidationError))
+                                    {
+                                        <div class="text-danger">@AcquisitionTypeValidationError</div>
+                                    }
+                                    <ValidationMessage For="@(() => SelectedAcquisitionTypeId)" />
                                 </div>
                             </div>
                             <div class="col-lg-6" style="margin-left: 10px;">
@@ -90,7 +137,10 @@
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label for="inputPurchaseValue">Valor</label>
-                                    <InputText type="text" class="form-control" id="inputPurchaseValue" @bind-Value="@Item.PurchaseValue" />
+                                    <div class="input-group">
+                                        <span class="input-group-text">R$</span>
+                                        <InputText type="text" class="form-control" id="inputPurchaseValue" @bind-Value="@Item.PurchaseValue" />
+                                    </div>
                                     <ValidationMessage For="@(() => Item.PurchaseValue)" />
                                 </div>
                             </div>
@@ -103,7 +153,6 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
@@ -113,6 +162,96 @@
                         <InputTextArea type="text" class="form-control" id="inputDescription" @bind-Value="@Item.TechnicalDescription" rows="2" />
                         <ValidationMessage For="@(() => Item.TechnicalDescription)" />
                     </div>
+                </div>
+
+                <div class="row mb-3" style="margin-top: 10px;">
+                    <div class="form-group">
+                        <label for="inputComment">Comentários</label>
+                        <InputTextArea type="text" class="form-control" id="inputComment" @bind-Value="@Item.Comment" rows="2" />
+                        <ValidationMessage For="@(() => Item.Comment)" />
+                    </div>
+                </div>
+
+             @*    <div class="col-lg-12" style="display: flex;">
+                    <a class="btn btn-secondary">
+                        <i class="fa-solid fa-folder-open"></i>
+                    </a>
+                    <a class="btn btn-secondary" style="margin-left: 10px;" @onclick="TakePhoto" disabled="@(isCameraActive)">
+                        <i class="fa-solid fa-camera"></i>
+                    </a>
+                </div>
+
+                <div class="col-12">
+                    @if (!string.IsNullOrEmpty(imageDataUrl))
+                    {
+                        <h5>Foto Capturada:</h5>
+                        <img src="@imageDataUrl" style="max-width: 100%; height: auto; border: 1px solid #ccc;" />
+                        <br />
+                        <a class="btn btn-info" @onclick="ClearPhoto">
+                            <i class="fa-solid fa-trash"></i> Limpar Foto
+                        </a>
+                        <a class="btn btn-success" @onclick="SavePhoto">
+                            <i class="fa-solid fa-save"></i> Salvar Foto
+                        </a>
+                    }
+                </div>
+
+                <canvas id="photoCanvas" style="display: none;"></canvas> *@
+
+                <hr class="mt-4" />
+                <div class="camera-section">
+                    <h4 class="mb-3">Tirar Foto do Item</h4>
+
+                    <div class="d-flex justify-content-center align-items-center mb-3">
+                        <video id="videoFeed" autoplay playsinline class="img-fluid"
+                               style="max-width: 400px; border: 1px solid #ccc; background-color: #f0f0f0;"></video>
+                    </div>
+
+                    <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
+                        <button class="btn btn-primary" @onclick="StartCamera" disabled="@isCameraActive">
+                            <i class="fas fa-video"></i> Iniciar Câmera
+                        </button>
+                        <button class="btn btn-danger" @onclick="StopCamera" disabled="@(!isCameraActive)">
+                            <i class="fas fa-stop-circle"></i> Parar Câmera
+                        </button>
+                        <button class="btn btn-success" @onclick="TakePhoto" disabled="@(!isCameraActive)">
+                            <i class="fas fa-camera"></i> Tirar Foto
+                        </button>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(imageDataUrl))
+                    {
+                        <h5 class="mt-4 mb-3">Foto Capturada:</h5>
+                        <div class="d-flex justify-content-center mb-3">
+                            <img src="@imageDataUrl" class="img-fluid"
+                                 style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
+                        </div>
+                        <div class="d-flex justify-content-center flex-wrap gap-2">
+                            <button class="btn btn-info" @onclick="ClearPhoto">
+                                <i class="fas fa-trash"></i> Limpar Foto
+                            </button>
+                            <button class="btn btn-success" @onclick="SavePhoto">
+                                <i class="fas fa-save"></i> Salvar Foto
+                            </button>
+                        </div>
+                    }
+
+                    <canvas id="photoCanvas" style="display: none;"></canvas>
+                </div>
+
+                <div class="d-grid" disabled=@BtnInsertIsEnabled>
+                    @if (isInsert)
+                    {
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Cadastrar
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Alterar
+                        </button>
+                    }
                 </div>
 
                 @* 
@@ -300,16 +439,23 @@
 @code {
     public Models.UIRequests.UIItem Item { get; set; } = new UIItem() { Name = "" };
 
+    private bool isInsert { get; set; } = true;
+
+    private bool BtnInsertIsEnabled { get; set; } = true;
+
+    private string? SituationValidationError;
+
+    private string? CategoryValidationError;
+
+    private string? AcquisitionTypeValidationError;
 
     private string? userToken;
-
-    // public Models.Item.Item _item { get; set; } = new Models.Item.Item();
 
     private List<Models.DTO.CategoryDTO> _categories = new List<Models.DTO.CategoryDTO>();
 
     List<ItemSituation> ItemSituationList = new List<ItemSituation>();
 
-    int? SelectedItemSituationId { get; set; }
+    int? SelectedItemSituationId { get; set; } = null;
 
     List<AcquisitionType> AcquisitionTypeList = new List<AcquisitionType>();
 
@@ -321,15 +467,109 @@
 
     string BtnCategoryText { get; set; } = "";
 
+    const int ResaleStatusId = 5;
 
     private bool _shown;
 
+    private bool isCameraActive = false;
+    private string? imageDataUrl; // Para armazenar a imagem em Base64
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!_shown)
+        // if (!_shown)
+        // {
+        // _shown = true;
+        await JS.InvokeVoidAsync("formatCurrency", "inputPurchaseValue");
+        await JS.InvokeVoidAsync("formatCurrency", "inputResaleValue");
+        // }
+    }
+
+    private async Task StartCamera()
+    {
+        try
         {
-            _shown = true;
-            await JS.InvokeVoidAsync("formatCurrency", "inputPurchaseValue");
+            // Invoca a função JavaScript para iniciar o feed da câmera
+            await JS.InvokeVoidAsync("cameraInterop.startCameraFeed", "videoFeed");
+            isCameraActive = true;
+            imageDataUrl = null; // Limpa qualquer foto capturada anteriormente
+            // Força a atualização da UI para refletir o novo estado dos botões
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao iniciar câmera: {ex.Message}");
+            // Considere exibir uma mensagem de erro amigável ao usuário
+        }
+    }
+
+    private async Task StopCamera()
+    {
+        // Invoca a função JavaScript para parar o feed da câmera
+        await JS.InvokeVoidAsync("cameraInterop.stopCameraFeed", "videoFeed");
+        isCameraActive = false;
+        // Força a atualização da UI para refletir o novo estado dos botões
+        StateHasChanged();
+    }
+
+    private async Task TakePhoto()
+    {
+        if (isCameraActive) // Garante que a câmera está ativa antes de tentar capturar
+        {
+            // Invoca a função JavaScript para capturar a foto do feed de vídeo
+            // E recebe a imagem em Base64 de volta
+            imageDataUrl = await JS.InvokeAsync<string>("cameraInterop.capturePhoto", "videoFeed", "photoCanvas");
+            // Opcional: parar a câmera automaticamente após tirar a foto
+            // await StopCamera();
+            StateHasChanged(); // Força a atualização da UI para exibir a foto
+        }
+    }
+
+    private void ClearPhoto()
+    {
+        imageDataUrl = null;
+        StateHasChanged(); // Força a atualização da UI
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (isCameraActive)
+        {
+            await StopCamera();
+        }
+    }
+
+    // private async Task TakePhoto()
+    // {
+    //     imageDataUrl = await JS.InvokeAsync<string>("cameraInterop.capturePhoto", "photoCanvas");
+
+    // }
+
+    private async Task SavePhoto()
+    {
+        if (!string.IsNullOrEmpty(imageDataUrl))
+        {
+            // Aqui você processaria a imagem.
+            // O `imageDataUrl` estará no formato "data:image/png;base64,iVBORw0KGgoAAA..."
+            // Você precisaria:
+            // 1. Remover o prefixo "data:image/png;base64,"
+            // 2. Converter a string Base64 para um array de bytes
+            // 3. Enviar esses bytes para o seu backend via um serviço (Ex: HttpClient)
+            // 4. Salvar no banco de dados, sistema de arquivos, etc.
+
+            // Exemplo de como remover o prefixo e converter para bytes
+            var base64String = imageDataUrl.Split(',')[1];
+            byte[] imageBytes = Convert.FromBase64String(base64String);
+
+            Console.WriteLine($"Foto capturada e convertida para {imageBytes.Length} bytes. Pronto para salvar!");
+
+            // Exemplo de chamada de serviço (você precisaria injetar um serviço de upload)
+            // await yourImageUploadService.UploadImage(Item.Id, imageBytes, userToken);
+            // Ou atribua ao seu modelo de Item para ser salvo junto com outros dados
+            // Item.PhotoBytes = imageBytes;
+            // Item.PhotoMimeType = "image/png"; // Ou o tipo correto
+
+
+            StateHasChanged(); // Force UI update if needed
         }
     }
 
@@ -372,6 +612,15 @@
 
                 var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
 
+                //to do, criar uma rota no backend que retorne todos estes parametros em um unico get.
+                await SetAcquisitionType(userToken);
+
+                await SetItemSituation(userToken);
+
+                await SetCategory(userToken);
+
+                Item.PurchaseValue = ""; // Default for new items
+
                 // Use QueryHelpers para uma forma mais robusta de parsear a query string
                 // Você precisará adicionar o pacote NuGet Microsoft.AspNetCore.WebUtilities
                 // se ainda não o tiver.
@@ -382,33 +631,59 @@
                     if (int.TryParse(_queryId, out int _itemId))
                     {
                         Console.WriteLine($"Valor de x: {_queryId}");
+
+                        isInsert = false;
+
+                        try
+                        {
+                            ServResp resp = await itemService.GetItemByIdAsync(_itemId.ToString(), userToken);
+
+                            if (resp is not null && resp.Success)
+                            {
+                                var _item = resp.Content as Models.DTO.ItemDTO;
+
+                                if (_item is not null)
+                                {
+                                    Item = new UIItem
+                                    {
+                                        Id = _item.Id,
+                                        Name = _item.Name,
+                                        AcquisitionDate = new DateOnly(_item.AcquisitionDate.Year, _item.AcquisitionDate.Month, _item.AcquisitionDate.Day),
+                                        AcquisitionType = _item.AcquisitionType,
+                                        Comment = _item.Comment,
+                                        PurchaseStore = _item.PurchaseStore,
+                                        Situation = _item.Situation,
+                                        TechnicalDescription = _item.TechnicalDescription,
+                                        Category = _item.Category,
+                                    };
+
+                                    if (_item.WithdrawalDate.HasValue)
+                                        Item.WithdrawalDate = new DateOnly(_item.WithdrawalDate.Value.Year, _item.WithdrawalDate.Value.Month, _item.WithdrawalDate.Value.Day);
+
+                                    if (_item.ResaleValue.HasValue)
+                                        Item.ResaleValue = (_item.ResaleValue.Value).ToString();
+
+                                    @if (_item.PurchaseValue.HasValue)
+                                        Item.PurchaseValue = _item.PurchaseValue.Value.ToString("N2", new CultureInfo("pt-BR"));
+
+                                    SelectedItemSituationId = Item.Situation.Id;
+                                    SelectedAcquisitionTypeId = Item.AcquisitionType.Id;
+
+                                    if (_item.Category?.SubCategory?.Id != null)
+                                    {
+                                        SelectedCaregory = _categories.Where(x => x.Id == _item.Category.Id).First();
+
+                                        SetSelectedSubCategory(_item.Category.SubCategory.Id);
+                                    }
+                                    else if (_item.Category.Id.HasValue)
+                                        SetSelectedCategory(_item.Category.Id.Value);
+
+                                }
+                            }
+                        }
+                        catch (Exception ex) { throw ex; }
                     }
                 }
-
-
-                // Convert the decimal PurchaseValue to the formatted string for display
-                // if (Item.PurchaseValue != 0) // Only if there's an actual value
-                // {
-                //     // Format the decimal to "0.00" string first, then use your JS logic's formatValue
-                //     // For example, if Item.PurchaseValue is 1234.56m, this will make "123456"
-                //     string rawValue = (Item.PurchaseValue * 100).ToString("F0", CultureInfo.InvariantCulture);
-                //     Item.PurchaseValue = await JS.InvokeAsync<string>("eval", $"formatValue('{rawValue}')");
-                //     // Note: The eval might be tricky, it's better to format directly in C# if possible
-                //     // or ensure your JS formatCurrency can handle a pre-formatted value.
-                //     // A simpler way:
-                //     Item.PurchaseValue = Item.PurchaseValue.ToString("N2", new CultureInfo("pt-BR")); // "1.234,56"
-                // }
-                // else
-                // {
-                Item.PurchaseValue = ""; // Default for new items
-                // }
-
-                //to do, criar uma rota no backend que retorne todos estes parametros em um unico get.
-                await SetAcquisitionType(userToken);
-
-                await SetItemSituation(userToken);
-
-                await SetCategory(userToken);
             }
             else
             {
@@ -470,32 +745,114 @@
         BtnCategoryText = SelectedCaregory.Name;
     }
 
+    public bool Validate()
+    {
+        SituationValidationError = CategoryValidationError = AcquisitionTypeValidationError = null;
+
+        if (SelectedItemSituationId is null or -1)
+        {
+            SituationValidationError = "Selecione uma situação válida.";
+            StateHasChanged();
+            return false;
+        }
+
+        if (SelectedCaregory.Id is null or -1)
+        {
+            CategoryValidationError = "Selecione uma Categoria válida.";
+            StateHasChanged();
+            return false;
+        }
+
+        if (SelectedAcquisitionTypeId is null or -1)
+        {
+            AcquisitionTypeValidationError = "Selecione um tipo de aquisição válido.";
+            StateHasChanged();
+            return false;
+        }
+
+        return true;
+    }
+
+    public decimal ParseCurrency(string input)
+    {
+        if (!string.IsNullOrWhiteSpace(input))
+        {
+            // Remove dots (thousands separator) and replace comma with dot (decimal separator)
+            string cleanValue = input.Replace(".", "").Replace(",", ".");
+            if (decimal.TryParse(cleanValue, NumberStyles.Currency, CultureInfo.InvariantCulture, out decimal parsedValue))
+                return parsedValue;
+            else
+                throw new FormatException(input + " could not be parsed to decimal.");
+        }
+        else
+            throw new ArgumentException(input + " cannot be empty.");
+    }
+
     public async Task UpInsertItemCommand()
     {
-        // Before submitting, convert the formatted string back to a decimal
-        // if (!string.IsNullOrWhiteSpace(Item.PurchaseValueString))
-        // {
-        //     // Remove dots (thousands separator) and replace comma with dot (decimal separator)
-        //     string cleanValue = Item.PurchaseValueString.Replace(".", "").Replace(",", ".");
-        //     if (decimal.TryParse(cleanValue, NumberStyles.Currency, CultureInfo.InvariantCulture, out decimal parsedValue))
-        //     {
-        //         Item.PurchaseValue = parsedValue;
-        //     }
-        //     else
-        //     {
-        //         // Handle parsing error, e.g., show a validation message
-        //         Console.WriteLine("Could not parse PurchaseValueString to decimal.");
-        //         // You might want to add a custom validation here or rely on DataAnnotations if set up.
-        //         return; // Prevent submission if parsing fails
-        //     }
-        // }
-        // else
-        // {
-        //     Item.PurchaseValue = 0; // Or handle as needed for empty string
-        // }
+        if (Validate())
+        {
+            BtnInsertIsEnabled = false;
 
-        // // Now, Item.PurchaseValue (decimal) is ready to be sent to your service
-        // Console.WriteLine($"Submitting Item Name: {Item.Name}, PurchaseValue: {Item.PurchaseValue}");
-        // // Call your item service to save/update here
+            Models.DTO.ItemDTO itemDTO = new();
+
+            decimal? purchaseValue = ParseCurrency(Item.PurchaseValue);
+            decimal? resaleValue = null;
+            DateTime? withdrawalDate = null;
+
+            if (SelectedItemSituationId == ResaleStatusId)
+            {
+                resaleValue = ParseCurrency(Item.ResaleValue);
+                withdrawalDate = new DateTime(Item.WithdrawalDate.Year, Item.WithdrawalDate.Month, Item.WithdrawalDate.Day).Date;
+            }
+
+            itemDTO = new()
+            {
+                Name = Item.Name.Trim(),
+                AcquisitionDate = new DateTime(Item.AcquisitionDate.Year, Item.AcquisitionDate.Month, Item.AcquisitionDate.Day).Date,
+                AcquisitionType = new AcquisitionType() { Id = SelectedAcquisitionTypeId },
+                Comment = Item.Comment?.Trim(),
+                PurchaseStore = Item.PurchaseStore?.Trim(),
+                PurchaseValue = purchaseValue,
+                Situation = new ItemSituation() { Id = SelectedItemSituationId },
+                ResaleValue = resaleValue,
+                TechnicalDescription = Item.TechnicalDescription?.Trim(),
+                Category = new Models.DTO.CategoryDTO() { Id = SelectedCaregory.Id, SubCategory = SelectedSubCategoryId > 0 ? new SubCategoryDTO() { Id = SelectedSubCategoryId } : null },
+                WithdrawalDate = withdrawalDate
+            };
+
+            string message = "";
+            ServResp resp;
+
+            if (Item.Id > 0)
+            {
+                itemDTO.Id = Item.Id;
+
+                resp = await itemService.UpdateItem(itemDTO, userToken);
+
+                if (resp.Success)
+                    message = "Item Atualizado!";
+                else
+                    message = "Erro ao atualizar o item.";
+            }
+            else
+            {
+                resp = await itemService.InsertItem(itemDTO, userToken);
+
+                if (resp.Success)
+                    message = "Item Adicionado!";
+                else
+                    message = "Erro ao adicionar o item.";
+            }
+
+            string styleMessage = "text-bg-success";
+
+            if (!resp.Success)
+                styleMessage = "text-bg-danger";
+
+            ToastService.ShowToast(new ToastComponent(message, styleMessage));
+
+            Navigation.NavigateTo("/");
+        }
     }
 }
