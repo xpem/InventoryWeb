@@ -6,6 +6,8 @@
 
         public int FileId { get; set; }
 
-        public string? ImageFilePath { get; set; } = null;
+        //public string? ImageFilePath { get; set; } = null;
+
+        public byte[]? ImageBytes { get; set; } = null;
     }
 }

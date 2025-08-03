@@ -11,13 +11,13 @@ namespace Services
     public interface IItemService
     {
         Task<ServResp> InsertItem(ItemDTO item, string userToken);
-        Task<ServResp> AddItemImageAsync(int id, ItemFilesToUpload itemFilesToUpload);
         Task<ServResp> UpdateItem(ItemDTO item, string userToken);
         Task<ServResp> DelItemAsync(int id);
         Task<ServResp> DelItemImageAsync(int id, string filename, string userToken);
         Task<ServResp> GetItemByIdAsync(string id, string userToken);
         Task<ItemFilesToUpload> GetItemImages(int itemId, string itemImage1, string itemImage2);
         Task<List<ItemDTO>> GetItemsAllAsync(string userToken);
+        Task<ServResp> AddItemImageAsync(int id, string userToken, ItemFilesToUpload itemFilesToUpload);
     }
 
     public class ItemService(IItemApiRepo itemApiRepo) : IItemService
@@ -128,82 +128,80 @@ namespace Services
             //return itemFilesToUpload;
         }
 
-        public async Task<ServResp> AddItemImageAsync(int id, ItemFilesToUpload itemFilesToUpload)
+        public async Task<ServResp> AddItemImageAsync(int id, string userToken, ItemFilesToUpload itemFilesToUpload)
         {
-            throw new NotImplementedException();
-            //ApiResp resp = await itemApiRepo.AddItemImage(id, itemFilesToUpload);
+            ApiResp resp = await itemApiRepo.AddItemImage(id, userToken, itemFilesToUpload);
 
-            //if (resp != null && resp.Content is not null)
-            //{
-            //    ServResp? respBllResp = ApiRespHandler.Handler<ItemFileNames>(resp);
-
-            //    if (respBllResp is not null && respBllResp.Success)
-            //    {
-            //        ItemFileNames? itemFileNames = respBllResp.Content as ItemFileNames;
-            //        if (itemFileNames is not null)
-            //        {
-            //            if (itemFileNames.Image1 is not null)
-            //            {
-            //                string newPath = Path.Combine(FilePaths.ImagesPath, itemFileNames.Image1);
-            //                System.IO.File.Move(itemFilesToUpload.Image1.ImageFilePath, newPath);
-
-            //                itemFilesToUpload.Image1.ImageFilePath = Path.Combine(FilePaths.ImagesPath, itemFileNames.Image1);
-            //            }
-
-            //            if (itemFileNames.Image2 is not null)
-            //            {
-            //                string newPath = Path.Combine(FilePaths.ImagesPath, itemFileNames.Image2);
-            //                System.IO.File.Move(itemFilesToUpload.Image2.ImageFilePath, newPath);
-
-            //                itemFilesToUpload.Image2.ImageFilePath = Path.Combine(FilePaths.ImagesPath, itemFileNames.Image2);
-            //            }
-
-            //            return new ServResp() { Success = true };
-            //        }
-            //    }
-            //}
-
-            //return new ServResp() { Success = false };
-
-        }
-
-        private async Task<ImageFile?> GetImageItemAsync(int id, int idx, string fileName, string filePath, string userToken)
-        {
-            bool exists = System.IO.Directory.Exists(filePath);
-
-            if (!exists)
-                System.IO.Directory.CreateDirectory(filePath);
-
-            string filePathAndName = Path.Combine(filePath, fileName);
-            ImageFile imageFile;
-
-            if (File.Exists(filePathAndName))
+            if (resp != null && resp.Content is not null)
             {
-                using FileStream fs = new FileStream(filePathAndName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                ServResp? respBllResp = ApiRespHandler.Handler<ItemFileNames>(resp);
 
-                using MemoryStream memoryStream = new();
-                fs.CopyTo(memoryStream);
-                imageFile = new() { FileName = fileName, FileId = idx, ImageFilePath = filePathAndName };
+                if (respBllResp is not null && respBllResp.Success)
+                {
+                    ItemFileNames? itemFileNames = respBllResp.Content as ItemFileNames;
 
-                return imageFile;
+                    if (itemFileNames is not null)
+                    {
+                        //if (itemFileNames.Image1 is not null)
+                        //{
+                        //    string newPath = Path.Combine(FilePaths.ImagesPath, itemFileNames.Image1);
+
+                        //    itemFilesToUpload.Image1.ImageFilePath = Path.Combine(FilePaths.ImagesPath, itemFileNames.Image1);
+                        //}
+
+                        //if (itemFileNames.Image2 is not null)
+                        //{
+                        //    string newPath = Path.Combine(FilePaths.ImagesPath, itemFileNames.Image2);
+                        //    System.IO.File.Move(itemFilesToUpload.Image2.ImageFilePath, newPath);
+
+                        //    itemFilesToUpload.Image2.ImageFilePath = Path.Combine(FilePaths.ImagesPath, itemFileNames.Image2);
+                        //}
+
+                        return new ServResp() { Success = true };
+                    }
+                }
             }
 
-            ApiResp resp = await itemApiRepo.GetItemImageAsync(id, userToken, fileName);
-
-            if (resp is not null && resp.Content is not null and Stream)
-            {
-                using FileStream fs = new FileStream(filePathAndName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-
-                ((Stream)resp.Content).CopyTo(fs);
-
-                imageFile = new() { FileName = fs.Name, FileId = idx, ImageFilePath = filePathAndName };
-
-                await ((Stream)resp.Content).DisposeAsync();
-
-                return imageFile;
-            }
-
-            return null;
+            return new ServResp() { Success = false };
         }
+
+        //private async Task<ImageFile?> GetImageItemAsync(int id, int idx, string fileName, string filePath, string userToken)
+        //{
+        //    bool exists = System.IO.Directory.Exists(filePath);
+
+        //    if (!exists)
+        //        System.IO.Directory.CreateDirectory(filePath);
+
+        //    string filePathAndName = Path.Combine(filePath, fileName);
+        //    ImageFile imageFile;
+
+        //    if (File.Exists(filePathAndName))
+        //    {
+        //        using FileStream fs = new FileStream(filePathAndName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+
+        //        using MemoryStream memoryStream = new();
+        //        fs.CopyTo(memoryStream);
+        //        imageFile = new() { FileName = fileName, FileId = idx, ImageFilePath = filePathAndName };
+
+        //        return imageFile;
+        //    }
+
+        //    ApiResp resp = await itemApiRepo.GetItemImageAsync(id, userToken, fileName);
+
+        //    if (resp is not null && resp.Content is not null and Stream)
+        //    {
+        //        using FileStream fs = new FileStream(filePathAndName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+
+        //        ((Stream)resp.Content).CopyTo(fs);
+
+        //        imageFile = new() { FileName = fs.Name, FileId = idx, ImageFilePath = filePathAndName };
+
+        //        await ((Stream)resp.Content).DisposeAsync();
+
+        //        return imageFile;
+        //    }
+
+        //    return null;
+        //}
     }
 }

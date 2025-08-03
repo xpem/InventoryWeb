@@ -2,6 +2,7 @@
 @using InventoryWeb.Utils
 @using Models.DTO
 @using Models.Item
+@using Models.Item.Files
 @using Models.Resps
 @using Models.UIRequests
 @using Services
@@ -172,7 +173,7 @@
                     </div>
                 </div>
 
-             @*    <div class="col-lg-12" style="display: flex;">
+                @*    <div class="col-lg-12" style="display: flex;">
                     <a class="btn btn-secondary">
                         <i class="fa-solid fa-folder-open"></i>
                     </a>
@@ -182,10 +183,10 @@
                 </div>
 
                 <div class="col-12">
-                    @if (!string.IsNullOrEmpty(imageDataUrl))
+                    @if (!string.IsNullOrEmpty(tempImageDataUrl))
                     {
                         <h5>Foto Capturada:</h5>
-                        <img src="@imageDataUrl" style="max-width: 100%; height: auto; border: 1px solid #ccc;" />
+                        <img src="@tempImageDataUrl" style="max-width: 100%; height: auto; border: 1px solid #ccc;" />
                         <br />
                         <a class="btn btn-info" @onclick="ClearPhoto">
                             <i class="fa-solid fa-trash"></i> Limpar Foto
@@ -200,79 +201,95 @@
 
                 <hr class="mt-4" />
                 <div class="camera-section">
-                    <h4 class="mb-3">Tirar Foto do Item</h4>
+                    @if (string.IsNullOrEmpty(imageDataUrl))
+                    {
+                        <h4 class="mb-3">Tirar Foto do Item</h4>
 
+                        <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
+                            <a data-bs-toggle="modal" data-bs-target="#ModalCamera" class="btn btn-primary" @onclick="StartCamera" disabled="@isCameraActive">
+                                <i class="fas fa-video"></i> Iniciar Câmera
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <h5 class="mt-4 mb-3">Foto Capturada:</h5>
+                        <div class="d-flex justify-content-center mb-3" style="display:flex; flex-direction: column; align-items: center;">
+                            <img src="@imageDataUrl" class="img-fluid"
+                                 style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
+                            <button class="btn btn-danger" @onclick="DeletePhoto" style="max-width:400px; width: 100%;">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    }
+                </div>
+
+                <div class="d-grid" style="margin-top:10px;" disabled=@BtnInsertIsEnabled>
+                    @if (isInsert)
+                    {
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Cadastrar
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Alterar
+                        </button>
+                    }
+                </div>
+                <div class="col-lg-12" style="margin-top: 20px"><a href="/"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
+
+            </EditForm>
+        </div>
+    </div>
+</div>
+<!-- Modal Camera-->
+<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="ModalCamera" tabindex="-1" aria-labelledby="ModalCamera" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: var(--bs-primary-bg-subtle); color: #fff ">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Captura de imagem</h1>
+            </div>
+            <div class="modal-body">
+                @if (!isPhotoTaked)
+                {
                     <div class="d-flex justify-content-center align-items-center mb-3">
                         <video id="videoFeed" autoplay playsinline class="img-fluid"
                                style="max-width: 400px; border: 1px solid #ccc; background-color: #f0f0f0;"></video>
                     </div>
-
                     <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
-                        <button class="btn btn-primary" @onclick="StartCamera" disabled="@isCameraActive">
-                            <i class="fas fa-video"></i> Iniciar Câmera
+                        <a class="btn btn-danger" @onclick="StopCamera" disabled="@(!isCameraActive)">
+                            <i class="fas fa-stop"></i>
+                        </a>
+                        <a class="btn btn-success" @onclick="TakePhoto" disabled="@(!isCameraActive)">
+                            <i class="fas fa-camera"></i> Capturar Foto
+                        </a>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(tempImageDataUrl))
+                {
+                    <h5 class="mt-4 mb-3">Foto Capturada:</h5>
+                    <div class="d-flex justify-content-center mb-3">
+                        <img src="@tempImageDataUrl" class="img-fluid"
+                             style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
+                    </div>
+                    <div class="d-flex justify-content-center flex-wrap gap-2">
+                        <button class="btn btn-info" @onclick="ClearPhoto">
+                            <i class="fas fa-trash"></i> Limpar Foto
                         </button>
-                        <button class="btn btn-danger" @onclick="StopCamera" disabled="@(!isCameraActive)">
-                            <i class="fas fa-stop-circle"></i> Parar Câmera
-                        </button>
-                        <button class="btn btn-success" @onclick="TakePhoto" disabled="@(!isCameraActive)">
-                            <i class="fas fa-camera"></i> Tirar Foto
+                        <button class="btn btn-success" @onclick="SavePhoto" data-bs-dismiss="modal">
+                            <i class="fas fa-save"></i> Salvar Foto
                         </button>
                     </div>
+                }
 
-                    @if (!string.IsNullOrEmpty(imageDataUrl))
-                    {
-                        <h5 class="mt-4 mb-3">Foto Capturada:</h5>
-                        <div class="d-flex justify-content-center mb-3">
-                            <img src="@imageDataUrl" class="img-fluid"
-                                 style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
-                        </div>
-                        <div class="d-flex justify-content-center flex-wrap gap-2">
-                            <button class="btn btn-info" @onclick="ClearPhoto">
-                                <i class="fas fa-trash"></i> Limpar Foto
-                            </button>
-                            <button class="btn btn-success" @onclick="SavePhoto">
-                                <i class="fas fa-save"></i> Salvar Foto
-                            </button>
-                        </div>
-                    }
-
-                    <canvas id="photoCanvas" style="display: none;"></canvas>
-                </div>
-
-                <div class="d-grid" disabled=@BtnInsertIsEnabled>
-                    @if (isInsert)
-                    {
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Cadastrar
-                        </button>
-                    }
-                    else
-                    {
-                        <button type="submit" class="btn btn-warning">
-                            <i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Alterar
-                        </button>
-                    }
-                </div>
-
-                @* 
-                <div class="d-grid" disabled=@BtnEnabled>
-                    @if (isInsert)
-                    {
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Cadastrar
-                        </button>
-                    }
-                    else
-                    {
-                        <button type="submit" class="btn btn-warning">
-                            <i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Alterar
-                        </button>
-                    }
-                </div> *@
-
-                <div class="col-lg-12" style="margin-top: 20px"><a href="/"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
-
-            </EditForm>
+                <canvas id="photoCanvas" style="display: none;"></canvas>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="color: #fff"><i class="bi bi-arrow-left-short"></i> Voltar</button>
+            </div>
         </div>
     </div>
 </div>
@@ -370,7 +387,6 @@
         </div>
     </div>
 </div>
-
 <script type="text/javascript">
     function formatCurrency(inputElementId) {
         const input = document.getElementById(inputElementId);
@@ -435,7 +451,6 @@
     }
 </script>
 
-
 @code {
     public Models.UIRequests.UIItem Item { get; set; } = new UIItem() { Name = "" };
 
@@ -472,6 +487,11 @@
     private bool _shown;
 
     private bool isCameraActive = false;
+
+    private bool isPhotoTaked = false;
+
+    private string? tempImageDataUrl; // Para armazenar a imagem em Base64
+
     private string? imageDataUrl; // Para armazenar a imagem em Base64
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -491,7 +511,7 @@
             // Invoca a função JavaScript para iniciar o feed da câmera
             await JS.InvokeVoidAsync("cameraInterop.startCameraFeed", "videoFeed");
             isCameraActive = true;
-            imageDataUrl = null; // Limpa qualquer foto capturada anteriormente
+            tempImageDataUrl = null; // Limpa qualquer foto capturada anteriormente
             // Força a atualização da UI para refletir o novo estado dos botões
             StateHasChanged();
         }
@@ -517,17 +537,24 @@
         {
             // Invoca a função JavaScript para capturar a foto do feed de vídeo
             // E recebe a imagem em Base64 de volta
-            imageDataUrl = await JS.InvokeAsync<string>("cameraInterop.capturePhoto", "videoFeed", "photoCanvas");
+            tempImageDataUrl = await JS.InvokeAsync<string>("cameraInterop.capturePhoto", "videoFeed", "photoCanvas");
             // Opcional: parar a câmera automaticamente após tirar a foto
-            // await StopCamera();
+            await StopCamera();
             StateHasChanged(); // Força a atualização da UI para exibir a foto
+
+            isPhotoTaked = true;
         }
+    }
+    private async Task DeletePhoto()
+    {
+        imageDataUrl = null;
     }
 
     private void ClearPhoto()
     {
-        imageDataUrl = null;
+        tempImageDataUrl = null;
         StateHasChanged(); // Força a atualização da UI
+        isPhotoTaked = false;
     }
 
     public async ValueTask DisposeAsync()
@@ -538,37 +565,19 @@
         }
     }
 
-    // private async Task TakePhoto()
-    // {
-    //     imageDataUrl = await JS.InvokeAsync<string>("cameraInterop.capturePhoto", "photoCanvas");
-
-    // }
-
     private async Task SavePhoto()
     {
-        if (!string.IsNullOrEmpty(imageDataUrl))
+        if (!string.IsNullOrEmpty(tempImageDataUrl))
         {
-            // Aqui você processaria a imagem.
-            // O `imageDataUrl` estará no formato "data:image/png;base64,iVBORw0KGgoAAA..."
-            // Você precisaria:
-            // 1. Remover o prefixo "data:image/png;base64,"
-            // 2. Converter a string Base64 para um array de bytes
-            // 3. Enviar esses bytes para o seu backend via um serviço (Ex: HttpClient)
-            // 4. Salvar no banco de dados, sistema de arquivos, etc.
-
             // Exemplo de como remover o prefixo e converter para bytes
-            var base64String = imageDataUrl.Split(',')[1];
+            var base64String = tempImageDataUrl.Split(',')[1];
             byte[] imageBytes = Convert.FromBase64String(base64String);
 
             Console.WriteLine($"Foto capturada e convertida para {imageBytes.Length} bytes. Pronto para salvar!");
 
-            // Exemplo de chamada de serviço (você precisaria injetar um serviço de upload)
-            // await yourImageUploadService.UploadImage(Item.Id, imageBytes, userToken);
-            // Ou atribua ao seu modelo de Item para ser salvo junto com outros dados
-            // Item.PhotoBytes = imageBytes;
-            // Item.PhotoMimeType = "image/png"; // Ou o tipo correto
-
-
+            isPhotoTaked = false;
+            imageDataUrl = tempImageDataUrl;
+            tempImageDataUrl = null;
             StateHasChanged(); // Force UI update if needed
         }
     }
@@ -840,7 +849,33 @@
                 resp = await itemService.InsertItem(itemDTO, userToken);
 
                 if (resp.Success)
+                {
+                    Models.DTO.ItemDTO? itemResp = resp.Content as Models.DTO.ItemDTO;
+
+                    if (!string.IsNullOrEmpty(imageDataUrl) && itemResp is not null && itemResp.Id.HasValue)
+                    {
+                        var base64String = imageDataUrl.Split(',')[1];
+                        byte[] imageBytes = Convert.FromBase64String(base64String);
+
+                        string fileName = Guid.NewGuid().ToString();
+
+                        ItemFilesToUpload itemFilesToUpload = new()
+                        {
+                            Image1 = new() { FileId = 1, ImageBytes = imageBytes, FileName = fileName }
+                        };
+
+                        try
+                        {
+                            await itemService.AddItemImageAsync(itemResp.Id.Value, userToken, itemFilesToUpload);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw ex;
+                        }
+                    }
+
                     message = "Item Adicionado!";
+                }
                 else
                     message = "Erro ao adicionar o item.";
             }
@@ -856,3 +891,5 @@
         }
     }
 }
+
+

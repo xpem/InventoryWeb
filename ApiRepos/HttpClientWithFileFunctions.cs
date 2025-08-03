@@ -49,27 +49,28 @@ namespace ApiRepos
 
                                 if (itemFilesToUpload.Image1 != null)
                                 {
-                                    using FileStream fs = new FileStream(itemFilesToUpload.Image1.ImageFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                                    using MemoryStream memoryStream = new();
-                                    fs.CopyTo(memoryStream);
+                                    //using FileStream fs = new(itemFilesToUpload.Image1.ImageFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                                    //using MemoryStream memoryStream = new();
+                                    //fs.CopyTo(memoryStream);
 
-                                    ByteArrayContent fileContent = new ByteArrayContent(memoryStream.ToArray());
+                                    ByteArrayContent fileContent = new ByteArrayContent(itemFilesToUpload.Image1.ImageBytes);
+
                                     //fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(itemFilesToUpload.Image1.FileContentType);
 
                                     form.Add(fileContent, "file1", itemFilesToUpload.Image1.FileName);
                                 }
 
-                                if (itemFilesToUpload.Image2 != null)
-                                {
-                                    using FileStream fs = new FileStream(itemFilesToUpload.Image2.ImageFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                                    using MemoryStream memoryStream = new();
-                                    fs.CopyTo(memoryStream);
+                                //if (itemFilesToUpload.Image2 != null)
+                                //{
+                                //    using FileStream fs = new FileStream(itemFilesToUpload.Image2.ImageFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
+                                //    using MemoryStream memoryStream = new();
+                                //    fs.CopyTo(memoryStream);
 
-                                    ByteArrayContent fileContent = new ByteArrayContent(memoryStream.ToArray());
-                                    //fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(itemFilesToUpload.Image2.FileContentType);
+                                //    ByteArrayContent fileContent = new ByteArrayContent(memoryStream.ToArray());
+                                //    //fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(itemFilesToUpload.Image2.FileContentType);
 
-                                    form.Add(fileContent, "file2", itemFilesToUpload.Image2.FileName);
-                                }
+                                //    form.Add(fileContent, "file2", itemFilesToUpload.Image2.FileName);
+                                //}
 
                                 HttpResponseMessage response = await httpClient.PutAsync(url, form);
                                 response.EnsureSuccessStatusCode();
