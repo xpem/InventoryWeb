@@ -30,7 +30,7 @@ namespace ApiRepos
                     case RequestsTypes.Get:
                         httpResponse = await httpClient.GetAsync(url);
 
-                        string fileName = httpResponse.Content.Headers.ContentDisposition?.FileName ?? throw new ArgumentNullException("filename in headers not found!");
+                        //string fileName = httpResponse.Content.Headers.ContentDisposition?.FileName ?? throw new ArgumentNullException("filename in headers not found!");
 
                         Stream resultStream = await httpResponse.Content.ReadAsStreamAsync();
 
@@ -53,11 +53,20 @@ namespace ApiRepos
                                     //using MemoryStream memoryStream = new();
                                     //fs.CopyTo(memoryStream);
 
-                                    ByteArrayContent fileContent = new ByteArrayContent(itemFilesToUpload.Image1.ImageBytes);
+                                    //ByteArrayContent fileContent = new(itemFilesToUpload.Image1.ImageBytes);
 
                                     //fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(itemFilesToUpload.Image1.FileContentType);
+                                    // Para que o backend reconheça o arquivo como um IFormFile, é importante:
+                                    // 1. Usar MultipartFormDataContent.
+                                    // 2. Adicionar o ByteArrayContent com o nome do campo igual ao esperado pelo backend.
+                                    // 3. Definir o nome do arquivo e o Content-Type corretamente.
 
-                                    form.Add(fileContent, "file1", itemFilesToUpload.Image1.FileName);
+                                    // Exemplo de como adicionar o arquivo:
+                                    ByteArrayContent file1 = new(itemFilesToUpload.Image1.ImageBytes);
+                                    file1.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(itemFilesToUpload.Image1.FileContentType ?? "application/octet-stream");
+                                    form.Add(file1, "file1", itemFilesToUpload.Image1.FileName);
+
+                                    // Isso garante que o backend ASP.NET Core consiga mapear o arquivo para um parâmetro IFormFile.
                                 }
 
                                 //if (itemFilesToUpload.Image2 != null)

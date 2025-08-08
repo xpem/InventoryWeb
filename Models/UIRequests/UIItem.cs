@@ -40,8 +40,10 @@ namespace Models.UIRequests
 
         public DateOnly WithdrawalDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
 
-        public string? Image1 { get; set; }
+        public string? Image1Base64 { get; set; }
 
-        public string? Image2 { get; set; }
+        public bool IsImage1Base64 { get; set; } = true;
+
+        //public string? Image2 { get; set; }
     }
 }

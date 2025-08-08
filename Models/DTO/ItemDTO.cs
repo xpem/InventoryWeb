@@ -40,5 +40,14 @@ namespace Models.DTO
         public string? Image1 { get; set; }
 
         public string? Image2 { get; set; }
+
+        #region variaveis para listagem no front
+
+        public string? Image1Base64 { get; set; }
+
+        public bool IsImage1Base64 { get; set; } = true; // Começa como true
+
+        public string? CategoryAndSubCategory { get; set; }
+        #endregion
     }
 }

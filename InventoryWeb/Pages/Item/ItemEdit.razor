@@ -19,7 +19,6 @@
 @using Microsoft.JSInterop
 
 <PageTitle>Item</PageTitle>
-<h3>Item</h3>
 
 <style>
     .category-circle-md {
@@ -29,151 +28,149 @@
     }
 </style>
 
-<div style="display: flex; justify-content:center; flex-wrap: wrap; align-content: center; height: 100%; width:100%;">
-    <div style="display: flex; justify-content: center; flex-direction:column; width:100%;">
-        <div class="col-lg-12" style="display: flex; justify-content:center; flex-wrap: wrap; align-content: center; width: 100%;">
-            <EditForm Model="Item" OnValidSubmit="UpInsertItemCommand" style="min-width:400px;">
-                <DataAnnotationsValidator />
+<div class="main-layout">
+    <EditForm Model="Item" OnValidSubmit="UpInsertItemCommand" style="height: 100%;">
+        <DataAnnotationsValidator />
 
-                <div class="row mb-3">
-                    <div class="form-group">
-                        <label for="inputName">Nome</label>
-                        <InputText type="text" class="form-control" id="inputName" @bind-Value="@Item.Name" />
-                        <ValidationMessage For="@(() => Item.Name)" />
+        <div class="row mb-3">
+            <div class="form-group">
+                <label for="inputName">Nome</label>
+                <InputText type="text" class="form-control" id="inputName" @bind-Value="@Item.Name" />
+                <ValidationMessage For="@(() => Item.Name)" />
+            </div>
+        </div>
+
+        <div class="col-lg-12 row">
+            <div class="col-sm-6 mb-1">
+                <label for="btnCategory">Categoria</label>
+                <button id="btnCategory" type="button" class="btn btn-success"
+                        style="width: 100%;"
+                        data-bs-toggle="modal" data-bs-target="#ModalCategories">
+                    @BtnCategoryText
+                </button>
+                @if (!string.IsNullOrEmpty(CategoryValidationError))
+                {
+                    <div class="text-danger">@CategoryValidationError</div>
+                }
+            </div>
+
+            <div class="col-sm-6 mb-1">
+                <div class="form-group">
+                    <label for="inputSituation">Situação</label>
+                    <InputSelect class="form-select" id="inputSituation" @bind-Value="@SelectedItemSituationId">
+                        @foreach (var situation in ItemSituationList)
+                        {
+                            <option value="@situation.Id">@situation.Name</option>
+                        }
+                    </InputSelect>
+                    @if (!string.IsNullOrEmpty(SituationValidationError))
+                    {
+                        <div class="text-danger">@SituationValidationError</div>
+                    }
+                    <ValidationMessage For="@(() => SelectedItemSituationId)" />
+                </div>
+            </div>
+        </div>
+
+        @if (SelectedItemSituationId == ResaleStatusId)
+        {
+            <div class="card" style="background-color: transparent; margin-bottom: 10px;">
+                <div class="card-body">
+                    <div class="card-title">Revenda</div>
+                    <div class="col-lg-12 row">
+                        <div class="col-lg-6 mb-1">
+                            <div class="form-group">
+                                <label for="inputResaleValue">Valor</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">R$</span>
+                                    <InputText type="text" class="form-control" id="inputResaleValue" @bind-Value="@Item.ResaleValue" />
+                                </div>
+                                <ValidationMessage For="@(() => Item.ResaleValue)" />
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-1">
+                            <div class="form-group">
+                                <label for="inputWithdrawalDate">Data</label>
+                                <InputDate class="form-control" id="inputWithdrawalDate" TValue="DateOnly" @bind-Value="@Item.WithdrawalDate">
+                                </InputDate>
+                                <ValidationMessage For="@(() => Item.WithdrawalDate)" />
+                            </div>
+                        </div>
                     </div>
                 </div>
+            </div>
+        }
 
-                <div class="col-lg-12" style="display: flex;">
-                    <div class="col-lg-6">
-                        <label for="btnCategory">Categoria</label>
-                        <button id="btnCategory" type="button" class="btn btn-success"
-                                style="width: 100%;"
-                                data-bs-toggle="modal" data-bs-target="#ModalCategories">
-                            @BtnCategoryText
-                        </button>
-                        @if (!string.IsNullOrEmpty(CategoryValidationError))
-                        {
-                            <div class="text-danger">@CategoryValidationError</div>
-                        }
-                    </div>
-
-                    <div class="col-lg-6 row mb-3" style="margin-left: 10px;">
+        <div class="card" style="background-color: transparent">
+            <div class="card-body">
+                <div class="card-title">Aquisição</div>
+                <div class="col-lg-12 row">
+                    <div class="col-sm-6 mb-1">
                         <div class="form-group">
-                            <label for="inputSituation">Situação</label>
-                            <InputSelect class="form-select" id="inputSituation" @bind-Value="@SelectedItemSituationId">
-                                @foreach (var situation in ItemSituationList)
+                            <label for="inputAcquisitionType">Tipo</label>
+                            <InputSelect class="form-select" id="inputAcquisitionType" @bind-Value="@SelectedAcquisitionTypeId">
+                                @foreach (var acquisitionType in AcquisitionTypeList)
                                 {
-                                    <option value="@situation.Id">@situation.Name</option>
+                                    <option value="@acquisitionType.Id">@acquisitionType.Name</option>
                                 }
                             </InputSelect>
-                            @if (!string.IsNullOrEmpty(SituationValidationError))
+                            @if (!string.IsNullOrEmpty(AcquisitionTypeValidationError))
                             {
-                                <div class="text-danger">@SituationValidationError</div>
+                                <div class="text-danger">@AcquisitionTypeValidationError</div>
                             }
-                            <ValidationMessage For="@(() => SelectedItemSituationId)" />
+                            <ValidationMessage For="@(() => SelectedAcquisitionTypeId)" />
+                        </div>
+                    </div>
+                    <div class="col-sm-6 mb-1">
+                        <div class="form-group">
+                            <label for="inputAcquisitionDate">Data</label>
+                            <InputDate class="form-control" id="inputAcquisitionDate" TValue="DateOnly" @bind-Value="@Item.AcquisitionDate">
+
+                            </InputDate>
+                            <ValidationMessage For="@(() => Item.AcquisitionDate)" />
                         </div>
                     </div>
                 </div>
-
-                @if (SelectedItemSituationId == ResaleStatusId)
-                {
-                    <div class="card" style="background-color: transparent; margin-bottom: 10px;">
-                        <div class="card-body">
-                            <div class="card-title">Revenda</div>
-                            <div class="col-lg-12" style="display: flex; margin-bottom: 10px;">
-                                <div class="col-lg-6">
-                                    <div class="form-group">
-                                        <label for="inputResaleValue">Valor</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">R$</span>
-                                            <InputText type="text" class="form-control" id="inputResaleValue" @bind-Value="@Item.ResaleValue" />
-                                        </div>
-                                        <ValidationMessage For="@(() => Item.ResaleValue)" />
-                                    </div>
-                                </div>
-                                <div class="col-lg-6" style="margin-left: 10px;">
-                                    <div class="form-group">
-                                        <label for="inputWithdrawalDate">Data</label>
-                                        <InputDate class="form-control" id="inputWithdrawalDate" TValue="DateOnly" @bind-Value="@Item.WithdrawalDate">
-                                        </InputDate>
-                                        <ValidationMessage For="@(() => Item.WithdrawalDate)" />
-                                    </div>
-                                </div>
+                <div class="col-lg-12 row">
+                    <div class="col-lg-6 mb-1">
+                        <div class="form-group">
+                            <label for="inputPurchaseValue">Valor</label>
+                            <div class="input-group">
+                                <span class="input-group-text">R$</span>
+                                <InputText type="text" class="form-control" id="inputPurchaseValue" @bind-Value="@Item.PurchaseValue" />
                             </div>
+                            <ValidationMessage For="@(() => Item.PurchaseValue)" />
                         </div>
                     </div>
-                }
-
-                <div class="card" style="background-color: transparent">
-                    <div class="card-body">
-                        <div class="card-title">Aquisição</div>
-                        <div class="col-lg-12" style="display: flex; margin-bottom: 10px;">
-                            <div class="col-lg-6">
-                                <div class="form-group">
-                                    <label for="inputAcquisitionType">Tipo</label>
-                                    <InputSelect class="form-select" id="inputAcquisitionType" @bind-Value="@SelectedAcquisitionTypeId">
-                                        @foreach (var acquisitionType in AcquisitionTypeList)
-                                        {
-                                            <option value="@acquisitionType.Id">@acquisitionType.Name</option>
-                                        }
-                                    </InputSelect>
-                                    @if (!string.IsNullOrEmpty(AcquisitionTypeValidationError))
-                                    {
-                                        <div class="text-danger">@AcquisitionTypeValidationError</div>
-                                    }
-                                    <ValidationMessage For="@(() => SelectedAcquisitionTypeId)" />
-                                </div>
-                            </div>
-                            <div class="col-lg-6" style="margin-left: 10px;">
-                                <div class="form-group">
-                                    <label for="inputAcquisitionDate">Data</label>
-                                    <InputDate class="form-control" id="inputAcquisitionDate" TValue="DateOnly" @bind-Value="@Item.AcquisitionDate">
-
-                                    </InputDate>
-                                    <ValidationMessage For="@(() => Item.AcquisitionDate)" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-12" style="display: flex; margin-bottom: 10px;">
-                            <div class="col-lg-6">
-                                <div class="form-group">
-                                    <label for="inputPurchaseValue">Valor</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">R$</span>
-                                        <InputText type="text" class="form-control" id="inputPurchaseValue" @bind-Value="@Item.PurchaseValue" />
-                                    </div>
-                                    <ValidationMessage For="@(() => Item.PurchaseValue)" />
-                                </div>
-                            </div>
-                            <div class="col-lg-6" style="margin-left: 10px;">
-                                <div class="form-group">
-                                    <label for="inputStore">Loja</label>
-                                    <InputText class="form-control" @bind-Value="@Item.PurchaseStore">
-                                        <ValidationMessage For="@(() => Item.PurchaseStore)" />
-                                    </InputText>
-                                </div>
-                            </div>
+                    <div class="col-lg-6 mb-1">
+                        <div class="form-group">
+                            <label for="inputStore">Loja</label>
+                            <InputText class="form-control" @bind-Value="@Item.PurchaseStore">
+                                <ValidationMessage For="@(() => Item.PurchaseStore)" />
+                            </InputText>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="row mb-3" style="margin-top: 10px;">
-                    <div class="form-group">
-                        <label for="inputDescription">Descrição técnica</label>
-                        <InputTextArea type="text" class="form-control" id="inputDescription" @bind-Value="@Item.TechnicalDescription" rows="2" />
-                        <ValidationMessage For="@(() => Item.TechnicalDescription)" />
-                    </div>
-                </div>
+        <div class="row mb-3" style="margin-top: 10px;">
+            <div class="form-group">
+                <label for="inputDescription">Descrição técnica</label>
+                <InputTextArea type="text" class="form-control" id="inputDescription" @bind-Value="@Item.TechnicalDescription" rows="2" />
+                <ValidationMessage For="@(() => Item.TechnicalDescription)" />
+            </div>
+        </div>
 
-                <div class="row mb-3" style="margin-top: 10px;">
-                    <div class="form-group">
-                        <label for="inputComment">Comentários</label>
-                        <InputTextArea type="text" class="form-control" id="inputComment" @bind-Value="@Item.Comment" rows="2" />
-                        <ValidationMessage For="@(() => Item.Comment)" />
-                    </div>
-                </div>
+        <div class="row mb-3" style="margin-top: 10px;">
+            <div class="form-group">
+                <label for="inputComment">Comentários</label>
+                <InputTextArea type="text" class="form-control" id="inputComment" @bind-Value="@Item.Comment" rows="2" />
+                <ValidationMessage For="@(() => Item.Comment)" />
+            </div>
+        </div>
 
-                @*    <div class="col-lg-12" style="display: flex;">
+        @*    <div class="col-lg-12" style="display: flex;">
                     <a class="btn btn-secondary">
                         <i class="fa-solid fa-folder-open"></i>
                     </a>
@@ -199,50 +196,48 @@
 
                 <canvas id="photoCanvas" style="display: none;"></canvas> *@
 
-                <hr class="mt-4" />
-                <div class="camera-section">
-                    @if (string.IsNullOrEmpty(imageDataUrl))
-                    {
-                        <h4 class="mb-3">Tirar Foto do Item</h4>
+        <hr class="mt-4" />
+        <div class="camera-section">
+            @if (string.IsNullOrEmpty(imageDataUrl))
+            {
+                <h4 class="mb-3">Tirar Foto do Item</h4>
 
-                        <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
-                            <a data-bs-toggle="modal" data-bs-target="#ModalCamera" class="btn btn-primary" @onclick="StartCamera" disabled="@isCameraActive">
-                                <i class="fas fa-video"></i> Iniciar Câmera
-                            </a>
-                        </div>
-                    }
-                    else
-                    {
-                        <h5 class="mt-4 mb-3">Foto Capturada:</h5>
-                        <div class="d-flex justify-content-center mb-3" style="display:flex; flex-direction: column; align-items: center;">
-                            <img src="@imageDataUrl" class="img-fluid"
-                                 style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
-                            <button class="btn btn-danger" @onclick="DeletePhoto" style="max-width:400px; width: 100%;">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    }
+                <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
+                    <a data-bs-toggle="modal" data-bs-target="#ModalCamera" class="btn btn-primary" @onclick="StartCamera" disabled="@isCameraActive">
+                        <i class="fas fa-video"></i> Iniciar Câmera
+                    </a>
                 </div>
-
-                <div class="d-grid" style="margin-top:10px;" disabled=@BtnInsertIsEnabled>
-                    @if (isInsert)
-                    {
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Cadastrar
-                        </button>
-                    }
-                    else
-                    {
-                        <button type="submit" class="btn btn-warning">
-                            <i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Alterar
-                        </button>
-                    }
+            }
+            else
+            {
+                <h5 class="mt-4 mb-3">Foto Capturada:</h5>
+                <div class="d-flex justify-content-center mb-3" style="display:flex; flex-direction: column; align-items: center;">
+                    <img src="@imageDataUrl" class="img-fluid"
+                         style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
+                    <button class="btn btn-danger" @onclick="DeletePhoto" style="max-width:400px; width: 100%;">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
-                <div class="col-lg-12" style="margin-top: 20px"><a href="/"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
-
-            </EditForm>
+            }
         </div>
-    </div>
+
+        <div class="d-grid" style="margin-top:10px;" disabled=@BtnInsertIsEnabled>
+            @if (isInsert)
+            {
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Cadastrar
+                </button>
+            }
+            else
+            {
+                <button type="submit" class="btn btn-warning">
+                    <i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Alterar
+                </button>
+            }
+        </div>
+        <div class="col-lg-12" style="margin-top: 20px"><a href="/"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
+
+    </EditForm>
 </div>
 <!-- Modal Camera-->
 <div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="ModalCamera" tabindex="-1" aria-labelledby="ModalCamera" aria-hidden="true">
@@ -850,34 +845,46 @@
 
                 if (resp.Success)
                 {
-                    Models.DTO.ItemDTO? itemResp = resp.Content as Models.DTO.ItemDTO;
-
-                    if (!string.IsNullOrEmpty(imageDataUrl) && itemResp is not null && itemResp.Id.HasValue)
+                    if (resp.Content is Models.DTO.ItemDTO addedItem)
                     {
-                        var base64String = imageDataUrl.Split(',')[1];
-                        byte[] imageBytes = Convert.FromBase64String(base64String);
-
-                        string fileName = Guid.NewGuid().ToString();
-
-                        ItemFilesToUpload itemFilesToUpload = new()
-                        {
-                            Image1 = new() { FileId = 1, ImageBytes = imageBytes, FileName = fileName }
-                        };
-
-                        try
-                        {
-                            await itemService.AddItemImageAsync(itemResp.Id.Value, userToken, itemFilesToUpload);
-                        }
-                        catch (Exception ex)
-                        {
-                            throw ex;
-                        }
+                        itemDTO.Id = addedItem.Id.Value;
                     }
 
                     message = "Item Adicionado!";
                 }
                 else
                     message = "Erro ao adicionar o item.";
+            }
+
+
+            if (!string.IsNullOrEmpty(imageDataUrl) && itemDTO is not null && itemDTO.Id.HasValue)
+            {
+                var base64String = imageDataUrl.Split(',')[1];
+                byte[] imageBytes = Convert.FromBase64String(base64String);
+
+                string fileContentType = null;
+                if (!string.IsNullOrEmpty(imageDataUrl) && imageDataUrl.StartsWith("data:"))
+                {
+                    var parts = imageDataUrl.Split(';')[0].Split(':');
+                    if (parts.Length == 2)
+                        fileContentType = parts[1]; // Exemplo: "image/jpeg"
+                }
+
+                string fileName = Guid.NewGuid().ToString();
+
+                ItemFilesToUpload itemFilesToUpload = new()
+                {
+                    Image1 = new() { FileId = 1, ImageBytes = imageBytes, FileName = fileName + GetExtensionByMimeType(fileContentType), FileContentType = fileContentType }
+                };
+
+                try
+                {
+                    await itemService.AddItemImageAsync(itemDTO.Id.Value, userToken, itemFilesToUpload);
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
+                }
             }
 
             string styleMessage = "text-bg-success";
@@ -888,6 +895,17 @@
             ToastService.ShowToast(new ToastComponent(message, styleMessage));
 
             Navigation.NavigateTo("/");
+        }
+    }
+
+    string? GetExtensionByMimeType(string mimeType)
+    {
+        switch (mimeType)
+        {
+            case "image/png": return ".png";
+            case "image/jpeg": return ".jpg";
+            case "image/gif": return ".gif";
+            default: return null;
         }
     }
 }

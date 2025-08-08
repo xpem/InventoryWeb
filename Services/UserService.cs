@@ -95,7 +95,7 @@ namespace Services
                 //maybe use a errorcodes instead a message?
                 else return !success && userTokenRes is not null && userTokenRes == "User/Password incorrect"
                     ? new ServResp() { Success = false, Error = ErrorTypes.WrongEmailOrPassword }
-                    : throw new Exception("Erro não mapeado");
+                    : throw new Exception("Erro não mapeado:" + userTokenRes);
 
                 return new ServResp() { Success = false, Error = ErrorTypes.Unknown };
             }

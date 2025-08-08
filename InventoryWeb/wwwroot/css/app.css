@@ -122,3 +122,13 @@ code {
     height: 30px; /* Define a altura do círculo (igual à largura para ser um círculo perfeito) */
     border-radius: 50%; /* Transforma o quadrado em um círculo */
 }
+
+.main-layout {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+    height: 100%;
+    width: 100%;
+}

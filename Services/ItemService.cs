@@ -15,7 +15,7 @@ namespace Services
         Task<ServResp> DelItemAsync(int id);
         Task<ServResp> DelItemImageAsync(int id, string filename, string userToken);
         Task<ServResp> GetItemByIdAsync(string id, string userToken);
-        Task<ItemFilesToUpload> GetItemImages(int itemId, string itemImage1, string itemImage2);
+        Task<ImageFile> GetItemImages(int itemId, string itemImage1, string userToken);
         Task<List<ItemDTO>> GetItemsAllAsync(string userToken);
         Task<ServResp> AddItemImageAsync(int id, string userToken, ItemFilesToUpload itemFilesToUpload);
     }
@@ -24,7 +24,7 @@ namespace Services
     {
         public async Task<List<ItemDTO>> GetItemsAllAsync(string userToken)
         {
-            ApiResp totalsResp = await itemApiRepo.GetTotalItensAsync();
+            ApiResp totalsResp = await itemApiRepo.GetItensAsync(userToken);
             List<ItemDTO> items = [];
 
             ServResp itemTotalsBLLResponse = ApiRespHandler.Handler<ItemTotals>(totalsResp);
@@ -104,28 +104,27 @@ namespace Services
             return new ServResp() { Success = true, Content = null };
         }
 
-        public async Task<ItemFilesToUpload> GetItemImages(int itemId, string itemImage1, string itemImage2)
+        public async Task<ImageFile> GetItemImages(int itemId, string itemImage1, string userToken)
         {
-            throw new NotImplementedException();
-            //ItemFilesToUpload itemFilesToUpload = new();
+            try
+            {
+                ApiResp resp = await itemApiRepo.GetItemImageAsync(itemId, userToken, itemImage1);
 
-            //if (itemImage1 != null)
-            //{
-            //    ImageFile? resItemImage = await GetImageItemAsync(itemId, 1, itemImage1, FilePaths.ImagesPath);
+                // Substitua o bloco selecionado para evitar o erro de timeout em streams não suportados
+                if (resp is { Success: true, Content: Stream stream })
+                {
+                    using MemoryStream ms = new();
+                    await stream.CopyToAsync(ms, bufferSize: 81920, cancellationToken: CancellationToken.None);
+                    return new ImageFile
+                    {
+                        ImageBytes = ms.ToArray(),
+                        FileName = itemImage1,
+                        // FileContentType = "image/jpeg" // Defina se souber o tipo
+                    };
+                }
 
-            //    if (resItemImage is not null)
-            //        itemFilesToUpload.Image1 = resItemImage;
-            //}
-
-            //if (itemImage2 != null)
-            //{
-            //    ImageFile? resItemImage = await GetImageItemAsync(itemId, 2, itemImage2, FilePaths.ImagesPath);
-
-            //    if (resItemImage is not null)
-            //        itemFilesToUpload.Image2 = resItemImage;
-            //}
-
-            //return itemFilesToUpload;
+                return null;
+            }catch(Exception ex) { throw ex; }
         }
 
         public async Task<ServResp> AddItemImageAsync(int id, string userToken, ItemFilesToUpload itemFilesToUpload)

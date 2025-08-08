@@ -16,12 +16,12 @@ namespace ApiRepos
         Task<ApiResp> GetItemByIdAsync(string id, string userToken);
         Task<ApiResp> GetItemImageAsync(int id, string userToken, string fileName);
         Task<ApiResp> GetPaginatedItemsAsync(int page, string userToken);
-        Task<ApiResp> GetTotalItensAsync();
+        Task<ApiResp> GetItensAsync(string userToken);
     }
 
     public class ItemApiRepo(IHttpClientFunctions httpClientFunctions, IHttpClientWithFileFunctions httpClientWithFileFunctions) : IItemApiRepo
     {
-        public async Task<ApiResp> GetTotalItensAsync() => await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item/totals");
+        public async Task<ApiResp> GetItensAsync(string userToken) => await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item/totals", userToken);
 
         public async Task<ApiResp> GetPaginatedItemsAsync(int page, string userToken) =>
             await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item?page=" + page, userToken);
