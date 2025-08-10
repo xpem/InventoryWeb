@@ -15,16 +15,35 @@ namespace ApiRepos
         Task<ApiResp> DelItemImageAsync(int id, string userToken, string fileName);
         Task<ApiResp> GetItemByIdAsync(string id, string userToken);
         Task<ApiResp> GetItemImageAsync(int id, string userToken, string fileName);
-        Task<ApiResp> GetPaginatedItemsAsync(int page, string userToken);
-        Task<ApiResp> GetItensAsync(string userToken);
+        Task<ApiResp> GetPaginatedItemsAsync(int page, string userToken, int[]? situationIds);
+        Task<ApiResp> GetTotalItensAsync(string userToken, int[]? situationIds);
     }
 
     public class ItemApiRepo(IHttpClientFunctions httpClientFunctions, IHttpClientWithFileFunctions httpClientWithFileFunctions) : IItemApiRepo
     {
-        public async Task<ApiResp> GetItensAsync(string userToken) => await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item/totals", userToken);
+        public async Task<ApiResp> GetTotalItensAsync(string userToken, int[]? situationIds)
+        {
+            if (situationIds is not null && situationIds.Length > 0)
+            {
+                string querySituationIds = string.Join(",", situationIds);
 
-        public async Task<ApiResp> GetPaginatedItemsAsync(int page, string userToken) =>
-            await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item?page=" + page, userToken);
+                return await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item/totals?situationIds=" + querySituationIds, userToken);
+            }
+
+            return await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item/totals", userToken);
+        }
+
+        public async Task<ApiResp> GetPaginatedItemsAsync(int page, string userToken, int[]? situationIds)
+        {
+            if (situationIds is not null && situationIds.Length > 0)
+            {
+                string querySituationIds = string.Join(",", situationIds);
+
+                return await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item?page=" + page + "&situationIds=" + querySituationIds, userToken);
+            }
+
+            return await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item?page=" + page, userToken);
+        }
 
         public async Task<ApiResp> GetItemByIdAsync(string id, string userToken) =>
            await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item/" + id, userToken);

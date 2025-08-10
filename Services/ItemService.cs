@@ -16,15 +16,15 @@ namespace Services
         Task<ServResp> DelItemImageAsync(int id, string filename, string userToken);
         Task<ServResp> GetItemByIdAsync(string id, string userToken);
         Task<ImageFile> GetItemImages(int itemId, string itemImage1, string userToken);
-        Task<List<ItemDTO>> GetItemsAllAsync(string userToken);
+        Task<List<ItemDTO>> GetItemsAsync(string userToken, int[]? situationIds);
         Task<ServResp> AddItemImageAsync(int id, string userToken, ItemFilesToUpload itemFilesToUpload);
     }
 
     public class ItemService(IItemApiRepo itemApiRepo) : IItemService
     {
-        public async Task<List<ItemDTO>> GetItemsAllAsync(string userToken)
+        public async Task<List<ItemDTO>> GetItemsAsync(string userToken, int[]? situationIds)
         {
-            ApiResp totalsResp = await itemApiRepo.GetItensAsync(userToken);
+            ApiResp totalsResp = await itemApiRepo.GetTotalItensAsync(userToken, situationIds);
             List<ItemDTO> items = [];
 
             ServResp itemTotalsBLLResponse = ApiRespHandler.Handler<ItemTotals>(totalsResp);
@@ -35,7 +35,7 @@ namespace Services
 
                 for (int i = 1; i <= itemTotals?.TotalPages; i++)
                 {
-                    ApiResp resp = await itemApiRepo.GetPaginatedItemsAsync(i, userToken);
+                    ApiResp resp = await itemApiRepo.GetPaginatedItemsAsync(i, userToken, situationIds);
                     ServResp paginatedItemsBLLResponse = ApiRespHandler.Handler<List<ItemDTO>>(resp);
 
                     if (paginatedItemsBLLResponse.Success)

@@ -29,148 +29,159 @@
 </style>
 
 <div class="main-layout">
-    <EditForm Model="Item" OnValidSubmit="UpInsertItemCommand" style="height: 100%;">
-        <DataAnnotationsValidator />
 
-        <div class="row mb-3">
-            <div class="form-group">
-                <label for="inputName">Nome</label>
-                <InputText type="text" class="form-control" id="inputName" @bind-Value="@Item.Name" />
-                <ValidationMessage For="@(() => Item.Name)" />
-            </div>
+    @*     <h1 class="mb-4">@((isInsert ? "Cadastrar" : "Alterar") + " Item")</h1> *@
+
+    @if (isLoading)
+    {
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
         </div>
+    }
+    else
+    {
+        <EditForm Model="Item" OnValidSubmit="UpInsertItemCommand" style="height: 100%;">
+            <DataAnnotationsValidator />
 
-        <div class="col-lg-12 row">
-            <div class="col-sm-6 mb-1">
-                <label for="btnCategory">Categoria</label>
-                <button id="btnCategory" type="button" class="btn btn-success"
-                        style="width: 100%;"
-                        data-bs-toggle="modal" data-bs-target="#ModalCategories">
-                    @BtnCategoryText
-                </button>
-                @if (!string.IsNullOrEmpty(CategoryValidationError))
-                {
-                    <div class="text-danger">@CategoryValidationError</div>
-                }
-            </div>
-
-            <div class="col-sm-6 mb-1">
+            <div class="row mb-3">
                 <div class="form-group">
-                    <label for="inputSituation">Situação</label>
-                    <InputSelect class="form-select" id="inputSituation" @bind-Value="@SelectedItemSituationId">
-                        @foreach (var situation in ItemSituationList)
-                        {
-                            <option value="@situation.Id">@situation.Name</option>
-                        }
-                    </InputSelect>
-                    @if (!string.IsNullOrEmpty(SituationValidationError))
-                    {
-                        <div class="text-danger">@SituationValidationError</div>
-                    }
-                    <ValidationMessage For="@(() => SelectedItemSituationId)" />
+                    <label for="inputName">Nome</label>
+                    <InputText type="text" class="form-control" id="inputName" @bind-Value="@Item.Name" />
+                    <ValidationMessage For="@(() => Item.Name)" />
                 </div>
             </div>
-        </div>
 
-        @if (SelectedItemSituationId == ResaleStatusId)
-        {
-            <div class="card" style="background-color: transparent; margin-bottom: 10px;">
+            <div class="col-lg-12 row">
+                <div class="col-sm-6 mb-1">
+                    <label for="btnCategory">Categoria</label>
+                    <button id="btnCategory" type="button" class="btn btn-success"
+                            style="width: 100%;"
+                            data-bs-toggle="modal" data-bs-target="#ModalCategories">
+                        @BtnCategoryText
+                    </button>
+                    @if (!string.IsNullOrEmpty(CategoryValidationError))
+                    {
+                        <div class="text-danger">@CategoryValidationError</div>
+                    }
+                </div>
+
+                <div class="col-sm-6 mb-1">
+                    <div class="form-group">
+                        <label for="inputSituation">Situação</label>
+                        <InputSelect class="form-select" id="inputSituation" @bind-Value="@SelectedItemSituationId">
+                            @foreach (var situation in ItemSituationList)
+                            {
+                                <option value="@situation.Id">@situation.Name</option>
+                            }
+                        </InputSelect>
+                        @if (!string.IsNullOrEmpty(SituationValidationError))
+                        {
+                            <div class="text-danger">@SituationValidationError</div>
+                        }
+                        <ValidationMessage For="@(() => SelectedItemSituationId)" />
+                    </div>
+                </div>
+            </div>
+
+            @if (SelectedItemSituationId == ResaleStatusId)
+            {
+                <div class="card" style="background-color: transparent; margin-bottom: 10px;">
+                    <div class="card-body">
+                        <div class="card-title">Revenda</div>
+                        <div class="col-lg-12 row">
+                            <div class="col-lg-6 mb-1">
+                                <div class="form-group">
+                                    <label for="inputResaleValue">Valor</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">R$</span>
+                                        <InputText type="text" class="form-control" id="inputResaleValue" @bind-Value="@Item.ResaleValue" />
+                                    </div>
+                                    <ValidationMessage For="@(() => Item.ResaleValue)" />
+                                </div>
+                            </div>
+                            <div class="col-lg-6 mb-1">
+                                <div class="form-group">
+                                    <label for="inputWithdrawalDate">Data</label>
+                                    <InputDate class="form-control" id="inputWithdrawalDate" TValue="DateOnly" @bind-Value="@Item.WithdrawalDate">
+                                    </InputDate>
+                                    <ValidationMessage For="@(() => Item.WithdrawalDate)" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="card" style="background-color: transparent">
                 <div class="card-body">
-                    <div class="card-title">Revenda</div>
+                    <div class="card-title">Aquisição</div>
+                    <div class="col-lg-12 row">
+                        <div class="col-sm-6 mb-1">
+                            <div class="form-group">
+                                <label for="inputAcquisitionType">Tipo</label>
+                                <InputSelect class="form-select" id="inputAcquisitionType" @bind-Value="@SelectedAcquisitionTypeId">
+                                    @foreach (var acquisitionType in AcquisitionTypeList)
+                                    {
+                                        <option value="@acquisitionType.Id">@acquisitionType.Name</option>
+                                    }
+                                </InputSelect>
+                                @if (!string.IsNullOrEmpty(AcquisitionTypeValidationError))
+                                {
+                                    <div class="text-danger">@AcquisitionTypeValidationError</div>
+                                }
+                                <ValidationMessage For="@(() => SelectedAcquisitionTypeId)" />
+                            </div>
+                        </div>
+                        <div class="col-sm-6 mb-1">
+                            <div class="form-group">
+                                <label for="inputAcquisitionDate">Data</label>
+                                <InputDate class="form-control" id="inputAcquisitionDate" TValue="DateOnly" @bind-Value="@Item.AcquisitionDate">
+
+                                </InputDate>
+                                <ValidationMessage For="@(() => Item.AcquisitionDate)" />
+                            </div>
+                        </div>
+                    </div>
                     <div class="col-lg-12 row">
                         <div class="col-lg-6 mb-1">
                             <div class="form-group">
-                                <label for="inputResaleValue">Valor</label>
+                                <label for="inputPurchaseValue">Valor</label>
                                 <div class="input-group">
                                     <span class="input-group-text">R$</span>
-                                    <InputText type="text" class="form-control" id="inputResaleValue" @bind-Value="@Item.ResaleValue" />
+                                    <InputText type="text" class="form-control" id="inputPurchaseValue" @bind-Value="@Item.PurchaseValue" />
                                 </div>
-                                <ValidationMessage For="@(() => Item.ResaleValue)" />
+                                <ValidationMessage For="@(() => Item.PurchaseValue)" />
                             </div>
                         </div>
                         <div class="col-lg-6 mb-1">
                             <div class="form-group">
-                                <label for="inputWithdrawalDate">Data</label>
-                                <InputDate class="form-control" id="inputWithdrawalDate" TValue="DateOnly" @bind-Value="@Item.WithdrawalDate">
-                                </InputDate>
-                                <ValidationMessage For="@(() => Item.WithdrawalDate)" />
+                                <label for="inputStore">Loja</label>
+                                <InputText class="form-control" @bind-Value="@Item.PurchaseStore">
+                                    <ValidationMessage For="@(() => Item.PurchaseStore)" />
+                                </InputText>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        }
 
-        <div class="card" style="background-color: transparent">
-            <div class="card-body">
-                <div class="card-title">Aquisição</div>
-                <div class="col-lg-12 row">
-                    <div class="col-sm-6 mb-1">
-                        <div class="form-group">
-                            <label for="inputAcquisitionType">Tipo</label>
-                            <InputSelect class="form-select" id="inputAcquisitionType" @bind-Value="@SelectedAcquisitionTypeId">
-                                @foreach (var acquisitionType in AcquisitionTypeList)
-                                {
-                                    <option value="@acquisitionType.Id">@acquisitionType.Name</option>
-                                }
-                            </InputSelect>
-                            @if (!string.IsNullOrEmpty(AcquisitionTypeValidationError))
-                            {
-                                <div class="text-danger">@AcquisitionTypeValidationError</div>
-                            }
-                            <ValidationMessage For="@(() => SelectedAcquisitionTypeId)" />
-                        </div>
-                    </div>
-                    <div class="col-sm-6 mb-1">
-                        <div class="form-group">
-                            <label for="inputAcquisitionDate">Data</label>
-                            <InputDate class="form-control" id="inputAcquisitionDate" TValue="DateOnly" @bind-Value="@Item.AcquisitionDate">
-
-                            </InputDate>
-                            <ValidationMessage For="@(() => Item.AcquisitionDate)" />
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-12 row">
-                    <div class="col-lg-6 mb-1">
-                        <div class="form-group">
-                            <label for="inputPurchaseValue">Valor</label>
-                            <div class="input-group">
-                                <span class="input-group-text">R$</span>
-                                <InputText type="text" class="form-control" id="inputPurchaseValue" @bind-Value="@Item.PurchaseValue" />
-                            </div>
-                            <ValidationMessage For="@(() => Item.PurchaseValue)" />
-                        </div>
-                    </div>
-                    <div class="col-lg-6 mb-1">
-                        <div class="form-group">
-                            <label for="inputStore">Loja</label>
-                            <InputText class="form-control" @bind-Value="@Item.PurchaseStore">
-                                <ValidationMessage For="@(() => Item.PurchaseStore)" />
-                            </InputText>
-                        </div>
-                    </div>
+            <div class="row mb-3" style="margin-top: 10px;">
+                <div class="form-group">
+                    <label for="inputDescription">Descrição técnica</label>
+                    <InputTextArea type="text" class="form-control" id="inputDescription" @bind-Value="@Item.TechnicalDescription" rows="2" />
+                    <ValidationMessage For="@(() => Item.TechnicalDescription)" />
                 </div>
             </div>
-        </div>
 
-        <div class="row mb-3" style="margin-top: 10px;">
-            <div class="form-group">
-                <label for="inputDescription">Descrição técnica</label>
-                <InputTextArea type="text" class="form-control" id="inputDescription" @bind-Value="@Item.TechnicalDescription" rows="2" />
-                <ValidationMessage For="@(() => Item.TechnicalDescription)" />
+            <div class="row mb-3" style="margin-top: 10px;">
+                <div class="form-group">
+                    <label for="inputComment">Comentários</label>
+                    <InputTextArea type="text" class="form-control" id="inputComment" @bind-Value="@Item.Comment" rows="2" />
+                    <ValidationMessage For="@(() => Item.Comment)" />
+                </div>
             </div>
-        </div>
 
-        <div class="row mb-3" style="margin-top: 10px;">
-            <div class="form-group">
-                <label for="inputComment">Comentários</label>
-                <InputTextArea type="text" class="form-control" id="inputComment" @bind-Value="@Item.Comment" rows="2" />
-                <ValidationMessage For="@(() => Item.Comment)" />
-            </div>
-        </div>
-
-        @*    <div class="col-lg-12" style="display: flex;">
+            @*    <div class="col-lg-12" style="display: flex;">
                     <a class="btn btn-secondary">
                         <i class="fa-solid fa-folder-open"></i>
                     </a>
@@ -196,48 +207,49 @@
 
                 <canvas id="photoCanvas" style="display: none;"></canvas> *@
 
-        <hr class="mt-4" />
-        <div class="camera-section">
-            @if (string.IsNullOrEmpty(imageDataUrl))
-            {
-                <h4 class="mb-3">Tirar Foto do Item</h4>
+            <hr class="mt-4" />
+            <div class="camera-section">
+                @if (string.IsNullOrEmpty(imageDataUrl))
+                {
+                    @*          <h4 class="mb-3">Tirar Foto do Item</h4>
+ *@
+                    <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
+                        <a data-bs-toggle="modal" data-bs-target="#ModalCamera" class="btn btn-primary" @onclick="StartCamera" disabled="@isCameraActive">
+                            <i class="fas fa-video"></i> Iniciar Câmera
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    @*     <h5 class="mt-4 mb-3">Foto Capturada:</h5> *@
+                    <div class="d-flex justify-content-center mb-3" style="display:flex; flex-direction: column; align-items: center;">
+                        <img src="@imageDataUrl" class="img-fluid"
+                             style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
+                        <button class="btn btn-danger" @onclick="DeletePhoto" style="max-width:400px; width: 100%;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                }
+            </div>
 
-                <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
-                    <a data-bs-toggle="modal" data-bs-target="#ModalCamera" class="btn btn-primary" @onclick="StartCamera" disabled="@isCameraActive">
-                        <i class="fas fa-video"></i> Iniciar Câmera
-                    </a>
-                </div>
-            }
-            else
-            {
-                <h5 class="mt-4 mb-3">Foto Capturada:</h5>
-                <div class="d-flex justify-content-center mb-3" style="display:flex; flex-direction: column; align-items: center;">
-                    <img src="@imageDataUrl" class="img-fluid"
-                         style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
-                    <button class="btn btn-danger" @onclick="DeletePhoto" style="max-width:400px; width: 100%;">
-                        <i class="fas fa-trash"></i>
+            <div class="d-grid" style="margin-top:10px;" disabled=@BtnInsertIsEnabled>
+                @if (isInsert)
+                {
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Cadastrar
                     </button>
-                </div>
-            }
-        </div>
+                }
+                else
+                {
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Alterar
+                    </button>
+                }
+            </div>
+            <div class="col-lg-12" style="margin-top: 20px"><a href="/"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
 
-        <div class="d-grid" style="margin-top:10px;" disabled=@BtnInsertIsEnabled>
-            @if (isInsert)
-            {
-                <button type="submit" class="btn btn-primary">
-                    <i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Cadastrar
-                </button>
-            }
-            else
-            {
-                <button type="submit" class="btn btn-warning">
-                    <i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Alterar
-                </button>
-            }
-        </div>
-        <div class="col-lg-12" style="margin-top: 20px"><a href="/"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
-
-    </EditForm>
+        </EditForm>
+    }
 </div>
 <!-- Modal Camera-->
 <div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="ModalCamera" tabindex="-1" aria-labelledby="ModalCamera" aria-hidden="true">
@@ -489,6 +501,8 @@
 
     private string? imageDataUrl; // Para armazenar a imagem em Base64
 
+    private bool isLoading = true;
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         // if (!_shown)
@@ -497,108 +511,6 @@
         await JS.InvokeVoidAsync("formatCurrency", "inputPurchaseValue");
         await JS.InvokeVoidAsync("formatCurrency", "inputResaleValue");
         // }
-    }
-
-    private async Task StartCamera()
-    {
-        try
-        {
-            // Invoca a função JavaScript para iniciar o feed da câmera
-            await JS.InvokeVoidAsync("cameraInterop.startCameraFeed", "videoFeed");
-            isCameraActive = true;
-            tempImageDataUrl = null; // Limpa qualquer foto capturada anteriormente
-            // Força a atualização da UI para refletir o novo estado dos botões
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Erro ao iniciar câmera: {ex.Message}");
-            // Considere exibir uma mensagem de erro amigável ao usuário
-        }
-    }
-
-    private async Task StopCamera()
-    {
-        // Invoca a função JavaScript para parar o feed da câmera
-        await JS.InvokeVoidAsync("cameraInterop.stopCameraFeed", "videoFeed");
-        isCameraActive = false;
-        // Força a atualização da UI para refletir o novo estado dos botões
-        StateHasChanged();
-    }
-
-    private async Task TakePhoto()
-    {
-        if (isCameraActive) // Garante que a câmera está ativa antes de tentar capturar
-        {
-            // Invoca a função JavaScript para capturar a foto do feed de vídeo
-            // E recebe a imagem em Base64 de volta
-            tempImageDataUrl = await JS.InvokeAsync<string>("cameraInterop.capturePhoto", "videoFeed", "photoCanvas");
-            // Opcional: parar a câmera automaticamente após tirar a foto
-            await StopCamera();
-            StateHasChanged(); // Força a atualização da UI para exibir a foto
-
-            isPhotoTaked = true;
-        }
-    }
-    private async Task DeletePhoto()
-    {
-        imageDataUrl = null;
-    }
-
-    private void ClearPhoto()
-    {
-        tempImageDataUrl = null;
-        StateHasChanged(); // Força a atualização da UI
-        isPhotoTaked = false;
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (isCameraActive)
-        {
-            await StopCamera();
-        }
-    }
-
-    private async Task SavePhoto()
-    {
-        if (!string.IsNullOrEmpty(tempImageDataUrl))
-        {
-            // Exemplo de como remover o prefixo e converter para bytes
-            var base64String = tempImageDataUrl.Split(',')[1];
-            byte[] imageBytes = Convert.FromBase64String(base64String);
-
-            Console.WriteLine($"Foto capturada e convertida para {imageBytes.Length} bytes. Pronto para salvar!");
-
-            isPhotoTaked = false;
-            imageDataUrl = tempImageDataUrl;
-            tempImageDataUrl = null;
-            StateHasChanged(); // Force UI update if needed
-        }
-    }
-
-    public void SetSelectedCategory(int categoryId)
-    {
-        SelectedCaregory = _categories.Where(x => x.Id == categoryId).First();
-        BtnCategoryText = SelectedCaregory.Name;
-    }
-
-    public void SetSelectedSubCategory(int? subCategoryId)
-    {
-        if (subCategoryId is not null)
-        {
-            SelectedSubCategoryId = subCategoryId.Value;
-            BtnCategoryText = SelectedCaregory.Name + "/" + SelectedCaregory.SubCategories.Where(x => x.Id == subCategoryId).First().Name;
-        }
-        else
-        {
-            BtnCategoryText = SelectedCaregory.Name;
-        }
-    }
-
-    public void SetSubCategoryToShow(int categoryId)
-    {
-        SelectedCaregory = _categories.Where(x => x.Id == categoryId).First();
     }
 
     protected override async Task OnInitializedAsync()
@@ -682,12 +594,31 @@
                                     else if (_item.Category.Id.HasValue)
                                         SetSelectedCategory(_item.Category.Id.Value);
 
+                                    if (!string.IsNullOrEmpty(_item.Image1) && _item.Id.HasValue)
+                                    {
+                                        try
+                                        {
+                                            var imageFile = await itemService.GetItemImages(_item.Id.Value, _item.Image1, userToken);
+                                            if (imageFile?.ImageBytes is not null)
+                                            {
+                                                string base64 = Convert.ToBase64String(imageFile.ImageBytes);
+                                                imageDataUrl = $"data:image/png;base64,{base64}";
+                                            }
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            Console.WriteLine($"Erro ao carregar imagem para o item {_item.Id}: {ex.Message}");
+                                            // Opcional: tratar o erro, por exemplo, mantendo o placeholder
+                                        }
+                                    }
+
                                 }
                             }
                         }
                         catch (Exception ex) { throw ex; }
                     }
                 }
+                isLoading = false;
             }
             else
             {
@@ -697,6 +628,109 @@
             }
         }
         catch (Exception ex) { throw ex; }
+    }
+
+    private async Task StartCamera()
+    {
+        try
+        {
+            // Invoca a função JavaScript para iniciar o feed da câmera
+            await JS.InvokeVoidAsync("cameraInterop.startCameraFeed", "videoFeed");
+            isCameraActive = true;
+            tempImageDataUrl = null; // Limpa qualquer foto capturada anteriormente
+            // Força a atualização da UI para refletir o novo estado dos botões
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao iniciar câmera: {ex.Message}");
+            // Considere exibir uma mensagem de erro amigável ao usuário
+        }
+    }
+
+    private async Task StopCamera()
+    {
+        // Invoca a função JavaScript para parar o feed da câmera
+        await JS.InvokeVoidAsync("cameraInterop.stopCameraFeed", "videoFeed");
+        isCameraActive = false;
+        // Força a atualização da UI para refletir o novo estado dos botões
+        StateHasChanged();
+    }
+
+    private async Task TakePhoto()
+    {
+        if (isCameraActive) // Garante que a câmera está ativa antes de tentar capturar
+        {
+            // Invoca a função JavaScript para capturar a foto do feed de vídeo
+            // E recebe a imagem em Base64 de volta
+            tempImageDataUrl = await JS.InvokeAsync<string>("cameraInterop.capturePhoto", "videoFeed", "photoCanvas");
+            // Opcional: parar a câmera automaticamente após tirar a foto
+            await StopCamera();
+            StateHasChanged(); // Força a atualização da UI para exibir a foto
+
+            isPhotoTaked = true;
+        }
+    }
+
+    private async Task DeletePhoto()
+    {
+        imageDataUrl = null;
+    }
+
+    private void ClearPhoto()
+    {
+        tempImageDataUrl = null;
+        StateHasChanged(); // Força a atualização da UI
+        isPhotoTaked = false;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (isCameraActive)
+        {
+            await StopCamera();
+        }
+    }
+
+    private async Task SavePhoto()
+    {
+        if (!string.IsNullOrEmpty(tempImageDataUrl))
+        {
+            // Exemplo de como remover o prefixo e converter para bytes
+            var base64String = tempImageDataUrl.Split(',')[1];
+            byte[] imageBytes = Convert.FromBase64String(base64String);
+
+            Console.WriteLine($"Foto capturada e convertida para {imageBytes.Length} bytes. Pronto para salvar!");
+
+            isPhotoTaked = false;
+            imageDataUrl = tempImageDataUrl;
+            tempImageDataUrl = null;
+            StateHasChanged(); // Force UI update if needed
+        }
+    }
+
+    public void SetSelectedCategory(int categoryId)
+    {
+        SelectedCaregory = _categories.Where(x => x.Id == categoryId).First();
+        BtnCategoryText = SelectedCaregory.Name;
+    }
+
+    public void SetSelectedSubCategory(int? subCategoryId)
+    {
+        if (subCategoryId is not null)
+        {
+            SelectedSubCategoryId = subCategoryId.Value;
+            BtnCategoryText = SelectedCaregory.Name + "/" + SelectedCaregory.SubCategories.Where(x => x.Id == subCategoryId).First().Name;
+        }
+        else
+        {
+            BtnCategoryText = SelectedCaregory.Name;
+        }
+    }
+
+    public void SetSubCategoryToShow(int categoryId)
+    {
+        SelectedCaregory = _categories.Where(x => x.Id == categoryId).First();
     }
 
     private async Task SetAcquisitionType(string userToken)
@@ -853,38 +887,16 @@
                     message = "Item Adicionado!";
                 }
                 else
-                    message = "Erro ao adicionar o item.";
+                    message = "Erro ao adicionar o item. "+ resp.ErrorMessage;
             }
 
-
-            if (!string.IsNullOrEmpty(imageDataUrl) && itemDTO is not null && itemDTO.Id.HasValue)
+            if (imageDataUrl is null && itemDTO.Image1 is not null && Item.Id > 0)
             {
-                var base64String = imageDataUrl.Split(',')[1];
-                byte[] imageBytes = Convert.FromBase64String(base64String);
-
-                string fileContentType = null;
-                if (!string.IsNullOrEmpty(imageDataUrl) && imageDataUrl.StartsWith("data:"))
-                {
-                    var parts = imageDataUrl.Split(';')[0].Split(':');
-                    if (parts.Length == 2)
-                        fileContentType = parts[1]; // Exemplo: "image/jpeg"
-                }
-
-                string fileName = Guid.NewGuid().ToString();
-
-                ItemFilesToUpload itemFilesToUpload = new()
-                {
-                    Image1 = new() { FileId = 1, ImageBytes = imageBytes, FileName = fileName + GetExtensionByMimeType(fileContentType), FileContentType = fileContentType }
-                };
-
-                try
-                {
-                    await itemService.AddItemImageAsync(itemDTO.Id.Value, userToken, itemFilesToUpload);
-                }
-                catch (Exception ex)
-                {
-                    throw ex;
-                }
+                await DelImage(itemDTO);
+            }
+            else if (!string.IsNullOrEmpty(imageDataUrl) && itemDTO is not null && itemDTO.Id.HasValue)
+            {
+                await UpInsertImage(itemDTO);
             }
 
             string styleMessage = "text-bg-success";
@@ -898,6 +910,41 @@
         }
     }
 
+    async Task DelImage(Models.DTO.ItemDTO itemDTO)
+    {
+        var resp = await itemService.DelItemImageAsync(itemDTO.Id.Value, itemDTO.Image1, userToken);
+    }
+
+    async Task UpInsertImage(Models.DTO.ItemDTO itemDTO)
+    {
+        var base64String = imageDataUrl.Split(',')[1];
+        byte[] imageBytes = Convert.FromBase64String(base64String);
+
+        string fileContentType = null;
+        if (!string.IsNullOrEmpty(imageDataUrl) && imageDataUrl.StartsWith("data:"))
+        {
+            var parts = imageDataUrl.Split(';')[0].Split(':');
+            if (parts.Length == 2)
+                fileContentType = parts[1]; // Exemplo: "image/jpeg"
+        }
+
+        string fileName = Guid.NewGuid().ToString();
+
+        ItemFilesToUpload itemFilesToUpload = new()
+        {
+            Image1 = new() { FileId = 1, ImageBytes = imageBytes, FileName = fileName + GetExtensionByMimeType(fileContentType), FileContentType = fileContentType }
+        };
+
+        try
+        {
+            await itemService.AddItemImageAsync(itemDTO.Id.Value, userToken, itemFilesToUpload);
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
     string? GetExtensionByMimeType(string mimeType)
     {
         switch (mimeType)
@@ -907,6 +954,15 @@
             case "image/gif": return ".gif";
             default: return null;
         }
+    }
+
+    string GetImageSrc(string fileName, int itemId)
+    {
+        var imageFile = itemService.GetItemImages(itemId, fileName, userToken).Result;
+
+        if (imageFile?.ImageBytes is null) return null;
+        string base64 = Convert.ToBase64String(imageFile.ImageBytes);
+        return $"data:image/png;base64,{base64}";
     }
 }
 

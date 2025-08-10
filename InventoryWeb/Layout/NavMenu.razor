@@ -6,7 +6,7 @@
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-       @*  <a class="navbar-brand" href="">  *@XPEM Inventário@* </a> *@
+        <NavLink class="navbar-brand" href=""> XPEM Inventário </NavLink>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -14,7 +14,7 @@
 </div>
 
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-@*     <div class="bg-dark p-4">
+    @*     <div class="bg-dark p-4">
         <h5 class="text-body-emphasis h4">Collapsed content</h5>
         <span class="text-body-secondary">Toggleable via the navbar brand.</span>
     </div> *@
@@ -29,7 +29,8 @@
                 <i class="fa-solid fa-tags"></i>&nbsp;&nbsp; Categorias
             </NavLink>
         </div>
-        <div class="nav-item px-3" style="position: absolute; bottom: 5px; width: 100%;">
+@*         style="position: absolute; bottom: 5px; width: 100%;" *@
+        <div class="nav-item px-3">
             <NavLink class="nav-link" style="background-color: var(--bs-danger);" @onclick="Logout">
                 <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>&nbsp;&nbsp;Sair
             </NavLink>
