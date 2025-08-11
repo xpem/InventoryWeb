@@ -45,33 +45,26 @@
         <div style="display: flex; flex-direction: row; flex-wrap: wrap;">
             @foreach (var item in items)
             {
-                <div class="card mb-3 linked-card" style="width: 400px; margin: 10px;" @onclick='() => Navigation.NavigateTo("/item/edit?x=" + item.Id)'>
-                    <div class="row" style="height: 100%;">
-                        <div class="col-md-4" style="display: flex; align-items: center; justify-content: center;">
-
-                            @if (item.IsImage1Base64)
-                            {
-                                <div class="spinner-border text-primary" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                            }
-                            else if (item.Image1Base64 is not null)
-                            {
-                                <img src="@item.Image1Base64" style="height: 100%;" class="img-fluid rounded-start" alt="Item Image">
-                            }
-                            else
-                            {
-                                <img src="images/box-image.png" class="img-fluid rounded-start" alt="Item Image">
-                            }
+                <div class="card mb-3 linked-card" style="width: 18rem; margin: 1rem;" @onclick='() => Navigation.NavigateTo("/item/edit?x=" + item.Id)'>
+                    @if (item.IsImage1Base64)
+                    {
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
                         </div>
-                        <div class="col-md-8">
-                            <div class="card-body">
-                                <p class="card-title">@item.Name</p>
-                                <p class="card-subtitle mb-2 text-body-secondary">@item.CategoryAndSubCategory</p>
-                                @*     <p class="card-text">longer.</p>
+                    }
+                    else if (item.Image1Base64 is not null)
+                    {
+                        <img src="@item.Image1Base64" class="card-img-top" style="max-height:300px;" alt="Item Image">
+                    }
+                    else
+                    {
+                        <img src="images/box-image.png" class="card-img-top" style="max-height:300px;" alt="Item Image">
+                    }
+                    <div class="card-body">
+                        <p class="card-title">@item.Name</p>
+                        <p class="card-subtitle mb-2 text-body-secondary">@item.CategoryAndSubCategory</p>
+                        @*     <p class="card-text">longer.</p>
                             <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p> *@
-                            </div>
-                        </div>
                     </div>
                 </div>
             }

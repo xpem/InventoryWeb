@@ -655,6 +655,7 @@
         // Invoca a função JavaScript para parar o feed da câmera
         await JS.InvokeVoidAsync("cameraInterop.stopCameraFeed", "videoFeed");
         isCameraActive = false;
+        ClearPhoto();
         // Força a atualização da UI para refletir o novo estado dos botões
         StateHasChanged();
     }
@@ -674,10 +675,7 @@
         }
     }
 
-    private async Task DeletePhoto()
-    {
-        imageDataUrl = null;
-    }
+    private void DeletePhoto() => imageDataUrl = null;
 
     private void ClearPhoto()
     {
