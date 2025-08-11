@@ -11,6 +11,9 @@
 @inject IJSRuntime JS
 @inject ToastService ToastService
 @inject CustomAuthenticationService customAuthenticationService
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+
 <PageTitle>Cadastrar usuário</PageTitle>
 
 <div class="main-layout">
@@ -58,17 +61,18 @@
 
     private ClaimsPrincipal? usuario;
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     if (authStateProvider is CustomAuthStateProvider customAuth)
-    //     {
-    //         var authState = await customAuth.GetAuthenticationStateAsync();
-    //         usuario = authState.User;
+    protected override async Task OnInitializedAsync()
+    {
+        // Obtém o estado de autenticação atual
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User; // O ClaimsPrincipal do usuário
 
-    //         // Exemplo: acessar o nome do usuário autenticado
-    //         var nome = usuario.Identity?.Name;
-    //     }
-    // }
+        // Verifica se o usuário está autenticado
+        if (user.Identity?.IsAuthenticated == true)
+        {
+                    Navigation.NavigateTo("/");            
+        }
+    }
 
     private async Task SignInCommand()
     {

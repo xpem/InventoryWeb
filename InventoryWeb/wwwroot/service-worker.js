@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v2'; // Altere este valor a cada publicação
+const CACHE_VERSION = 'v3'; // Altere este valor a cada publicação
 
 // In development, always fetch from the network and do not enable offline support.
 // This is because caching would make development more difficult (changes would not

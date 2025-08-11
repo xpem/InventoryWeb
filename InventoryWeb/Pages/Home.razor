@@ -25,17 +25,19 @@
 <div class="col-lg-12" style="margin-bottom: 10px; margin-top:20px;">
     <button type="button" class="btn btn-primary mb-3" @onclick='() => Navigation.NavigateTo("/item/edit")'><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Adicionar Item</button>
 
-    <div class="col-lg-12">
+    @*     <div class="col-lg-12">
         @foreach (var situation in ItemsSituationObsList)
         {
             <span class="badge rounded-pill mb-3" style="background-color:@situation.BackgoundColor; color: white; font-size: 14px; width: 110px; margin: 5px;" @onclick='() => SetSelectedItemSituation(situation.Id.Value)'>@situation.Name</span>
         }
-    </div>
+    </div> *@
 
     @if (LoadingList)
     {
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
+        <div class="col-lg-12">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </div>
     }
     else
@@ -81,7 +83,7 @@
 @code {
     private string? userEmail;
     private string? userToken;
-    private List<int> SelectetSituationIds = [1]; // Situação "Em Uso" padrão
+    // private List<int> SelectetSituationIds = [1]; // Situação "Em Uso" padrão
 
     List<Models.DTO.ItemDTO> items = new List<Models.DTO.ItemDTO>();
 
@@ -132,47 +134,67 @@
         }
     }
 
-    async Task SetSelectedItemSituation(int situationid)
-    {
-        // Cancela a execução anterior, se houver
-        _setSituationCts?.Cancel();
-        _setSituationCts = new CancellationTokenSource();
-        var token = _setSituationCts.Token;
+    // async Task SetSelectedItemSituation(int situationid)
+    // {
+    //     // Cancela a execução anterior, se houver
+    //     _setSituationCts?.Cancel();
+    //     _setSituationCts = new CancellationTokenSource();
+    //     var token = _setSituationCts.Token;
 
-        if (SelectetSituationIds.Contains(situationid))
-        {
-            ItemsSituationObsList.Where(x => x.Id == situationid).First().BackgoundColor = "#919191";
+    //     if (SelectetSituationIds.Contains(situationid))
+    //     {
+    //         ItemsSituationObsList.Where(x => x.Id == situationid).First().BackgoundColor = "#919191";
 
-            SelectetSituationIds.Remove(situationid);
-        }
-        else
-        {
-            SelectetSituationIds.Add(situationid);
-            ItemsSituationObsList.Where(x => x.Id == situationid).First().BackgoundColor = "#29A0B1";
-        }
+    //         SelectetSituationIds.Remove(situationid);
+    //     }
+    //     else
+    //     {
+    //         SelectetSituationIds.Add(situationid);
+    //         ItemsSituationObsList.Where(x => x.Id == situationid).First().BackgoundColor = "#29A0B1";
+    //     }
 
-        try
-        {
-            await Task.Delay(2000, token);
-        }
-        catch (TaskCanceledException)
-        {
-            return; // Sai se cancelado
-        }
+    //     try
+    //     {
+    //         await Task.Delay(2000, token);
+    //     }
+    //     catch (TaskCanceledException)
+    //     {
+    //         return; // Sai se cancelado
+    //     }
 
-        if (!token.IsCancellationRequested)
-        {
-            await GetItemsList();
-        }
-    }
+    //     if (!token.IsCancellationRequested)
+    //     {
+    //         await GetItemsList();
+    //     }
+    // }
 
     async Task GetItemsList()
     {
         LoadingList = true;
-        items = await itemService.GetItemsAsync(userToken, SelectetSituationIds.ToArray());
+        items = await itemService.GetItemsAsync(userToken, null);
+        // items = await itemService.GetItemsAsync(userToken, SelectetSituationIds.ToArray());
 
         string image1Base64;
 
+        foreach (var itemDTO in items)
+        {
+            itemDTO.CategoryAndSubCategory = itemDTO.Category.Name;
+
+            if (itemDTO.Category?.SubCategory?.Name is not null)
+            {
+                itemDTO.CategoryAndSubCategory += "/" + itemDTO.Category.SubCategory.Name;
+            }
+        }
+
+        LoadingList = false;
+
+        await InvokeAsync(StateHasChanged);
+
+        _ = GetItemsImagesAsync();
+    }
+
+    async Task GetItemsImagesAsync()
+    {
         foreach (var itemDTO in items)
         {
             if (!string.IsNullOrEmpty(itemDTO.Image1) && itemDTO.Id.HasValue)
@@ -193,24 +215,12 @@
                 }
             }
 
-            itemDTO.CategoryAndSubCategory = itemDTO.Category.Name;
-
-            if (itemDTO.Category?.SubCategory?.Name is not null)
-            {
-                itemDTO.CategoryAndSubCategory += "/" + itemDTO.Category.SubCategory.Name;
-            }
-
             // Marca o carregamento como concluído para este item
             itemDTO.IsImage1Base64 = false;
 
             // Notifica o Blazor de que o estado do componente mudou
             await InvokeAsync(StateHasChanged);
         }
-
-
-        LoadingList = false;
-
-        await InvokeAsync(StateHasChanged);
     }
 
     async Task SetItemSituation()

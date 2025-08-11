@@ -40,7 +40,7 @@
     }
     else
     {
-        <EditForm Model="Item" OnValidSubmit="UpInsertItemCommand" style="height: 100%;">
+        <EditForm Model="Item" OnValidSubmit="UpInsertItemCommand" style="height: 100%; width: -webkit-fill-available;">
             <DataAnnotationsValidator />
 
             <div class="row mb-3">
@@ -116,7 +116,7 @@
                 <div class="card-body">
                     <div class="card-title">Aquisição</div>
                     <div class="col-lg-12 row">
-                        <div class="col-sm-6 mb-1">
+                        <div class="col-sm-6 mb-2">
                             <div class="form-group">
                                 <label for="inputAcquisitionType">Tipo</label>
                                 <InputSelect class="form-select" id="inputAcquisitionType" @bind-Value="@SelectedAcquisitionTypeId">
@@ -261,18 +261,20 @@
             <div class="modal-body">
                 @if (!isPhotoTaked)
                 {
-                    <div class="d-flex justify-content-center align-items-center mb-3">
+                    <div class="d-flex justify-content-center align-items-center mb-3" style="display:flex; flex-direction: column; align-items: center;">
                         <video id="videoFeed" autoplay playsinline class="img-fluid"
+                               @onclick="TakePhoto"
                                style="max-width: 400px; border: 1px solid #ccc; background-color: #f0f0f0;"></video>
-                    </div>
-                    <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
-                        <a class="btn btn-danger" @onclick="StopCamera" disabled="@(!isCameraActive)">
-                            <i class="fas fa-stop"></i>
-                        </a>
-                        <a class="btn btn-success" @onclick="TakePhoto" disabled="@(!isCameraActive)">
+                        <a class="btn btn-success" @onclick="TakePhoto" disabled="@(!isCameraActive)" style="max-width:400px; width: 100%;">
                             <i class="fas fa-camera"></i> Capturar Foto
                         </a>
                     </div>
+                    @*    <div class="d-flex justify-content-center flex-wrap gap-2 mb-3"> *@
+                    @*                         <a class="btn btn-danger" @onclick="StopCamera" disabled="@(!isCameraActive)" data-bs-dismiss="modal">
+                            <i class="fas fa-stop"></i>
+                        </a> *@
+
+                    @* </div> *@
                 }
 
                 @if (!string.IsNullOrEmpty(tempImageDataUrl))
@@ -295,7 +297,7 @@
                 <canvas id="photoCanvas" style="display: none;"></canvas>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="color: #fff"><i class="bi bi-arrow-left-short"></i> Voltar</button>
+                <button type="button" class="btn btn-secondary" @onclick="StopCamera" data-bs-dismiss="modal" style="color: #fff"><i class="bi bi-arrow-left-short"></i> Voltar</button>
             </div>
         </div>
     </div>
@@ -692,7 +694,7 @@
         }
     }
 
-    private async Task SavePhoto()
+    private void SavePhoto()
     {
         if (!string.IsNullOrEmpty(tempImageDataUrl))
         {
@@ -887,7 +889,7 @@
                     message = "Item Adicionado!";
                 }
                 else
-                    message = "Erro ao adicionar o item. "+ resp.ErrorMessage;
+                    message = "Erro ao adicionar o item. " + resp.ErrorMessage;
             }
 
             if (imageDataUrl is null && itemDTO.Image1 is not null && Item.Id > 0)
