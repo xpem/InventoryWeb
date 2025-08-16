@@ -52,7 +52,7 @@
             </div>
 
             <div class="col-lg-12 row">
-                <div class="col-sm-6 mb-1">
+                <div class="col-sm-6 mb-3">
                     <label for="btnCategory">Categoria</label>
                     <button id="btnCategory" type="button" class="btn btn-success"
                             style="width: 100%;"
@@ -65,7 +65,7 @@
                     }
                 </div>
 
-                <div class="col-sm-6 mb-1">
+                <div class="col-sm-6 mb-3">
                     <div class="form-group">
                         <label for="inputSituation">Situação</label>
                         <InputSelect class="form-select" id="inputSituation" @bind-Value="@SelectedItemSituationId">
@@ -232,7 +232,7 @@
                 }
             </div>
 
-            <div class="d-grid" style="margin-top:10px;" disabled=@BtnInsertIsEnabled>
+            <div class="d-grid" style="position: fixed; bottom: 10px; right:10px;" disabled=@BtnInsertIsEnabled>
                 @if (isInsert)
                 {
                     <button type="submit" class="btn btn-primary">
@@ -263,9 +263,10 @@
                 {
                     <div class="d-flex justify-content-center align-items-center mb-3" style="display:flex; flex-direction: column; align-items: center;">
                         <video id="videoFeed" autoplay playsinline class="img-fluid"
+                               data-bs-dismiss="modal"
                                @onclick="TakePhoto"
                                style="max-width: 400px; border: 1px solid #ccc; background-color: #f0f0f0;"></video>
-                        <a class="btn btn-success" @onclick="TakePhoto" disabled="@(!isCameraActive)" style="max-width:400px; width: 100%;">
+                        <a class="btn btn-success" @onclick="TakePhoto" disabled="@(!isCameraActive)" style="max-width:400px; width: 100%;" data-bs-dismiss="modal">
                             <i class="fas fa-camera"></i> Capturar Foto
                         </a>
                     </div>
@@ -423,7 +424,6 @@
                  this.value = formatValue(this.value);
             }
         });
-
 
         function formatValue(value) {
             let cleanedValue = value.replace(/[^\d]+/g, ''); // Remove non-numeric characters
@@ -604,7 +604,7 @@
                                             if (imageFile?.ImageBytes is not null)
                                             {
                                                 string base64 = Convert.ToBase64String(imageFile.ImageBytes);
-                                                imageDataUrl = $"data:image/png;base64,{base64}";
+                                                imageDataUrl = $"data:image/jpeg;base64,{base64}";
                                             }
                                         }
                                         catch (Exception ex)
@@ -650,6 +650,27 @@
         }
     }
 
+    // private async Task HandleFileSelection(InputFileChangeEventArgs e)
+    // {
+    //     var file = e.File;
+    //     if (file is not null)
+    //     {
+    //         try
+    //         {
+    //             // Processa o arquivo como um stream de dados
+    //             var stream = file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024); // 5 MB
+
+    //             // Você pode ler o stream e enviá-lo para a API
+    //             // A sua classe HttpClientWithFileFunctions já está pronta para isso.
+    //             // Exemplo: await itemService.UploadItemImageAsync(itemId, userToken, stream);
+    //         }
+    //         catch (Exception ex)
+    //         {
+    //             // Lidar com o erro
+    //         }
+    //     }
+    // }
+
     private async Task StopCamera()
     {
         // Invoca a função JavaScript para parar o feed da câmera
@@ -667,10 +688,10 @@
             // Invoca a função JavaScript para capturar a foto do feed de vídeo
             // E recebe a imagem em Base64 de volta
             tempImageDataUrl = await JS.InvokeAsync<string>("cameraInterop.capturePhoto", "videoFeed", "photoCanvas");
-            // Opcional: parar a câmera automaticamente após tirar a foto
-            await StopCamera();
-            StateHasChanged(); // Força a atualização da UI para exibir a foto
 
+            SavePhoto();
+
+            await StopCamera();
             isPhotoTaked = true;
         }
     }
@@ -696,12 +717,6 @@
     {
         if (!string.IsNullOrEmpty(tempImageDataUrl))
         {
-            // Exemplo de como remover o prefixo e converter para bytes
-            var base64String = tempImageDataUrl.Split(',')[1];
-            byte[] imageBytes = Convert.FromBase64String(base64String);
-
-            Console.WriteLine($"Foto capturada e convertida para {imageBytes.Length} bytes. Pronto para salvar!");
-
             isPhotoTaked = false;
             imageDataUrl = tempImageDataUrl;
             tempImageDataUrl = null;
@@ -826,7 +841,7 @@
             throw new ArgumentException(input + " cannot be empty.");
     }
 
-    public async Task UpInsertItemCommand()
+    async Task UpInsertItemCommand()
     {
         if (Validate())
         {
@@ -896,7 +911,7 @@
             }
             else if (!string.IsNullOrEmpty(imageDataUrl) && itemDTO is not null && itemDTO.Id.HasValue)
             {
-                await UpInsertImage(itemDTO);
+               await UpInsertImage(itemDTO);
             }
 
             string styleMessage = "text-bg-success";
@@ -917,32 +932,58 @@
 
     async Task UpInsertImage(Models.DTO.ItemDTO itemDTO)
     {
-        var base64String = imageDataUrl.Split(',')[1];
-        byte[] imageBytes = Convert.FromBase64String(base64String);
-
-        string fileContentType = null;
-        if (!string.IsNullOrEmpty(imageDataUrl) && imageDataUrl.StartsWith("data:"))
+        if (string.IsNullOrEmpty(imageDataUrl) || !imageDataUrl.Contains(","))
         {
-            var parts = imageDataUrl.Split(';')[0].Split(':');
-            if (parts.Length == 2)
-                fileContentType = parts[1]; // Exemplo: "image/jpeg"
+            // A string Base64 não é válida, logue um erro ou retorne
+            Console.WriteLine("String Base64 inválida.");
+            return;
         }
 
-        string fileName = Guid.NewGuid().ToString();
-
-        ItemFilesToUpload itemFilesToUpload = new()
-        {
-            Image1 = new() { FileId = 1, ImageBytes = imageBytes, FileName = fileName + GetExtensionByMimeType(fileContentType), FileContentType = fileContentType }
-        };
-
+        // A string Base64 tem o formato esperado
+        var base64String = imageDataUrl.Split(',')[1];
         try
         {
-            await itemService.AddItemImageAsync(itemDTO.Id.Value, userToken, itemFilesToUpload);
+            byte[] imageBytes = Convert.FromBase64String(base64String);
+
+            string fileContentType = null;
+            if (!string.IsNullOrEmpty(imageDataUrl) && imageDataUrl.StartsWith("data:"))
+            {
+                var parts = imageDataUrl.Split(';')[0].Split(':');
+                if (parts.Length == 2)
+                    fileContentType = parts[1]; // Exemplo: "image/jpeg"
+            }
+
+            string fileName = Guid.NewGuid().ToString();
+
+            ItemFilesToUpload itemFilesToUpload = new()
+            {
+                Image1 = new() { FileId = 1, ImageBytes = imageBytes, FileName = fileName + GetExtensionByMimeType(fileContentType), FileContentType = fileContentType }
+            };
+
+            try
+            {
+                await itemService.AddItemImageAsync(itemDTO.Id.Value, userToken, itemFilesToUpload);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+        catch (FormatException ex)
+        {
+            // A string Base64 está mal formada, mas tem o prefixo "data:..."
+            Console.WriteLine($"Erro de formatação na string Base64: {ex.Message}");
         }
         catch (Exception ex)
         {
-            throw ex;
+            // Outros erros
+            Console.WriteLine($"Erro ao converter Base64: {ex.Message}");
         }
+
+        // var base64String = imageDataUrl.Split(',')[1];
+        // byte[] imageBytes = Convert.FromBase64String(base64String);
+
+
     }
 
     string? GetExtensionByMimeType(string mimeType)
@@ -962,7 +1003,7 @@
 
         if (imageFile?.ImageBytes is null) return null;
         string base64 = Convert.ToBase64String(imageFile.ImageBytes);
-        return $"data:image/png;base64,{base64}";
+        return $"data:image/jpeg;base64,{base64}";
     }
 }
 

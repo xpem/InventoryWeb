@@ -18,10 +18,35 @@ namespace Services
         Task<ImageFile> GetItemImages(int itemId, string itemImage1, string userToken);
         Task<List<ItemDTO>> GetItemsAsync(string userToken, int[]? situationIds);
         Task<ServResp> AddItemImageAsync(int id, string userToken, ItemFilesToUpload itemFilesToUpload);
+
+        Task<ServResp> GetItemsTotalPages(string userToken, int[]? situationIds);
+
+        Task<List<ItemDTO>> GetItemsPaginatedAsync(string userToken, int[]? situationIds, int page);
     }
 
     public class ItemService(IItemApiRepo itemApiRepo) : IItemService
     {
+        public async Task<ServResp> GetItemsTotalPages(string userToken, int[]? situationIds)
+        {
+            ApiResp totalsResp = await itemApiRepo.GetTotalItensAsync(userToken, situationIds);
+
+            return ApiRespHandler.Handler<ItemTotals>(totalsResp);
+        }
+
+        public async Task<List<ItemDTO>> GetItemsPaginatedAsync(string userToken, int[]? situationIds, int page)
+        {
+            List<ItemDTO> items = [];
+
+            ApiResp resp = await itemApiRepo.GetPaginatedItemsAsync(page, userToken, situationIds);
+            ServResp paginatedItemsBLLResponse = ApiRespHandler.Handler<List<ItemDTO>>(resp);
+
+            if (paginatedItemsBLLResponse.Success)
+                if (paginatedItemsBLLResponse.Content is List<ItemDTO> pageItems)
+                    items.AddRange(pageItems);
+
+            return items;
+        }
+
         public async Task<List<ItemDTO>> GetItemsAsync(string userToken, int[]? situationIds)
         {
             ApiResp totalsResp = await itemApiRepo.GetTotalItensAsync(userToken, situationIds);
@@ -110,7 +135,6 @@ namespace Services
             {
                 ApiResp resp = await itemApiRepo.GetItemImageAsync(itemId, userToken, itemImage1);
 
-                // Substitua o bloco selecionado para evitar o erro de timeout em streams não suportados
                 if (resp is { Success: true, Content: Stream stream })
                 {
                     using MemoryStream ms = new();
@@ -119,12 +143,12 @@ namespace Services
                     {
                         ImageBytes = ms.ToArray(),
                         FileName = itemImage1,
-                        // FileContentType = "image/jpeg" // Defina se souber o tipo
                     };
                 }
 
                 return null;
-            }catch(Exception ex) { throw ex; }
+            }
+            catch (Exception ex) { throw ex; }
         }
 
         public async Task<ServResp> AddItemImageAsync(int id, string userToken, ItemFilesToUpload itemFilesToUpload)

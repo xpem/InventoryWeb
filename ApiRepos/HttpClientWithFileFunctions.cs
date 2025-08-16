@@ -1,12 +1,7 @@
 ﻿using Models;
 using Models.Item.Files;
 using Models.Resps;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ApiRepos
 {
@@ -18,10 +13,12 @@ namespace ApiRepos
         {
             try
             {
-                HttpClient httpClient = new();
 
                 if (userToken is not null)
+                {
+                    httpClient.DefaultRequestHeaders.Clear();
                     httpClient.DefaultRequestHeaders.Add("authorization", "bearer " + userToken);
+                }
 
                 HttpResponseMessage httpResponse = new();
 
@@ -46,8 +43,7 @@ namespace ApiRepos
                         {
                             if (content is not null and ItemFilesToUpload itemFilesToUpload)
                             {
-
-                                if (itemFilesToUpload.Image1 != null)
+                                if (itemFilesToUpload.Image1?.ImageBytes != null)
                                 {
                                     //using FileStream fs = new(itemFilesToUpload.Image1.ImageFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
                                     //using MemoryStream memoryStream = new();
@@ -56,17 +52,11 @@ namespace ApiRepos
                                     //ByteArrayContent fileContent = new(itemFilesToUpload.Image1.ImageBytes);
 
                                     //fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(itemFilesToUpload.Image1.FileContentType);
-                                    // Para que o backend reconheça o arquivo como um IFormFile, é importante:
-                                    // 1. Usar MultipartFormDataContent.
-                                    // 2. Adicionar o ByteArrayContent com o nome do campo igual ao esperado pelo backend.
-                                    // 3. Definir o nome do arquivo e o Content-Type corretamente.
-
                                     // Exemplo de como adicionar o arquivo:
                                     ByteArrayContent file1 = new(itemFilesToUpload.Image1.ImageBytes);
                                     file1.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(itemFilesToUpload.Image1.FileContentType ?? "application/octet-stream");
                                     form.Add(file1, "file1", itemFilesToUpload.Image1.FileName);
 
-                                    // Isso garante que o backend ASP.NET Core consiga mapear o arquivo para um parâmetro IFormFile.
                                 }
 
                                 //if (itemFilesToUpload.Image2 != null)

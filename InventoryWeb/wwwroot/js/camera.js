@@ -98,8 +98,16 @@ window.cameraInterop = (function () {
 
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // Retorna os dados da imagem como um Data URL (string codificada em Base64)
-            return canvas.toDataURL('image/png'); // Pode mudar para 'image/jpeg' para tamanhos de arquivo menores
+            const dataUrl = canvas.toDataURL('image/jpeg',0.8);
+
+            console.log(dataUrl);
+            if (dataUrl && dataUrl.startsWith('data:')) {
+                return dataUrl;
+            } else {
+                console.error('Falha na criação do Data URL.');
+                return null;
+            }
+
         }
     };
 })();

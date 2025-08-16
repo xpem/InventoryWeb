@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,12 +12,12 @@ namespace ApiRepos
 {
     public class HttpClientFunctions() : HttpClient, IHttpClientFunctions
     {
+        protected static readonly HttpClient httpClient = new();
+
         public async Task<bool> CheckServerAsync()
         {
             try
             {
-                HttpClient httpClient = new();
-
                 HttpResponseMessage httpResponse = await httpClient.GetAsync(ApiKeys.ApiAddress + "/imalive");
 
                 return httpResponse != null && httpResponse.IsSuccessStatusCode && !string.IsNullOrEmpty(await httpResponse.Content.ReadAsStringAsync());
@@ -33,10 +34,13 @@ namespace ApiRepos
         {
             try
             {
-                HttpClient httpClient = new();
+
 
                 if (userToken is not null)
+                {
+                    httpClient.DefaultRequestHeaders.Clear();
                     httpClient.DefaultRequestHeaders.Add("authorization", "bearer " + userToken);
+                }
 
                 HttpResponseMessage httpResponse = new();
 

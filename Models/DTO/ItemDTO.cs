@@ -48,6 +48,8 @@ namespace Models.DTO
         public bool IsImage1Base64 { get; set; } = true; // Começa como true
 
         public string? CategoryAndSubCategory { get; set; }
+
+        public string? SubCategoryIcon { get; set; }
         #endregion
     }
 }
