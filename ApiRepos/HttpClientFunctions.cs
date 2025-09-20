@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,12 +12,12 @@ namespace ApiRepos
 {
     public class HttpClientFunctions() : HttpClient, IHttpClientFunctions
     {
+        protected static readonly HttpClient httpClient = new();
+
         public async Task<bool> CheckServerAsync()
         {
             try
             {
-                HttpClient httpClient = new();
-
                 HttpResponseMessage httpResponse = await httpClient.GetAsync(ApiKeys.ApiAddress + "/imalive");
 
                 return httpResponse != null && httpResponse.IsSuccessStatusCode && !string.IsNullOrEmpty(await httpResponse.Content.ReadAsStringAsync());
@@ -33,10 +34,13 @@ namespace ApiRepos
         {
             try
             {
-                HttpClient httpClient = new();
+
 
                 if (userToken is not null)
+                {
+                    httpClient.DefaultRequestHeaders.Clear();
                     httpClient.DefaultRequestHeaders.Add("authorization", "bearer " + userToken);
+                }
 
                 HttpResponseMessage httpResponse = new();
 
@@ -48,7 +52,19 @@ namespace ApiRepos
                     case RequestsTypes.Post:
                         if (content is not null)
                         {
-                            string jsonContent = content as string;
+                            // Substitua a linha:
+                            // string jsonContent = content as string;
+
+                            // Por:
+                            string jsonContent = System.Text.Json.JsonSerializer.Serialize(
+                                content,
+                                new System.Text.Json.JsonSerializerOptions
+                                {
+                                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.Never,
+                                    PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                                }
+                            );
+                            //string jsonContent = content as string;
 
                             StringContent bodyContent = new(jsonContent, Encoding.UTF8, "application/json");
                             httpResponse = await httpClient.PostAsync(url, bodyContent);
@@ -83,6 +99,7 @@ namespace ApiRepos
                 if (ex.Message.Equals("TypeError: Failed to fetch"))
                 {
                     return new ApiResp() { Success = false, Content = null, Error = ErrorTypes.TokenExpired };
+
                 }
                 else
                     throw;

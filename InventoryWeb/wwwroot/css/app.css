@@ -128,7 +128,7 @@ code {
     justify-content: center;
     flex-direction: column;
     flex-wrap: wrap;
-    align-content: center;
+    align-content: flex-start;
     height: 100%;
     width: 100%;
 }
