@@ -13,7 +13,7 @@ namespace Models.UIRequests
 
         [Required(ErrorMessage = "O campo Senha é obrigatório")]
         [MaxLength(350)]
-        [MinLength(3)]
+        [MinLength(4)]
         public required string Password { get; set; }
     }
 }

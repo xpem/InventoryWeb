@@ -92,11 +92,14 @@ namespace Services
 
         public async Task<ServResp> InsertItem(ItemDTO item, string userToken)
         {
-            ApiResp? resp = await itemApiRepo.InsertItem(item, userToken);
+            try
+            {
+                ApiResp? resp = await itemApiRepo.InsertItem(item, userToken);
 
-            return resp is not null && resp.Success && resp.Content is not null and string
-                ? ApiRespHandler.Handler<ItemDTO>(resp)
-                : new ServResp() { Success = false, Content = null };
+                return resp is not null && resp.Success && resp.Content is not null and string
+                    ? ApiRespHandler.Handler<ItemDTO>(resp)
+                    : new ServResp() { Success = false, Content = null };
+            }catch(Exception ex) { throw ex; }
         }
 
         public async Task<ServResp> UpdateItem(ItemDTO item, string userToken)

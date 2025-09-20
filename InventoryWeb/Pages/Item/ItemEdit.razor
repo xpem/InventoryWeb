@@ -21,984 +21,1004 @@
 <PageTitle>Item</PageTitle>
 
 <style>
-    .category-circle-md {
-        width: 35px; /* Define a largura do círculo */
-        height: 35px; /* Define a altura do círculo (igual à largura para ser um círculo perfeito) */
-        border-radius: 50%; /* Transforma o quadrado em um círculo */
-    }
+	.category-circle-md {
+		width: 35px; /* Define a largura do círculo */
+		height: 35px; /* Define a altura do círculo (igual à largura para ser um círculo perfeito) */
+		border-radius: 50%; /* Transforma o quadrado em um círculo */
+	}
 </style>
 
 <div class="main-layout">
 
-    @*     <h1 class="mb-4">@((isInsert ? "Cadastrar" : "Alterar") + " Item")</h1> *@
+	@*     <h1 class="mb-4">@((isInsert ? "Cadastrar" : "Alterar") + " Item")</h1> *@
 
-    @if (isLoading)
-    {
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    }
-    else
-    {
-        <EditForm Model="Item" OnValidSubmit="UpInsertItemCommand" style="height: 100%; width: -webkit-fill-available;">
-            <DataAnnotationsValidator />
+	@if (isLoading)
+	{
+		<div class="spinner-border text-primary" role="status">
+			<span class="visually-hidden">Loading...</span>
+		</div>
+	}
+	else
+	{
+		<EditForm Model="Item" OnValidSubmit="UpInsertItemCommand" style="height: 100%; width: -webkit-fill-available;">
+			<DataAnnotationsValidator />
 
-            <div class="row mb-3">
-                <div class="form-group">
-                    <label for="inputName">Nome</label>
-                    <InputText type="text" class="form-control" id="inputName" @bind-Value="@Item.Name" />
-                    <ValidationMessage For="@(() => Item.Name)" />
-                </div>
-            </div>
+			<div class="row mb-3">
+				<div class="form-group">
+					<label for="inputName">Nome</label>
+					<InputText type="text" class="form-control" id="inputName" @bind-Value="@Item.Name" />
+					<ValidationMessage For="@(() => Item.Name)" />
+				</div>
+			</div>
 
-            <div class="col-lg-12 row">
-                <div class="col-sm-6 mb-3">
-                    <label for="btnCategory">Categoria</label>
-                    <button id="btnCategory" type="button" class="btn btn-success"
-                            style="width: 100%;"
-                            data-bs-toggle="modal" data-bs-target="#ModalCategories">
-                        @BtnCategoryText
-                    </button>
-                    @if (!string.IsNullOrEmpty(CategoryValidationError))
-                    {
-                        <div class="text-danger">@CategoryValidationError</div>
-                    }
-                </div>
+			<div class="col-lg-12 row">
+				<div class="col-sm-6 mb-3">
+					<label for="btnCategory">Categoria</label>
+					<button id="btnCategory" type="button" class="btn btn-success"
+							style="width: 100%;"
+							data-bs-toggle="modal" data-bs-target="#ModalCategories">
+						@BtnCategoryText
+					</button>
+					@if (!string.IsNullOrEmpty(CategoryValidationError))
+					{
+						<div class="text-danger">@CategoryValidationError</div>
+					}
+				</div>
 
-                <div class="col-sm-6 mb-3">
-                    <div class="form-group">
-                        <label for="inputSituation">Situação</label>
-                        <InputSelect class="form-select" id="inputSituation" @bind-Value="@SelectedItemSituationId">
-                            @foreach (var situation in ItemSituationList)
-                            {
-                                <option value="@situation.Id">@situation.Name</option>
-                            }
-                        </InputSelect>
-                        @if (!string.IsNullOrEmpty(SituationValidationError))
-                        {
-                            <div class="text-danger">@SituationValidationError</div>
-                        }
-                        <ValidationMessage For="@(() => SelectedItemSituationId)" />
-                    </div>
-                </div>
-            </div>
+				<div class="col-sm-6 mb-3">
+					<div class="form-group">
+						<label for="inputSituation">Situação</label>
+						<InputSelect class="form-select" id="inputSituation" @bind-Value="@SelectedItemSituationId">
+							@foreach (var situation in ItemSituationList)
+							{
+								<option value="@situation.Id">@situation.Name</option>
+							}
+						</InputSelect>
+						@if (!string.IsNullOrEmpty(SituationValidationError))
+						{
+							<div class="text-danger">@SituationValidationError</div>
+						}
+						<ValidationMessage For="@(() => SelectedItemSituationId)" />
+					</div>
+				</div>
+			</div>
 
-            @if (SelectedItemSituationId == ResaleStatusId)
-            {
-                <div class="card" style="background-color: transparent; margin-bottom: 10px;">
-                    <div class="card-body">
-                        <div class="card-title">Revenda</div>
-                        <div class="col-lg-12 row">
-                            <div class="col-lg-6 mb-1">
-                                <div class="form-group">
-                                    <label for="inputResaleValue">Valor</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">R$</span>
-                                        <InputText type="text" class="form-control" id="inputResaleValue" @bind-Value="@Item.ResaleValue" />
-                                    </div>
-                                    <ValidationMessage For="@(() => Item.ResaleValue)" />
-                                </div>
-                            </div>
-                            <div class="col-lg-6 mb-1">
-                                <div class="form-group">
-                                    <label for="inputWithdrawalDate">Data</label>
-                                    <InputDate class="form-control" id="inputWithdrawalDate" TValue="DateOnly" @bind-Value="@Item.WithdrawalDate">
-                                    </InputDate>
-                                    <ValidationMessage For="@(() => Item.WithdrawalDate)" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
+			@if (SelectedItemSituationId == ResaleStatusId)
+			{
+				<div class="card" style="background-color: transparent; margin-bottom: 10px;">
+					<div class="card-body">
+						<div class="card-title">Revenda</div>
+						<div class="col-lg-12 row">
+							<div class="col-lg-6 mb-1">
+								<div class="form-group">
+									<label for="inputResaleValue">Valor</label>
+									<div class="input-group">
+										<span class="input-group-text">R$</span>
+										<InputText type="text" class="form-control" id="inputResaleValue" @bind-Value="@Item.ResaleValue" />
+									</div>
+									<ValidationMessage For="@(() => Item.ResaleValue)" />
+								</div>
+							</div>
+							<div class="col-lg-6 mb-1">
+								<div class="form-group">
+									<label for="inputWithdrawalDate">Data</label>
+									<InputDate class="form-control" id="inputWithdrawalDate" TValue="DateOnly" @bind-Value="@Item.WithdrawalDate">
+									</InputDate>
+									<ValidationMessage For="@(() => Item.WithdrawalDate)" />
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			}
 
-            <div class="card" style="background-color: transparent">
-                <div class="card-body">
-                    <div class="card-title">Aquisição</div>
-                    <div class="col-lg-12 row">
-                        <div class="col-sm-6 mb-2">
-                            <div class="form-group">
-                                <label for="inputAcquisitionType">Tipo</label>
-                                <InputSelect class="form-select" id="inputAcquisitionType" @bind-Value="@SelectedAcquisitionTypeId">
-                                    @foreach (var acquisitionType in AcquisitionTypeList)
-                                    {
-                                        <option value="@acquisitionType.Id">@acquisitionType.Name</option>
-                                    }
-                                </InputSelect>
-                                @if (!string.IsNullOrEmpty(AcquisitionTypeValidationError))
-                                {
-                                    <div class="text-danger">@AcquisitionTypeValidationError</div>
-                                }
-                                <ValidationMessage For="@(() => SelectedAcquisitionTypeId)" />
-                            </div>
-                        </div>
-                        <div class="col-sm-6 mb-1">
-                            <div class="form-group">
-                                <label for="inputAcquisitionDate">Data</label>
-                                <InputDate class="form-control" id="inputAcquisitionDate" TValue="DateOnly" @bind-Value="@Item.AcquisitionDate">
+			<div class="card" style="background-color: transparent">
+				<div class="card-body">
+					<div class="card-title">Aquisição</div>
+					<div class="col-lg-12 row">
+						<div class="col-sm-6 mb-2">
+							<div class="form-group">
+								<label for="inputAcquisitionType">Tipo</label>
+								<InputSelect class="form-select" id="inputAcquisitionType" @bind-Value="@SelectedAcquisitionTypeId">
+									@foreach (var acquisitionType in AcquisitionTypeList)
+									{
+										<option value="@acquisitionType.Id">@acquisitionType.Name</option>
+									}
+								</InputSelect>
+								@if (!string.IsNullOrEmpty(AcquisitionTypeValidationError))
+								{
+									<div class="text-danger">@AcquisitionTypeValidationError</div>
+								}
+								<ValidationMessage For="@(() => SelectedAcquisitionTypeId)" />
+							</div>
+						</div>
+						<div class="col-sm-6 mb-1">
+							<div class="form-group">
+								<label for="inputAcquisitionDate">Data</label>
+								<InputDate class="form-control" id="inputAcquisitionDate" TValue="DateOnly" @bind-Value="@Item.AcquisitionDate">
 
-                                </InputDate>
-                                <ValidationMessage For="@(() => Item.AcquisitionDate)" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-12 row">
-                        <div class="col-lg-6 mb-1">
-                            <div class="form-group">
-                                <label for="inputPurchaseValue">Valor</label>
-                                <div class="input-group">
-                                    <span class="input-group-text">R$</span>
-                                    <InputText type="text" class="form-control" id="inputPurchaseValue" @bind-Value="@Item.PurchaseValue" />
-                                </div>
-                                <ValidationMessage For="@(() => Item.PurchaseValue)" />
-                            </div>
-                        </div>
-                        <div class="col-lg-6 mb-1">
-                            <div class="form-group">
-                                <label for="inputStore">Loja</label>
-                                <InputText class="form-control" @bind-Value="@Item.PurchaseStore">
-                                    <ValidationMessage For="@(() => Item.PurchaseStore)" />
-                                </InputText>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+								</InputDate>
+								<ValidationMessage For="@(() => Item.AcquisitionDate)" />
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-12 row">
+						<div class="col-lg-6 mb-1">
+							<div class="form-group">
+								<label for="inputPurchaseValue">Valor</label>
+								<div class="input-group">
+									<span class="input-group-text">R$</span>
+									<InputText type="text" class="form-control" id="inputPurchaseValue" @bind-Value="@Item.PurchaseValue" />
+								</div>
+								<ValidationMessage For="@(() => Item.PurchaseValue)" />
+							</div>
+						</div>
+						<div class="col-lg-6 mb-1">
+							<div class="form-group">
+								<label for="inputStore">Loja</label>
+								<InputText class="form-control" @bind-Value="@Item.PurchaseStore">
+									<ValidationMessage For="@(() => Item.PurchaseStore)" />
+								</InputText>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 
-            <div class="row mb-3" style="margin-top: 10px;">
-                <div class="form-group">
-                    <label for="inputDescription">Descrição técnica</label>
-                    <InputTextArea type="text" class="form-control" id="inputDescription" @bind-Value="@Item.TechnicalDescription" rows="2" />
-                    <ValidationMessage For="@(() => Item.TechnicalDescription)" />
-                </div>
-            </div>
+			<div class="row mb-3" style="margin-top: 10px;">
+				<div class="form-group">
+					<label for="inputDescription">Descrição técnica</label>
+					<InputTextArea type="text" class="form-control" id="inputDescription" @bind-Value="@Item.TechnicalDescription" rows="2" />
+					<ValidationMessage For="@(() => Item.TechnicalDescription)" />
+				</div>
+			</div>
 
-            <div class="row mb-3" style="margin-top: 10px;">
-                <div class="form-group">
-                    <label for="inputComment">Comentários</label>
-                    <InputTextArea type="text" class="form-control" id="inputComment" @bind-Value="@Item.Comment" rows="2" />
-                    <ValidationMessage For="@(() => Item.Comment)" />
-                </div>
-            </div>
+			<div class="row mb-3" style="margin-top: 10px;">
+				<div class="form-group">
+					<label for="inputComment">Comentários</label>
+					<InputTextArea type="text" class="form-control" id="inputComment" @bind-Value="@Item.Comment" rows="2" />
+					<ValidationMessage For="@(() => Item.Comment)" />
+				</div>
+			</div>
+			<hr class="mt-4" />
+			<div class="camera-section">
+				@if (string.IsNullOrEmpty(imageDataUrl))
+				{
+					<div class="d-grid gap-2 d-md-flex justify-content-md-center">
+						<a data-bs-toggle="modal" data-bs-target="#ModalCamera" class="btn btn-primary" @onclick="StartCamera" disabled="@isCameraActive">
+							<i class="fas fa-video"></i> Iniciar Câmera
+						</a>
+						<a data-bs-toggle="modal" data-bs-target="#ModalSelectFile" class="btn btn-primary" disabled="@isCameraActive">
+							<i class="fas fa-folder-open"></i> Escolher Arquivo
+						</a>
+						@* 						<div class="mb-3">
+							<label for="formFile" class="form-label">Default file input example</label>
+							<InputFile id="fileInput" class="form-control" OnChange="HandleFileSelection" accept="image/*" />
+						</div> *@
+					</div>
+				}
+				else
+				{
+					@*     <h5 class="mt-4 mb-3">Foto Capturada:</h5> *@
+					<div class="d-flex justify-content-center mb-3" style="display:flex; flex-direction: column; align-items: center;">
+						<img src="@imageDataUrl" class="img-fluid"
+							 style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
+						<button class="btn btn-danger" @onclick="DeletePhoto" style="max-width:400px; width: 100%;">
+							<i class="fas fa-trash"></i>
+						</button>
+					</div>
+				}
+			</div>
 
-            @*    <div class="col-lg-12" style="display: flex;">
-                    <a class="btn btn-secondary">
-                        <i class="fa-solid fa-folder-open"></i>
-                    </a>
-                    <a class="btn btn-secondary" style="margin-left: 10px;" @onclick="TakePhoto" disabled="@(isCameraActive)">
-                        <i class="fa-solid fa-camera"></i>
-                    </a>
-                </div>
+			<div class="d-grid" style="position: fixed; bottom: 10px; right:10px;" disabled=@BtnInsertIsEnabled>
+				@if (isInsert)
+				{
+					<button type="submit" class="btn btn-primary">
+						<i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Cadastrar
+					</button>
+				}
+				else
+				{
+					<button type="submit" class="btn btn-warning btn-lg">
+						<i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Alterar
+					</button>
+				}
+			</div>
+			<div class="col-lg-12" style="margin-top: 20px"><a href="/"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
 
-                <div class="col-12">
-                    @if (!string.IsNullOrEmpty(tempImageDataUrl))
-                    {
-                        <h5>Foto Capturada:</h5>
-                        <img src="@tempImageDataUrl" style="max-width: 100%; height: auto; border: 1px solid #ccc;" />
-                        <br />
-                        <a class="btn btn-info" @onclick="ClearPhoto">
-                            <i class="fa-solid fa-trash"></i> Limpar Foto
-                        </a>
-                        <a class="btn btn-success" @onclick="SavePhoto">
-                            <i class="fa-solid fa-save"></i> Salvar Foto
-                        </a>
-                    }
-                </div>
+		</EditForm>
+	}
+</div>
+<!-- Modal Select |File-->
+<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="ModalSelectFile" tabindex="-1" aria-labelledby="ModalSelectFile" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-header" style="background-color: var(--bs-primary-bg-subtle); color: #fff ">
+				<h1 class="modal-title fs-5">Seleção de arquivo</h1>
+			</div>
+			<div class="modal-body">
+				@if (!isPhotoTaked)
+				{
+					<div class="mb-3">
+						<InputFile id="fileInput" class="form-control" OnChange="HandleFileSelection" accept="image/*" />
+					</div>
+				}
 
-                <canvas id="photoCanvas" style="display: none;"></canvas> *@
+				@if (!string.IsNullOrEmpty(tempImageDataUrl))
+				{
+					<div class="d-flex justify-content-center mb-3">
+						<img src="@tempImageDataUrl" class="img-fluid"
+							 style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
+					</div>
+					<div class="d-flex justify-content-center flex-wrap gap-2">
+						<button class="btn btn-info" @onclick="ClearPhoto">
+							<i class="fas fa-trash"></i> Limpar Imagem
+						</button>
+						<button class="btn btn-success" @onclick="SavePhoto" data-bs-dismiss="modal">
+							<i class="fas fa-save"></i> Salvar Imagem
+						</button>
+					</div>
+				}
 
-            <hr class="mt-4" />
-            <div class="camera-section">
-                @if (string.IsNullOrEmpty(imageDataUrl))
-                {
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-                        <a data-bs-toggle="modal" data-bs-target="#ModalCamera" class="btn btn-primary" @onclick="StartCamera" disabled="@isCameraActive">
-                            <i class="fas fa-video"></i> Iniciar Câmera
-                        </a>
-                        <a data-bs-toggle="modal" data-bs-target="#ModalCamera" class="btn btn-primary" disabled="@isCameraActive">
-                            <i class="fas fa-folder-open"></i> Escolher Arquivo
-                        </a>
-                    </div>
-                }
-                else
-                {
-                    @*     <h5 class="mt-4 mb-3">Foto Capturada:</h5> *@
-                    <div class="d-flex justify-content-center mb-3" style="display:flex; flex-direction: column; align-items: center;">
-                        <img src="@imageDataUrl" class="img-fluid"
-                             style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
-                        <button class="btn btn-danger" @onclick="DeletePhoto" style="max-width:400px; width: 100%;">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                }
-            </div>
-
-            <div class="d-grid" style="position: fixed; bottom: 10px; right:10px;" disabled=@BtnInsertIsEnabled>
-                @if (isInsert)
-                {
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Cadastrar
-                    </button>
-                }
-                else
-                {
-                    <button type="submit" class="btn btn-warning btn-lg">
-                        <i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Alterar
-                    </button>
-                }
-            </div>
-            <div class="col-lg-12" style="margin-top: 20px"><a href="/"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
-
-        </EditForm>
-    }
+				<canvas id="photoCanvas" style="display: none;"></canvas>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" @onclick="StopCamera" data-bs-dismiss="modal" style="color: #fff"><i class="bi bi-arrow-left-short"></i> Voltar</button>
+			</div>
+		</div>
+	</div>
 </div>
 <!-- Modal Camera-->
 <div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="ModalCamera" tabindex="-1" aria-labelledby="ModalCamera" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header" style="background-color: var(--bs-primary-bg-subtle); color: #fff ">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Captura de imagem</h1>
-            </div>
-            <div class="modal-body">
-                @if (!isPhotoTaked)
-                {
-                    <div class="d-flex justify-content-center align-items-center mb-3" style="display:flex; flex-direction: column; align-items: center;">
-                        <video id="videoFeed" autoplay playsinline class="img-fluid"
-                               data-bs-dismiss="modal"
-                               @onclick="TakePhoto"
-                               style="max-width: 400px; border: 1px solid #ccc; background-color: #f0f0f0;"></video>
-                        <a class="btn btn-success" @onclick="TakePhoto" disabled="@(!isCameraActive)" style="max-width:400px; width: 100%;" data-bs-dismiss="modal">
-                            <i class="fas fa-camera"></i> Capturar Foto
-                        </a>
-                    </div>
-                    @*    <div class="d-flex justify-content-center flex-wrap gap-2 mb-3"> *@
-                    @*                         <a class="btn btn-danger" @onclick="StopCamera" disabled="@(!isCameraActive)" data-bs-dismiss="modal">
+	<div class="modal-dialog modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-header" style="background-color: var(--bs-primary-bg-subtle); color: #fff ">
+				<h1 class="modal-title fs-5" id="exampleModalLabel">Captura de imagem</h1>
+			</div>
+			<div class="modal-body">
+				@if (!isPhotoTaked)
+				{
+					<div class="d-flex justify-content-center align-items-center mb-3" style="display:flex; flex-direction: column; align-items: center;">
+						<video id="videoFeed" autoplay playsinline class="img-fluid"
+							   data-bs-dismiss="modal"
+							   @onclick="TakePhoto"
+							   style="max-width: 400px; border: 1px solid #ccc; background-color: #f0f0f0;"></video>
+						<a class="btn btn-success" @onclick="TakePhoto" disabled="@(!isCameraActive)" style="max-width:400px; width: 100%;" data-bs-dismiss="modal">
+							<i class="fas fa-camera"></i> Capturar Foto
+						</a>
+					</div>
+					@*    <div class="d-flex justify-content-center flex-wrap gap-2 mb-3"> *@
+					@*                         <a class="btn btn-danger" @onclick="StopCamera" disabled="@(!isCameraActive)" data-bs-dismiss="modal">
                             <i class="fas fa-stop"></i>
                         </a> *@
 
-                    @* </div> *@
-                }
+					@* </div> *@
+				}
 
-                @if (!string.IsNullOrEmpty(tempImageDataUrl))
-                {
-                    <h5 class="mt-4 mb-3">Foto Capturada:</h5>
-                    <div class="d-flex justify-content-center mb-3">
-                        <img src="@tempImageDataUrl" class="img-fluid"
-                             style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
-                    </div>
-                    <div class="d-flex justify-content-center flex-wrap gap-2">
-                        <button class="btn btn-info" @onclick="ClearPhoto">
-                            <i class="fas fa-trash"></i> Limpar Foto
-                        </button>
-                        <button class="btn btn-success" @onclick="SavePhoto" data-bs-dismiss="modal">
-                            <i class="fas fa-save"></i> Salvar Foto
-                        </button>
-                    </div>
-                }
+				@if (!string.IsNullOrEmpty(tempImageDataUrl))
+				{
+					<div class="d-flex justify-content-center mb-3">
+						<img src="@tempImageDataUrl" class="img-fluid"
+							 style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
+					</div>
+					<div class="d-flex justify-content-center flex-wrap gap-2">
+						<button class="btn btn-info" @onclick="ClearPhoto">
+							<i class="fas fa-trash"></i> Limpar Foto
+						</button>
+						<button class="btn btn-success" @onclick="SavePhoto" data-bs-dismiss="modal">
+							<i class="fas fa-save"></i> Salvar Foto
+						</button>
+					</div>
+				}
 
-                <canvas id="photoCanvas" style="display: none;"></canvas>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" @onclick="StopCamera" data-bs-dismiss="modal" style="color: #fff"><i class="bi bi-arrow-left-short"></i> Voltar</button>
-            </div>
-        </div>
-    </div>
+				<canvas id="photoCanvas" style="display: none;"></canvas>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" @onclick="StopCamera" data-bs-dismiss="modal" style="color: #fff"><i class="bi bi-arrow-left-short"></i> Voltar</button>
+			</div>
+		</div>
+	</div>
 </div>
 <!-- Modal Categories-->
 <div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="ModalCategories" tabindex="-1" aria-labelledby="ModalCategories" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header" style="background-color: var(--bs-primary-bg-subtle); color: #fff ">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Categorias</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="list-group">
-                    @foreach (var category in _categories)
-                    {
-                        @if (category.SubCategories?.Count > 0)
-                        {
-                            <a class="list-group-item list-group-item-action" href="#" data-bs-toggle="modal" data-bs-target="#ModalSubCategories" @onclick="() => SetSubCategoryToShow(category.Id.Value)">
-                                <div class="row">
-                                    <div class="col text-start" style="display: flex; align-items: center;">
-                                        <div class="category-circle" style="background: @category.Color; margin-right: 10px;"></div>
-                                        @category.Name
-                                    </div>
-                                    <div class="col text-end">
-                                        <i class="fa-solid fa-angle-right"></i>
-                                    </div>
-                                </div>
-                            </a>
-                        }
-                        else
-                        {
-                            <a class="list-group-item list-group-item-action" href="#" data-bs-dismiss="modal" @onclick="() => SetSelectedCategory(category.Id.Value)">
-                                <div class="row">
-                                    <div class="col text-start" style="display: flex; align-items: center;">
-                                        <div class="category-circle" style="background: @category.Color; margin-right: 10px;"></div>
-                                        @category.Name
-                                    </div>
-                                </div>
-                            </a>
-                        }
-                    }
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="color: #fff"><i class="bi bi-arrow-left-short"></i> Voltar</button>
-            </div>
-        </div>
-    </div>
+	<div class="modal-dialog modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-header" style="background-color: var(--bs-primary-bg-subtle); color: #fff;">
+				<h1 class="modal-title fs-5" id="exampleModalLabel">Categorias</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" />
+			</div>
+			<div class="modal-body">
+				<div class="list-group">
+					@foreach (var category in _categories)
+					{
+						@if (category.SubCategories?.Count > 0)
+						{
+							<a class="list-group-item list-group-item-action" href="#" data-bs-toggle="modal" data-bs-target="#ModalSubCategories" @onclick="() => SetSubCategoryToShow(category.Id.Value)">
+								<div class="row">
+									<div class="col text-start" style="display: flex; align-items: center;">
+										<div class="category-circle" style="background: @category.Color; margin-right: 10px;"></div>
+										@category.Name
+									</div>
+									<div class="col text-end">
+										<i class="fa-solid fa-angle-right"></i>
+									</div>
+								</div>
+							</a>
+						}
+						else
+						{
+							<a class="list-group-item list-group-item-action" href="#" data-bs-dismiss="modal" @onclick="() => SetSelectedCategory(category.Id.Value)">
+								<div class="row">
+									<div class="col text-start" style="display: flex; align-items: center;">
+										<div class="category-circle" style="background: @category.Color; margin-right: 10px;"></div>
+										@category.Name
+									</div>
+								</div>
+							</a>
+						}
+					}
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="color: #fff"><i class="bi bi-arrow-left-short"></i> Voltar</button>
+			</div>
+		</div>
+	</div>
 </div>
 <!-- Modal Sub Categories-->
 <div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="ModalSubCategories" tabindex="-1" aria-labelledby="ModalSubCategories" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header" style="background-color: var(--bs-primary-bg-subtle); color: #fff ">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Sub Categorias</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                @*                 <button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn btn-outline-light" style="margin-bottom: 10px;" >[Sem Sub Categoria]</button> *@
-                <div class="list-group">
-                    @if (SelectedCaregory is not null && SelectedCaregory.SubCategories is not null)
-                    {
-                        <a class="list-group-item list-group-item-action" href="#" data-bs-dismiss="modal" @onclick="() => SetSelectedSubCategory(null)">
-                            <div class="row">
-                                <div class="col text-start" style="display: flex; align-items: center;">
-                                    <div class="category-circle-md" style="background: @SelectedCaregory.Color; display: flex; justify-content: center; align-items: center; margin-right: 10px;">
-                                        @*      <i class="fa-solid fa-@(SubCategoryIconsList.GetIconFaName(subCategory.IconName) ?? "tag")" style="font-size: 20px; color: white;"></i> *@
-                                        @*   <i class="fa-solid fa-@subCategory.IconName" style="font-size: 20px;"></i> *@
-                                    </div>
-                                    [ @SelectedCaregory.Name ]
-                                </div>
-                            </div>
-                        </a>
+	<div class="modal-dialog modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-header" style="background-color: var(--bs-primary-bg-subtle); color: #fff ">
+				<h1 class="modal-title fs-5" id="exampleModalLabel">Sub Categorias</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				@*                 <button type="button" data-bs-dismiss="modal" aria-label="Close" class="btn btn-outline-light" style="margin-bottom: 10px;" >[Sem Sub Categoria]</button> *@
+				<div class="list-group">
+					@if (SelectedCaregory is not null && SelectedCaregory.SubCategories is not null)
+					{
+						<a class="list-group-item list-group-item-action" href="#" data-bs-dismiss="modal" @onclick="() => SetSelectedSubCategory(null)">
+							<div class="row">
+								<div class="col text-start" style="display: flex; align-items: center;">
+									<div class="category-circle-md" style="background: @SelectedCaregory.Color; display: flex; justify-content: center; align-items: center; margin-right: 10px;">
+										@*      <i class="fa-solid fa-@(SubCategoryIconsList.GetIconFaName(subCategory.IconName) ?? "tag")" style="font-size: 20px; color: white;"></i> *@
+										@*   <i class="fa-solid fa-@subCategory.IconName" style="font-size: 20px;"></i> *@
+									</div>
+									[ @SelectedCaregory.Name ]
+								</div>
+							</div>
+						</a>
 
-                        @foreach (var subCategory in SelectedCaregory.SubCategories)
-                        {
-                            <a class="list-group-item list-group-item-action" href="#" data-bs-dismiss="modal" @onclick="() => SetSelectedSubCategory(subCategory.Id.Value)">
-                                <div class="row">
-                                    <div class="col text-start" style="display: flex; align-items: center;">
-                                        <div class="category-circle-md" style="background: @SelectedCaregory.Color; display: flex; justify-content: center; align-items: center; margin-right: 10px;">
-                                            <i class="fa-solid fa-@(SubCategoryIconsList.GetIconFaName(subCategory.IconName) ?? "tag")" style="font-size: 20px; color: white;"></i>
-                                            @*   <i class="fa-solid fa-@subCategory.IconName" style="font-size: 20px;"></i> *@
-                                        </div>
-                                        @subCategory.Name
-                                    </div>
-                                </div>
-                            </a>
-                        }
-                    }
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-target="#ModalCategories" data-bs-toggle="modal" style="color: #fff"><i class="bi bi-arrow-left-short"></i> Voltar</button>
-            </div>
-        </div>
-    </div>
+						@foreach (var subCategory in SelectedCaregory.SubCategories)
+						{
+							<a class="list-group-item list-group-item-action" href="#" data-bs-dismiss="modal" @onclick="() => SetSelectedSubCategory(subCategory.Id.Value)">
+								<div class="row">
+									<div class="col text-start" style="display: flex; align-items: center;">
+										<div class="category-circle-md" style="background: @SelectedCaregory.Color; display: flex; justify-content: center; align-items: center; margin-right: 10px;">
+											<i class="fa-solid fa-@(SubCategoryIconsList.GetIconFaName(subCategory.IconName) ?? "tag")" style="font-size: 20px; color: white;"></i>
+											@*   <i class="fa-solid fa-@subCategory.IconName" style="font-size: 20px;"></i> *@
+										</div>
+										@subCategory.Name
+									</div>
+								</div>
+							</a>
+						}
+					}
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-target="#ModalCategories" data-bs-toggle="modal" style="color: #fff"><i class="bi bi-arrow-left-short"></i> Voltar</button>
+			</div>
+		</div>
+	</div>
 </div>
 <script type="text/javascript">
-    function formatCurrency(inputElementId) {
-        const input = document.getElementById(inputElementId);
-        if (!input) {
-            console.warn(`Element with ID '${inputElementId}' not found.`);
-            return;
-        }
+	function formatCurrency(inputElementId) {
+		const input = document.getElementById(inputElementId);
+		if (!input) {
+			console.warn(`Element with ID '${inputElementId}' not found.`);
+			return;
+		}
 
-        // Apply initial formatting if there's an existing value
-        input.value = formatValue(input.value);
+		// Apply initial formatting if there's an existing value
+		input.value = formatValue(input.value);
 
-        input.addEventListener("input", function () {
-            this.value = formatValue(this.value);
-        });
+		input.addEventListener("input", function () {
+			this.value = formatValue(this.value);
+		});
 
-        // Add a blur event listener to finalize formatting
-        input.addEventListener("blur", function() {
-            // This is especially useful for when the user might leave the field with "0,01"
-            // but for a new item, it should just be "0,00" or empty if not touched.
-            if (this.value === "0,00" && this.dataset.initialValue === undefined) {
-                 // If it's a new field and only has "0,00", clear it on blur.
-                 // We can use a data attribute to track if it's an initial load or user input.
-                 // This part requires a bit more thought depending on your desired UX for initial "0,00".
-                 // For now, let's keep it simple and just re-format.
-                 this.value = formatValue(this.value);
-            }
-        });
+		// Add a blur event listener to finalize formatting
+		input.addEventListener("blur", function() {
+			// This is especially useful for when the user might leave the field with "0,01"
+			// but for a new item, it should just be "0,00" or empty if not touched.
+			if (this.value === "0,00" && this.dataset.initialValue === undefined) {
+				 // If it's a new field and only has "0,00", clear it on blur.
+				 // We can use a data attribute to track if it's an initial load or user input.
+				 // This part requires a bit more thought depending on your desired UX for initial "0,00".
+				 // For now, let's keep it simple and just re-format.
+				 this.value = formatValue(this.value);
+			}
+		});
 
-        function formatValue(value) {
-            let cleanedValue = value.replace(/[^\d]+/g, ''); // Remove non-numeric characters
+		function formatValue(value) {
+			let cleanedValue = value.replace(/[^\d]+/g, ''); // Remove non-numeric characters
 
-            if (cleanedValue.length === 0) {
-                return ""; // Handle empty input, return empty string
-            }
+			if (cleanedValue.length === 0) {
+				return ""; // Handle empty input, return empty string
+			}
 
-            // Pad with leading zeros if less than 3 digits (e.g., "1" becomes "001" for "0,01")
-            while (cleanedValue.length < 3) {
-                cleanedValue = "0" + cleanedValue;
-            }
+			// Pad with leading zeros if less than 3 digits (e.g., "1" becomes "001" for "0,01")
+			while (cleanedValue.length < 3) {
+				cleanedValue = "0" + cleanedValue;
+			}
 
-            const decimalPart = cleanedValue.slice(-2);
-            let wholePart = cleanedValue.slice(0, -2);
+			const decimalPart = cleanedValue.slice(-2);
+			let wholePart = cleanedValue.slice(0, -2);
 
-            // --- THE FIX IS HERE ---
-            // Remove leading zeros from the whole part, but keep one if it's "0" itself
-            wholePart = parseInt(wholePart, 10).toString();
-            // If wholePart becomes empty after parsing "000" to "0", ensure it's "0"
-            if (wholePart === "") {
-                wholePart = "0";
-            }
-            // --- END OF FIX ---
+			// --- THE FIX IS HERE ---
+			// Remove leading zeros from the whole part, but keep one if it's "0" itself
+			wholePart = parseInt(wholePart, 10).toString();
+			// If wholePart becomes empty after parsing "000" to "0", ensure it's "0"
+			if (wholePart === "") {
+				wholePart = "0";
+			}
+			// --- END OF FIX ---
 
-            // Format the whole part with thousands separators
-            let formattedValue = wholePart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+			// Format the whole part with thousands separators
+			let formattedValue = wholePart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
-            // Add the decimal point and the last two digits
-            formattedValue += `,${decimalPart}`;
+			// Add the decimal point and the last two digits
+			formattedValue += `,${decimalPart}`;
 
-            return formattedValue;
-        }
-    }
+			return formattedValue;
+		}
+	}
 </script>
 
 @code {
-    public Models.UIRequests.UIItem Item { get; set; } = new UIItem() { Name = "" };
+	public Models.UIRequests.UIItem Item { get; set; } = new UIItem() { Name = "" };
 
-    private bool isInsert { get; set; } = true;
+	private bool isInsert { get; set; } = true;
 
-    private bool BtnInsertIsEnabled { get; set; } = true;
+	private bool BtnInsertIsEnabled { get; set; } = true;
 
-    private string? SituationValidationError;
+	private string? SituationValidationError;
 
-    private string? CategoryValidationError;
+	private string? CategoryValidationError;
 
-    private string? AcquisitionTypeValidationError;
+	private string? AcquisitionTypeValidationError;
 
-    private string? userToken;
+	private string? userToken;
 
-    private IBrowserFile? selectedFile;
+	private IBrowserFile? selectedFile;
 
-    private List<Models.DTO.CategoryDTO> _categories = new List<Models.DTO.CategoryDTO>();
+	private List<Models.DTO.CategoryDTO> _categories = new List<Models.DTO.CategoryDTO>();
 
-    List<ItemSituation> ItemSituationList = new List<ItemSituation>();
+	List<ItemSituation> ItemSituationList = new List<ItemSituation>();
 
-    int? SelectedItemSituationId { get; set; } = null;
+	int? SelectedItemSituationId { get; set; } = null;
 
-    List<AcquisitionType> AcquisitionTypeList = new List<AcquisitionType>();
+	List<AcquisitionType> AcquisitionTypeList = new List<AcquisitionType>();
 
-    int? SelectedAcquisitionTypeId { get; set; }
+	int? SelectedAcquisitionTypeId { get; set; }
 
-    Models.DTO.CategoryDTO SelectedCaregory { get; set; } = new Models.DTO.CategoryDTO() { Name = "", Color = "#a3e4d7" };
+	Models.DTO.CategoryDTO SelectedCaregory { get; set; } = new Models.DTO.CategoryDTO() { Name = "", Color = "#a3e4d7" };
 
-    int SelectedSubCategoryId { get; set; } = 0;
+	int SelectedSubCategoryId { get; set; } = 0;
 
-    string BtnCategoryText { get; set; } = "";
+	string BtnCategoryText { get; set; } = "";
 
-    const int ResaleStatusId = 5;
+	const int ResaleStatusId = 5;
 
-    private bool _shown;
+	private bool _shown;
 
-    private bool isCameraActive = false;
+	private bool isCameraActive = false;
 
-    private bool isPhotoTaked = false;
+	private bool isPhotoTaked = false;
 
-    private string? tempImageDataUrl; // Para armazenar a imagem em Base64
+	private string? tempImageDataUrl; // Para armazenar a imagem em Base64
 
-    private string? imageDataUrl; // Para armazenar a imagem em Base64
+	private string? imageDataUrl; // Para armazenar a imagem em Base64
 
-    private bool isLoading = true;
+	private bool isLoading = true;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        // if (!_shown)
-        // {
-        // _shown = true;
-        await JS.InvokeVoidAsync("formatCurrency", "inputPurchaseValue");
-        await JS.InvokeVoidAsync("formatCurrency", "inputResaleValue");
-        // }
-    }
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		// if (!_shown)
+		// {
+		// _shown = true;
+		await JS.InvokeVoidAsync("formatCurrency", "inputPurchaseValue");
+		await JS.InvokeVoidAsync("formatCurrency", "inputResaleValue");
+		// }
+	}
 
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            // Obtém o estado de autenticação atual
-            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User; // O ClaimsPrincipal do usuário
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			// Obtém o estado de autenticação atual
+			var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+			var user = authState.User; // O ClaimsPrincipal do usuário
 
-            // Verifica se o usuário está autenticado
-            if (user.Identity?.IsAuthenticated == true)
-            {
-                userToken = user.FindFirst("Token")?.Value;
+			// Verifica se o usuário está autenticado
+			if (user.Identity?.IsAuthenticated == true)
+			{
+				userToken = user.FindFirst("Token")?.Value;
 
-                var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+				var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
 
-                await SetItemConfigs(userToken);
+				await SetItemConfigs(userToken);
 
-                Item.PurchaseValue = ""; // Default for new items
+				Item.PurchaseValue = ""; // Default for new items
 
-                // Use QueryHelpers para uma forma mais robusta de parsear a query string
-                // Você precisará adicionar o pacote NuGet Microsoft.AspNetCore.WebUtilities
-                // se ainda não o tiver.
-                var queryParameters = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+				// Use QueryHelpers para uma forma mais robusta de parsear a query string
+				// Você precisará adicionar o pacote NuGet Microsoft.AspNetCore.WebUtilities
+				// se ainda não o tiver.
+				var queryParameters = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
 
-                if (queryParameters.TryGetValue("x", out var _queryId))
-                {
-                    if (int.TryParse(_queryId, out int _itemId))
-                    {
-                        Console.WriteLine($"Valor de x: {_queryId}");
+				if (queryParameters.TryGetValue("x", out var _queryId))
+				{
+					if (int.TryParse(_queryId, out int _itemId))
+					{
+						Console.WriteLine($"Valor de x: {_queryId}");
 
-                        isInsert = false;
+						isInsert = false;
 
-                        try
-                        {
-                            ServResp resp = await itemService.GetItemByIdAsync(_itemId.ToString(), userToken);
+						try
+						{
+							ServResp resp = await itemService.GetItemByIdAsync(_itemId.ToString(), userToken);
 
-                            if (resp is not null && resp.Success)
-                            {
-                                var _item = resp.Content as Models.DTO.ItemDTO;
+							if (resp is not null && resp.Success)
+							{
+								var _item = resp.Content as Models.DTO.ItemDTO;
 
-                                if (_item is not null)
-                                {
-                                    Item = new UIItem
-                                    {
-                                        Id = _item.Id,
-                                        Name = _item.Name,
-                                        AcquisitionDate = new DateOnly(_item.AcquisitionDate.Year, _item.AcquisitionDate.Month, _item.AcquisitionDate.Day),
-                                        AcquisitionType = _item.AcquisitionType,
-                                        Comment = _item.Comment,
-                                        PurchaseStore = _item.PurchaseStore,
-                                        Situation = _item.Situation,
-                                        TechnicalDescription = _item.TechnicalDescription,
-                                        Category = _item.Category,
-                                    };
-
-                                    if (_item.WithdrawalDate.HasValue)
-                                        Item.WithdrawalDate = new DateOnly(_item.WithdrawalDate.Value.Year, _item.WithdrawalDate.Value.Month, _item.WithdrawalDate.Value.Day);
-
-                                    if (_item.ResaleValue.HasValue)
-                                        Item.ResaleValue = (_item.ResaleValue.Value).ToString();
-
-                                    @if (_item.PurchaseValue.HasValue)
-                                        Item.PurchaseValue = _item.PurchaseValue.Value.ToString("N2", new CultureInfo("pt-BR"));
-
-                                    SelectedItemSituationId = Item.Situation.Id;
-                                    SelectedAcquisitionTypeId = Item.AcquisitionType.Id;
-
-                                    if (_item.Category?.SubCategory?.Id != null)
-                                    {
-                                        SelectedCaregory = _categories.Where(x => x.Id == _item.Category.Id).First();
-
-                                        SetSelectedSubCategory(_item.Category.SubCategory.Id);
-                                    }
-                                    else if (_item.Category.Id.HasValue)
-                                        SetSelectedCategory(_item.Category.Id.Value);
-
-                                    if (!string.IsNullOrEmpty(_item.Image1) && _item.Id.HasValue)
-                                    {
-                                        try
-                                        {
-                                            var imageFile = await itemService.GetItemImages(_item.Id.Value, _item.Image1, userToken);
-                                            if (imageFile?.ImageBytes is not null)
-                                            {
-                                                string base64 = Convert.ToBase64String(imageFile.ImageBytes);
-                                                imageDataUrl = $"data:image/jpeg;base64,{base64}";
-                                            }
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            Console.WriteLine($"Erro ao carregar imagem para o item {_item.Id}: {ex.Message}");
-                                            // Opcional: tratar o erro, por exemplo, mantendo o placeholder
-                                        }
-                                    }
-
-                                }
-                            }
-                        }
-                        catch (Exception ex) { throw ex; }
-                    }
-                }
-                isLoading = false;
-            }
-            else
-            {
-                Navigation.NavigateTo("/");
-                // userName = "Visitante"; // Ou qualquer lógica para usuário não logado
-                // isAdmin = false;
-            }
-        }
-        catch (Exception ex) { throw ex; }
-    }
-
-    private async Task SetItemConfigs(string userToken)
-    {
-        var configs = await itemService.GetItemConfigs(userToken);
-
-        if (configs is not null && configs.Success)
-        {
-            var itemConfigs = configs.Content as ItemConfigsApiResp;
-            if (itemConfigs is not null)
-            {
-
-                if (itemConfigs.AcquisitionTypes is not null)
-                    AcquisitionTypeList = itemConfigs.AcquisitionTypes;
-
-                var noAcquisitionTypeList = new AcquisitionType() { Id = -1, Name = "Selecione" };
-
-                AcquisitionTypeList.Insert(0, noAcquisitionTypeList);
-
-                if (itemConfigs.ItemSituations is not null)
-                    ItemSituationList = itemConfigs.ItemSituations;
-
-                var noSituation = new ItemSituation() { Id = -1, Name = "Selecione" };
-
-                ItemSituationList.Insert(0, noSituation);
-
-
-                if (itemConfigs.Categories is not null)
-                {
-                    _categories = itemConfigs.Categories;
-                }
-
-                // Cria uma nova categoria para ser o primeiro item
-                var unCategorized = new Models.DTO.CategoryDTO
-                {
-                    Id = -1,
-                    Name = "[Sem Categoria]",
-                    Color = "#2F9300",
-                    SystemDefault = true,
-                    SubCategory = null
-                };
-
-                // Adiciona a categoria no início da lista
-                _categories.Insert(0, unCategorized);
-
-                SelectedCaregory = unCategorized;
-                BtnCategoryText = SelectedCaregory.Name;
-            }
-        }
-
-    }
-
-    private async Task StartCamera()
-    {
-        try
-        {
-            // Invoca a função JavaScript para iniciar o feed da câmera
-            await JS.InvokeVoidAsync("cameraInterop.startCameraFeed", "videoFeed");
-            isCameraActive = true;
-            tempImageDataUrl = null; // Limpa qualquer foto capturada anteriormente
-            // Força a atualização da UI para refletir o novo estado dos botões
-            StateHasChanged();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Erro ao iniciar câmera: {ex.Message}");
-            // Considere exibir uma mensagem de erro amigável ao usuário
-        }
-    }
-
-    private async Task HandleFileSelection(InputFileChangeEventArgs e)
-    {
-        // Pega o primeiro arquivo selecionado (pode ser ajustado para múltiplos)
-        selectedFile = e.File;
-        if (selectedFile != null)
-        {
-            // Opcional: Mostre uma pré-visualização da imagem
-            var format = "image/jpeg";
-            var imageBytes = new byte[selectedFile.Size];
-            await selectedFile.OpenReadStream().ReadAsync(imageBytes);
-            tempImageDataUrl = $"data:{format};base64,{Convert.ToBase64String(imageBytes)}";
-            // Opcional: Se quiser pré-visualizar antes de salvar
-
-            SavePhoto();
-        }
-    }
-
-    private async Task StopCamera()
-    {
-        // Invoca a função JavaScript para parar o feed da câmera
-        await JS.InvokeVoidAsync("cameraInterop.stopCameraFeed", "videoFeed");
-        isCameraActive = false;
-        ClearPhoto();
-        // Força a atualização da UI para refletir o novo estado dos botões
-        StateHasChanged();
-    }
-
-    private async Task TakePhoto()
-    {
-        if (isCameraActive) // Garante que a câmera está ativa antes de tentar capturar
-        {
-            // Invoca a função JavaScript para capturar a foto do feed de vídeo
-            // E recebe a imagem em Base64 de volta
-            tempImageDataUrl = await JS.InvokeAsync<string>("cameraInterop.capturePhoto", "videoFeed", "photoCanvas");
-
-            SavePhoto();
-
-            await StopCamera();
-            isPhotoTaked = true;
-        }
-    }
-
-    private void DeletePhoto() => imageDataUrl = null;
-
-    private void ClearPhoto()
-    {
-        tempImageDataUrl = null;
-        StateHasChanged(); // Força a atualização da UI
-        isPhotoTaked = false;
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        if (isCameraActive)
-        {
-            await StopCamera();
-        }
-    }
-
-    private void SavePhoto()
-    {
-        if (!string.IsNullOrEmpty(tempImageDataUrl))
-        {
-            isPhotoTaked = false;
-            imageDataUrl = tempImageDataUrl;
-            tempImageDataUrl = null;
-            StateHasChanged(); // Force UI update if needed
-        }
-    }
-
-    public void SetSelectedCategory(int categoryId)
-    {
-        SelectedCaregory = _categories.Where(x => x.Id == categoryId).First();
-        BtnCategoryText = SelectedCaregory.Name;
-    }
-
-    public void SetSelectedSubCategory(int? subCategoryId)
-    {
-        if (subCategoryId is not null)
-        {
-            SelectedSubCategoryId = subCategoryId.Value;
-            BtnCategoryText = SelectedCaregory.Name + "/" + SelectedCaregory.SubCategories.Where(x => x.Id == subCategoryId).First().Name;
-        }
-        else
-        {
-            BtnCategoryText = SelectedCaregory.Name;
-        }
-    }
-
-    public void SetSubCategoryToShow(int categoryId)
-    {
-        SelectedCaregory = _categories.Where(x => x.Id == categoryId).First();
-    }
-
-    public bool Validate()
-    {
-        SituationValidationError = CategoryValidationError = AcquisitionTypeValidationError = null;
-
-        if (SelectedItemSituationId is null or -1)
-        {
-            SituationValidationError = "Selecione uma situação válida.";
-            StateHasChanged();
-            return false;
-        }
-
-        if (SelectedCaregory.Id is null or -1)
-        {
-            CategoryValidationError = "Selecione uma Categoria válida.";
-            StateHasChanged();
-            return false;
-        }
-
-        if (SelectedAcquisitionTypeId is null or -1)
-        {
-            AcquisitionTypeValidationError = "Selecione um tipo de aquisição válido.";
-            StateHasChanged();
-            return false;
-        }
-
-        return true;
-    }
-
-    public decimal ParseCurrency(string input)
-    {
-        if (!string.IsNullOrWhiteSpace(input))
-        {
-            // Remove dots (thousands separator) and replace comma with dot (decimal separator)
-            string cleanValue = input.Replace(".", "").Replace(",", ".");
-            if (decimal.TryParse(cleanValue, NumberStyles.Currency, CultureInfo.InvariantCulture, out decimal parsedValue))
-                return parsedValue;
-            else
-                throw new FormatException(input + " could not be parsed to decimal.");
-        }
-        else
-            throw new ArgumentException(input + " cannot be empty.");
-    }
-
-    async Task UpInsertItemCommand()
-    {
-        if (Validate())
-        {
-            BtnInsertIsEnabled = false;
-
-            Models.DTO.ItemDTO itemDTO = new();
-
-            decimal? purchaseValue = ParseCurrency(Item.PurchaseValue);
-            decimal? resaleValue = null;
-            DateTime? withdrawalDate = null;
-
-            if (SelectedItemSituationId == ResaleStatusId)
-            {
-                resaleValue = ParseCurrency(Item.ResaleValue);
-                withdrawalDate = new DateTime(Item.WithdrawalDate.Year, Item.WithdrawalDate.Month, Item.WithdrawalDate.Day).Date;
-            }
-
-            itemDTO = new()
-            {
-                Name = Item.Name.Trim(),
-                AcquisitionDate = new DateTime(Item.AcquisitionDate.Year, Item.AcquisitionDate.Month, Item.AcquisitionDate.Day).Date,
-                AcquisitionType = new AcquisitionType() { Id = SelectedAcquisitionTypeId },
-                Comment = Item.Comment?.Trim(),
-                PurchaseStore = Item.PurchaseStore?.Trim(),
-                PurchaseValue = purchaseValue,
-                Situation = new ItemSituation() { Id = SelectedItemSituationId },
-                ResaleValue = resaleValue,
-                TechnicalDescription = Item.TechnicalDescription?.Trim(),
-                Category = new Models.DTO.CategoryDTO() { Id = SelectedCaregory.Id, SubCategory = SelectedSubCategoryId > 0 ? new SubCategoryDTO() { Id = SelectedSubCategoryId } : null },
-                WithdrawalDate = withdrawalDate
-            };
-
-            string message = "";
-            ServResp resp;
-
-            if (Item.Id > 0)
-            {
-                itemDTO.Id = Item.Id;
-
-                resp = await itemService.UpdateItem(itemDTO, userToken);
-
-                if (resp.Success)
-                    message = "Item Atualizado!";
-                else
-                    message = "Erro ao atualizar o item.";
-            }
-            else
-            {
-                resp = await itemService.InsertItem(itemDTO, userToken);
-
-                if (resp.Success)
-                {
-                    if (resp.Content is Models.DTO.ItemDTO addedItem)
-                    {
-                        itemDTO.Id = addedItem.Id.Value;
-                    }
-
-                    message = "Item Adicionado!";
-                }
-                else
-                    message = "Erro ao adicionar o item. " + resp.ErrorMessage;
-            }
-
-            if (imageDataUrl is null && itemDTO.Image1 is not null && Item.Id > 0)
-            {
-                await DelImage(itemDTO);
-            }
-            else if (!string.IsNullOrEmpty(imageDataUrl) && itemDTO is not null && itemDTO.Id.HasValue)
-            {
-                await UpInsertImage(itemDTO);
-            }
-
-            string styleMessage = "text-bg-success";
-
-            if (!resp.Success)
-                styleMessage = "text-bg-danger";
-
-            ToastService.ShowToast(new ToastComponent(message, styleMessage));
-
-            Navigation.NavigateTo("/");
-        }
-    }
-
-    async Task DelImage(Models.DTO.ItemDTO itemDTO)
-    {
-        var resp = await itemService.DelItemImageAsync(itemDTO.Id.Value, itemDTO.Image1, userToken);
-    }
-
-    async Task UpInsertImage(Models.DTO.ItemDTO itemDTO)
-    {
-        if (string.IsNullOrEmpty(imageDataUrl) || !imageDataUrl.Contains(","))
-        {
-            // A string Base64 não é válida, logue um erro ou retorne
-            Console.WriteLine("String Base64 inválida.");
-            return;
-        }
-
-        // A string Base64 tem o formato esperado
-        var base64String = imageDataUrl.Split(',')[1];
-        try
-        {
-            byte[] imageBytes = Convert.FromBase64String(base64String);
-
-            string fileContentType = null;
-            if (!string.IsNullOrEmpty(imageDataUrl) && imageDataUrl.StartsWith("data:"))
-            {
-                var parts = imageDataUrl.Split(';')[0].Split(':');
-                if (parts.Length == 2)
-                    fileContentType = parts[1]; // Exemplo: "image/jpeg"
-            }
-
-            string fileName = Guid.NewGuid().ToString();
-
-            ItemFilesToUpload itemFilesToUpload = new()
-            {
-                Image1 = new() { FileId = 1, ImageBytes = imageBytes, FileName = fileName + GetExtensionByMimeType(fileContentType), FileContentType = fileContentType }
-            };
-
-            try
-            {
-                await itemService.AddItemImageAsync(itemDTO.Id.Value, userToken, itemFilesToUpload);
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-        }
-        catch (FormatException ex)
-        {
-            // A string Base64 está mal formada, mas tem o prefixo "data:..."
-            Console.WriteLine($"Erro de formatação na string Base64: {ex.Message}");
-        }
-        catch (Exception ex)
-        {
-            // Outros erros
-            Console.WriteLine($"Erro ao converter Base64: {ex.Message}");
-        }
-
-        // var base64String = imageDataUrl.Split(',')[1];
-        // byte[] imageBytes = Convert.FromBase64String(base64String);
-
-
-    }
-
-    string? GetExtensionByMimeType(string mimeType)
-    {
-        switch (mimeType)
-        {
-            case "image/png": return ".png";
-            case "image/jpeg": return ".jpg";
-            case "image/gif": return ".gif";
-            default: return null;
-        }
-    }
-
-    string GetImageSrc(string fileName, int itemId)
-    {
-        var imageFile = itemService.GetItemImages(itemId, fileName, userToken).Result;
-
-        if (imageFile?.ImageBytes is null) return null;
-        string base64 = Convert.ToBase64String(imageFile.ImageBytes);
-        return $"data:image/jpeg;base64,{base64}";
-    }
+								if (_item is not null)
+								{
+									Item = new UIItem
+									{
+										Id = _item.Id,
+										Name = _item.Name,
+										AcquisitionDate = new DateOnly(_item.AcquisitionDate.Year, _item.AcquisitionDate.Month, _item.AcquisitionDate.Day),
+										AcquisitionType = _item.AcquisitionType,
+										Comment = _item.Comment,
+										PurchaseStore = _item.PurchaseStore,
+										Situation = _item.Situation,
+										TechnicalDescription = _item.TechnicalDescription,
+										Category = _item.Category,
+									};
+
+									if (_item.WithdrawalDate.HasValue)
+										Item.WithdrawalDate = new DateOnly(_item.WithdrawalDate.Value.Year, _item.WithdrawalDate.Value.Month, _item.WithdrawalDate.Value.Day);
+
+									if (_item.ResaleValue.HasValue)
+										Item.ResaleValue = (_item.ResaleValue.Value).ToString();
+
+									@if (_item.PurchaseValue.HasValue)
+										Item.PurchaseValue = _item.PurchaseValue.Value.ToString("N2", new CultureInfo("pt-BR"));
+
+									SelectedItemSituationId = Item.Situation.Id;
+									SelectedAcquisitionTypeId = Item.AcquisitionType.Id;
+
+									if (_item.Category?.SubCategory?.Id != null)
+									{
+										SelectedCaregory = _categories.Where(x => x.Id == _item.Category.Id).First();
+
+										SetSelectedSubCategory(_item.Category.SubCategory.Id);
+									}
+									else if (_item.Category.Id.HasValue)
+										SetSelectedCategory(_item.Category.Id.Value);
+
+									if (!string.IsNullOrEmpty(_item.Image1) && _item.Id.HasValue)
+									{
+										try
+										{
+											var imageFile = await itemService.GetItemImages(_item.Id.Value, _item.Image1, userToken);
+											if (imageFile?.ImageBytes is not null)
+											{
+												string base64 = Convert.ToBase64String(imageFile.ImageBytes);
+												imageDataUrl = $"data:image/jpeg;base64,{base64}";
+											}
+										}
+										catch (Exception ex)
+										{
+											Console.WriteLine($"Erro ao carregar imagem para o item {_item.Id}: {ex.Message}");
+											// Opcional: tratar o erro, por exemplo, mantendo o placeholder
+										}
+									}
+
+								}
+							}
+						}
+						catch (Exception ex) { throw ex; }
+					}
+				}
+				isLoading = false;
+			}
+			else
+			{
+				Navigation.NavigateTo("/");
+				// userName = "Visitante"; // Ou qualquer lógica para usuário não logado
+				// isAdmin = false;
+			}
+		}
+		catch (Exception ex) { throw ex; }
+	}
+
+	private async Task SetItemConfigs(string userToken)
+	{
+		var configs = await itemService.GetItemConfigs(userToken);
+
+		if (configs is not null && configs.Success)
+		{
+			var itemConfigs = configs.Content as ItemConfigsApiResp;
+			if (itemConfigs is not null)
+			{
+
+				if (itemConfigs.AcquisitionTypes is not null)
+					AcquisitionTypeList = itemConfigs.AcquisitionTypes;
+
+				var noAcquisitionTypeList = new AcquisitionType() { Id = -1, Name = "Selecione" };
+
+				AcquisitionTypeList.Insert(0, noAcquisitionTypeList);
+
+				if (itemConfigs.ItemSituations is not null)
+					ItemSituationList = itemConfigs.ItemSituations;
+
+				var noSituation = new ItemSituation() { Id = -1, Name = "Selecione" };
+
+				ItemSituationList.Insert(0, noSituation);
+
+
+				if (itemConfigs.Categories is not null)
+				{
+					_categories = itemConfigs.Categories;
+				}
+
+				// Cria uma nova categoria para ser o primeiro item
+				var unCategorized = new Models.DTO.CategoryDTO
+				{
+					Id = -1,
+					Name = "[Sem Categoria]",
+					Color = "#2F9300",
+					SystemDefault = true,
+					SubCategory = null
+				};
+
+				// Adiciona a categoria no início da lista
+				_categories.Insert(0, unCategorized);
+
+				SelectedCaregory = unCategorized;
+				BtnCategoryText = SelectedCaregory.Name;
+			}
+		}
+
+	}
+
+	private async Task StartCamera()
+	{
+		try
+		{
+			// Invoca a função JavaScript para iniciar o feed da câmera
+			await JS.InvokeVoidAsync("cameraInterop.startCameraFeed", "videoFeed");
+			isCameraActive = true;
+			tempImageDataUrl = null; // Limpa qualquer foto capturada anteriormente
+									 // Força a atualização da UI para refletir o novo estado dos botões
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Erro ao iniciar câmera: {ex.Message}");
+			// Considere exibir uma mensagem de erro amigável ao usuário
+		}
+	}
+
+	private async Task HandleFileSelection(InputFileChangeEventArgs e)
+	{
+		// Pega o primeiro arquivo selecionado (pode ser ajustado para múltiplos)
+		selectedFile = e.File;
+		if (selectedFile != null)
+		{
+			// Opcional: Mostre uma pré-visualização da imagem
+			var format = "image/jpeg";
+			var imageBytes = new byte[selectedFile.Size];
+			await selectedFile.OpenReadStream().ReadAsync(imageBytes);
+			tempImageDataUrl = $"data:{format};base64,{Convert.ToBase64String(imageBytes)}";
+			// Opcional: Se quiser pré-visualizar antes de salvar
+
+			// SavePhoto();
+		}
+	}
+
+	private async Task StopCamera()
+	{
+		// Invoca a função JavaScript para parar o feed da câmera
+		await JS.InvokeVoidAsync("cameraInterop.stopCameraFeed", "videoFeed");
+		isCameraActive = false;
+		ClearPhoto();
+		// Força a atualização da UI para refletir o novo estado dos botões
+		StateHasChanged();
+	}
+
+	private async Task TakePhoto()
+	{
+		if (isCameraActive) // Garante que a câmera está ativa antes de tentar capturar
+		{
+			// Invoca a função JavaScript para capturar a foto do feed de vídeo
+			// E recebe a imagem em Base64 de volta
+			tempImageDataUrl = await JS.InvokeAsync<string>("cameraInterop.capturePhoto", "videoFeed", "photoCanvas");
+
+			SavePhoto();
+
+			await StopCamera();
+			isPhotoTaked = true;
+		}
+	}
+
+	private void DeletePhoto()
+	{
+		isPhotoTaked = false;
+		imageDataUrl = null;
+		StateHasChanged(); // Force UI update if needed
+	}
+
+	private void ClearPhoto()
+	{
+		tempImageDataUrl = null;
+		StateHasChanged(); // Força a atualização da UI
+		isPhotoTaked = false;
+	}
+
+	public async ValueTask DisposeAsync()
+	{
+		if (isCameraActive)
+		{
+			await StopCamera();
+		}
+	}
+
+	private void SavePhoto()
+	{
+		if (!string.IsNullOrEmpty(tempImageDataUrl))
+		{
+			isPhotoTaked = false;
+			imageDataUrl = tempImageDataUrl;
+			tempImageDataUrl = null;
+			StateHasChanged(); // Force UI update if needed
+		}
+	}
+
+	public void SetSelectedCategory(int categoryId)
+	{
+		SelectedCaregory = _categories.Where(x => x.Id == categoryId).First();
+		BtnCategoryText = SelectedCaregory.Name;
+	}
+
+	public void SetSelectedSubCategory(int? subCategoryId)
+	{
+		if (subCategoryId is not null)
+		{
+			SelectedSubCategoryId = subCategoryId.Value;
+			BtnCategoryText = SelectedCaregory.Name + "/" + SelectedCaregory.SubCategories.Where(x => x.Id == subCategoryId).First().Name;
+		}
+		else
+		{
+			BtnCategoryText = SelectedCaregory.Name;
+		}
+	}
+
+	public void SetSubCategoryToShow(int categoryId)
+	{
+		SelectedCaregory = _categories.Where(x => x.Id == categoryId).First();
+	}
+
+	public bool Validate()
+	{
+		SituationValidationError = CategoryValidationError = AcquisitionTypeValidationError = null;
+
+		if (SelectedItemSituationId is null or -1)
+		{
+			SituationValidationError = "Selecione uma situação válida.";
+			StateHasChanged();
+			return false;
+		}
+
+		if (SelectedCaregory.Id is null or -1)
+		{
+			CategoryValidationError = "Selecione uma Categoria válida.";
+			StateHasChanged();
+			return false;
+		}
+
+		if (SelectedAcquisitionTypeId is null or -1)
+		{
+			AcquisitionTypeValidationError = "Selecione um tipo de aquisição válido.";
+			StateHasChanged();
+			return false;
+		}
+
+		return true;
+	}
+
+	public decimal ParseCurrency(string input)
+	{
+		if (!string.IsNullOrWhiteSpace(input))
+		{
+			// Remove dots (thousands separator) and replace comma with dot (decimal separator)
+			string cleanValue = input.Replace(".", "").Replace(",", ".");
+			if (decimal.TryParse(cleanValue, NumberStyles.Currency, CultureInfo.InvariantCulture, out decimal parsedValue))
+				return parsedValue;
+			else
+				throw new FormatException(input + " could not be parsed to decimal.");
+		}
+		else
+			throw new ArgumentException(input + " cannot be empty.");
+	}
+
+	async Task UpInsertItemCommand()
+	{
+		if (Validate())
+		{
+			BtnInsertIsEnabled = false;
+
+			Models.DTO.ItemDTO itemDTO = new();
+
+			decimal? purchaseValue = ParseCurrency(Item.PurchaseValue);
+			decimal? resaleValue = null;
+			DateTime? withdrawalDate = null;
+
+			if (SelectedItemSituationId == ResaleStatusId)
+			{
+				resaleValue = ParseCurrency(Item.ResaleValue);
+				withdrawalDate = new DateTime(Item.WithdrawalDate.Year, Item.WithdrawalDate.Month, Item.WithdrawalDate.Day).Date;
+			}
+
+			itemDTO = new()
+			{
+				Name = Item.Name.Trim(),
+				AcquisitionDate = new DateTime(Item.AcquisitionDate.Year, Item.AcquisitionDate.Month, Item.AcquisitionDate.Day).Date,
+				AcquisitionType = new AcquisitionType() { Id = SelectedAcquisitionTypeId },
+				Comment = Item.Comment?.Trim(),
+				PurchaseStore = Item.PurchaseStore?.Trim(),
+				PurchaseValue = purchaseValue,
+				Situation = new ItemSituation() { Id = SelectedItemSituationId },
+				ResaleValue = resaleValue,
+				TechnicalDescription = Item.TechnicalDescription?.Trim(),
+				Category = new Models.DTO.CategoryDTO() { Id = SelectedCaregory.Id, SubCategory = SelectedSubCategoryId > 0 ? new SubCategoryDTO() { Id = SelectedSubCategoryId } : null },
+				WithdrawalDate = withdrawalDate
+			};
+
+			string message = "";
+			ServResp resp;
+
+			if (Item.Id > 0)
+			{
+				itemDTO.Id = Item.Id;
+
+				resp = await itemService.UpdateItem(itemDTO, userToken);
+
+				if (resp.Success)
+					message = "Item Atualizado!";
+				else
+					message = "Erro ao atualizar o item.";
+			}
+			else
+			{
+				resp = await itemService.InsertItem(itemDTO, userToken);
+
+				if (resp.Success)
+				{
+					if (resp.Content is Models.DTO.ItemDTO addedItem)
+					{
+						itemDTO.Id = addedItem.Id.Value;
+					}
+
+					message = "Item Adicionado!";
+				}
+				else
+					message = "Erro ao adicionar o item. " + resp.ErrorMessage;
+			}
+
+			if (imageDataUrl is null && itemDTO.Image1 is not null && Item.Id > 0)
+			{
+				await DelImage(itemDTO);
+			}
+			else if (!string.IsNullOrEmpty(imageDataUrl) && itemDTO is not null && itemDTO.Id.HasValue)
+			{
+				await UpInsertImage(itemDTO);
+			}
+
+			string styleMessage = "text-bg-success";
+
+			if (!resp.Success)
+				styleMessage = "text-bg-danger";
+
+			ToastService.ShowToast(new ToastComponent(message, styleMessage));
+
+			Navigation.NavigateTo("/");
+		}
+	}
+
+	async Task DelImage(Models.DTO.ItemDTO itemDTO)
+	{
+		var resp = await itemService.DelItemImageAsync(itemDTO.Id.Value, itemDTO.Image1, userToken);
+	}
+
+	async Task UpInsertImage(Models.DTO.ItemDTO itemDTO)
+	{
+		if (string.IsNullOrEmpty(imageDataUrl) || !imageDataUrl.Contains(","))
+		{
+			// A string Base64 não é válida, logue um erro ou retorne
+			Console.WriteLine("String Base64 inválida.");
+			return;
+		}
+
+		// A string Base64 tem o formato esperado
+		var base64String = imageDataUrl.Split(',')[1];
+		try
+		{
+			byte[] imageBytes = Convert.FromBase64String(base64String);
+
+			string fileContentType = null;
+			if (!string.IsNullOrEmpty(imageDataUrl) && imageDataUrl.StartsWith("data:"))
+			{
+				var parts = imageDataUrl.Split(';')[0].Split(':');
+				if (parts.Length == 2)
+					fileContentType = parts[1]; // Exemplo: "image/jpeg"
+			}
+
+			string fileName = Guid.NewGuid().ToString();
+
+			ItemFilesToUpload itemFilesToUpload = new()
+			{
+				Image1 = new() { FileId = 1, ImageBytes = imageBytes, FileName = fileName + GetExtensionByMimeType(fileContentType), FileContentType = fileContentType }
+			};
+
+			try
+			{
+				await itemService.AddItemImageAsync(itemDTO.Id.Value, userToken, itemFilesToUpload);
+			}
+			catch (Exception ex)
+			{
+				throw ex;
+			}
+		}
+		catch (FormatException ex)
+		{
+			// A string Base64 está mal formada, mas tem o prefixo "data:..."
+			Console.WriteLine($"Erro de formatação na string Base64: {ex.Message}");
+		}
+		catch (Exception ex)
+		{
+			// Outros erros
+			Console.WriteLine($"Erro ao converter Base64: {ex.Message}");
+		}
+
+		// var base64String = imageDataUrl.Split(',')[1];
+		// byte[] imageBytes = Convert.FromBase64String(base64String);
+
+
+	}
+
+	string? GetExtensionByMimeType(string mimeType)
+	{
+		switch (mimeType)
+		{
+			case "image/png": return ".png";
+			case "image/jpeg": return ".jpg";
+			case "image/gif": return ".gif";
+			default: return null;
+		}
+	}
+
+	string GetImageSrc(string fileName, int itemId)
+	{
+		var imageFile = itemService.GetItemImages(itemId, fileName, userToken).Result;
+
+		if (imageFile?.ImageBytes is null) return null;
+		string base64 = Convert.ToBase64String(imageFile.ImageBytes);
+		return $"data:image/jpeg;base64,{base64}";
+	}
 }
 
 

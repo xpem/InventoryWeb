@@ -53,17 +53,17 @@ namespace ApiRepos
                         if (content is not null)
                         {
                             // Substitua a linha:
-                            // string jsonContent = content as string;
+                             string jsonContent = content as string;
 
                             // Por:
-                            string jsonContent = System.Text.Json.JsonSerializer.Serialize(
-                                content,
-                                new System.Text.Json.JsonSerializerOptions
-                                {
-                                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.Never,
-                                    PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
-                                }
-                            );
+                            //string jsonContent = System.Text.Json.JsonSerializer.Serialize(
+                            //    content,
+                            //    new System.Text.Json.JsonSerializerOptions
+                            //    {
+                            //        DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.Never,
+                            //        PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                            //    }
+                            //);
                             //string jsonContent = content as string;
 
                             StringContent bodyContent = new(jsonContent, Encoding.UTF8, "application/json");
