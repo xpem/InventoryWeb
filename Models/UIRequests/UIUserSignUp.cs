@@ -5,6 +5,7 @@ namespace Models.UIRequests
     public class UIUserSignUp
     {
         [MaxLength(150)]
+        [Required(ErrorMessage = "O campo Nome é obrigatório")]
         public required string Name { get; set; }
 
         [Display(Name = "Email")]

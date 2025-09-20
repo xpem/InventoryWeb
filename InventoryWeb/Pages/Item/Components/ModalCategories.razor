@@ -1,0 +1,58 @@
+﻿@using Models.DTO
+
+<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="ModalCategories" tabindex="-1" aria-labelledby="ModalCategories" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: var(--bs-primary-bg-subtle); color: #fff;">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Categorias</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" />
+            </div>
+            <div class="modal-body">
+                <div class="list-group">
+                    @foreach (var category in Categories)
+                    {
+                        if (category.SubCategories?.Count > 0)
+                        {
+                            <a class="list-group-item list-group-item-action" href="#" data-bs-toggle="modal" data-bs-target="#ModalSubCategories" @onclick="() => OnShowSubCategory.InvokeAsync(category.Id.Value)">
+                                <div class="row">
+                                    <div class="col text-start" style="display: flex; align-items: center;">
+                                        <div class="category-circle" style="background: @category.Color; margin-right: 10px;"></div>
+                                        @category.Name
+                                    </div>
+                                    <div class="col text-end">
+                                        <i class="fa-solid fa-angle-right"></i>
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                        else
+                        {
+                            <a class="list-group-item list-group-item-action" href="#" data-bs-dismiss="modal" @onclick="() => OnSelectCategory.InvokeAsync(category.Id.Value)">
+                                <div class="row">
+                                    <div class="col text-start" style="display: flex; align-items: center;">
+                                        <div class="category-circle" style="background: @category.Color; margin-right: 10px;"></div>
+                                        @category.Name
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="color: #fff"><i class="bi bi-arrow-left-short"></i> Voltar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public List<CategoryDTO> Categories { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<int> OnSelectCategory { get; set; }
+
+    [Parameter]
+    public EventCallback<int> OnShowSubCategory { get; set; }
+}
