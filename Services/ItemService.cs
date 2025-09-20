@@ -1,6 +1,7 @@
 ﻿using ApiRepos;
 using Models;
 using Models.DTO;
+using Models.Item;
 using Models.Item.Files;
 using Models.Resps;
 using Services.Handlers;
@@ -16,28 +17,29 @@ namespace Services
         Task<ServResp> DelItemImageAsync(int id, string filename, string userToken);
         Task<ServResp> GetItemByIdAsync(string id, string userToken);
         Task<ImageFile> GetItemImages(int itemId, string itemImage1, string userToken);
-        Task<List<ItemDTO>> GetItemsAsync(string userToken, int[]? situationIds);
+        //Task<List<ItemDTO>> GetItemsAsync(string userToken);
         Task<ServResp> AddItemImageAsync(int id, string userToken, ItemFilesToUpload itemFilesToUpload);
 
-        Task<ServResp> GetItemsTotalPages(string userToken, int[]? situationIds);
+        Task<ServResp> GetItemsTotalPages(string userToken, ItemSearchParams? itemSearchParams = null);
 
-        Task<List<ItemDTO>> GetItemsPaginatedAsync(string userToken, int[]? situationIds, int page);
+        Task<List<ItemDTO>> GetItemsPaginatedAsync(string userToken, int page, ItemSearchParams? itemSearchParams = null);
+        Task<ServResp> GetItemConfigs(string userToken);
     }
 
     public class ItemService(IItemApiRepo itemApiRepo) : IItemService
     {
-        public async Task<ServResp> GetItemsTotalPages(string userToken, int[]? situationIds)
+        public async Task<ServResp> GetItemsTotalPages(string userToken, ItemSearchParams? itemSearchParams = null)
         {
-            ApiResp totalsResp = await itemApiRepo.GetTotalItensAsync(userToken, situationIds);
+            ApiResp totalsResp = await itemApiRepo.GetTotalItensAsync(userToken, itemSearchParams);
 
             return ApiRespHandler.Handler<ItemTotals>(totalsResp);
         }
 
-        public async Task<List<ItemDTO>> GetItemsPaginatedAsync(string userToken, int[]? situationIds, int page)
+        public async Task<List<ItemDTO>> GetItemsPaginatedAsync(string userToken, int page, ItemSearchParams? itemSearchParams = null)
         {
             List<ItemDTO> items = [];
 
-            ApiResp resp = await itemApiRepo.GetPaginatedItemsAsync(page, userToken, situationIds);
+            ApiResp resp = await itemApiRepo.GetPaginatedItemsAsync(page, userToken, itemSearchParams);
             ServResp paginatedItemsBLLResponse = ApiRespHandler.Handler<List<ItemDTO>>(resp);
 
             if (paginatedItemsBLLResponse.Success)
@@ -47,33 +49,39 @@ namespace Services
             return items;
         }
 
-        public async Task<List<ItemDTO>> GetItemsAsync(string userToken, int[]? situationIds)
+        //public async Task<List<ItemDTO>> GetItemsAsync(string userToken)
+        //{
+        //    ApiResp totalsResp = await itemApiRepo.GetTotalItensAsync(userToken);
+        //    List<ItemDTO> items = [];
+
+        //    ServResp itemTotalsBLLResponse = ApiRespHandler.Handler<ItemTotals>(totalsResp);
+
+        //    if (itemTotalsBLLResponse.Success)
+        //    {
+        //        ItemTotals? itemTotals = itemTotalsBLLResponse.Content as ItemTotals;
+
+        //        for (int i = 1; i <= itemTotals?.TotalPages; i++)
+        //        {
+        //            ApiResp resp = await itemApiRepo.GetPaginatedItemsAsync(i, userToken);
+        //            ServResp paginatedItemsBLLResponse = ApiRespHandler.Handler<List<ItemDTO>>(resp);
+
+        //            if (paginatedItemsBLLResponse.Success)
+        //                if (paginatedItemsBLLResponse.Content is List<ItemDTO> pageItems)
+        //                    items.AddRange(pageItems);
+        //        }
+
+        //        return items;
+        //    }
+        //    else
+        //    {
+        //        throw new ServerOffException("totalsResp success false, error:" + itemTotalsBLLResponse.Error);
+        //    }
+        //}
+
+        public async Task<ServResp> GetItemConfigs(string userToken)
         {
-            ApiResp totalsResp = await itemApiRepo.GetTotalItensAsync(userToken, situationIds);
-            List<ItemDTO> items = [];
-
-            ServResp itemTotalsBLLResponse = ApiRespHandler.Handler<ItemTotals>(totalsResp);
-
-            if (itemTotalsBLLResponse.Success)
-            {
-                ItemTotals? itemTotals = itemTotalsBLLResponse.Content as ItemTotals;
-
-                for (int i = 1; i <= itemTotals?.TotalPages; i++)
-                {
-                    ApiResp resp = await itemApiRepo.GetPaginatedItemsAsync(i, userToken, situationIds);
-                    ServResp paginatedItemsBLLResponse = ApiRespHandler.Handler<List<ItemDTO>>(resp);
-
-                    if (paginatedItemsBLLResponse.Success)
-                        if (paginatedItemsBLLResponse.Content is List<ItemDTO> pageItems)
-                            items.AddRange(pageItems);
-                }
-
-                return items;
-            }
-            else
-            {
-                throw new ServerOffException("totalsResp success false, error:" + itemTotalsBLLResponse.Error);
-            }
+            ApiResp resp = await itemApiRepo.GetConfigs(userToken);
+            return ApiRespHandler.Handler<ItemConfigsApiResp>(resp);
         }
 
         public async Task<ServResp> GetItemByIdAsync(string id, string userToken)

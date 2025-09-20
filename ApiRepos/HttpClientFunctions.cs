@@ -52,7 +52,19 @@ namespace ApiRepos
                     case RequestsTypes.Post:
                         if (content is not null)
                         {
-                            string jsonContent = content as string;
+                            // Substitua a linha:
+                            // string jsonContent = content as string;
+
+                            // Por:
+                            string jsonContent = System.Text.Json.JsonSerializer.Serialize(
+                                content,
+                                new System.Text.Json.JsonSerializerOptions
+                                {
+                                    DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.Never,
+                                    PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase
+                                }
+                            );
+                            //string jsonContent = content as string;
 
                             StringContent bodyContent = new(jsonContent, Encoding.UTF8, "application/json");
                             httpResponse = await httpClient.PostAsync(url, bodyContent);
@@ -87,6 +99,7 @@ namespace ApiRepos
                 if (ex.Message.Equals("TypeError: Failed to fetch"))
                 {
                     return new ApiResp() { Success = false, Content = null, Error = ErrorTypes.TokenExpired };
+
                 }
                 else
                     throw;

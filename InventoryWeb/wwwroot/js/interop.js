@@ -111,3 +111,13 @@ window.cameraInterop = (function () {
         }
     };
 })();
+
+window.setupInfiniteScroll = (dotNetHelper, methodName) => {
+    window.addEventListener('scroll', () => {
+        const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+
+        if (scrollTop + clientHeight >= scrollHeight - 200) { // -200 is a buffer
+            dotNetHelper.invokeMethodAsync(methodName);
+        }
+    });
+};

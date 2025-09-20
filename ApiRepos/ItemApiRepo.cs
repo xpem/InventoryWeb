@@ -1,5 +1,6 @@
 ﻿using Models;
 using Models.DTO;
+using Models.Item;
 using Models.Item.Files;
 using Models.Resps;
 using System.Text.Json;
@@ -15,35 +16,32 @@ namespace ApiRepos
         Task<ApiResp> DelItemImageAsync(int id, string userToken, string fileName);
         Task<ApiResp> GetItemByIdAsync(string id, string userToken);
         Task<ApiResp> GetItemImageAsync(int id, string userToken, string fileName);
-        Task<ApiResp> GetPaginatedItemsAsync(int page, string userToken, int[]? situationIds);
-        Task<ApiResp> GetTotalItensAsync(string userToken, int[]? situationIds);
+        Task<ApiResp> GetPaginatedItemsAsync(int page, string userToken, ItemSearchParams? itemSearchParams = null);
+        Task<ApiResp> GetTotalItensAsync(string userToken, ItemSearchParams? itemSearchParams = null);
+        Task<ApiResp> GetConfigs(string userToken);
+
     }
 
     public class ItemApiRepo(IHttpClientFunctions httpClientFunctions, IHttpClientWithFileFunctions httpClientWithFileFunctions) : IItemApiRepo
     {
-        public async Task<ApiResp> GetTotalItensAsync(string userToken, int[]? situationIds)
+        public async Task<ApiResp> GetTotalItensAsync(string userToken, ItemSearchParams? itemSearchParams = null)
         {
-            if (situationIds is not null && situationIds.Length > 0)
-            {
-                string querySituationIds = string.Join(",", situationIds);
-
-                return await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item/totals?situationIds=" + querySituationIds, userToken);
-            }
-
-            return await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item/totals", userToken);
+            if(itemSearchParams is not null)
+                return await httpClientFunctions.RequestAsync(RequestsTypes.Post, ApiKeys.ApiAddress + "/Inventory/item/totals/search", userToken, itemSearchParams);
+            else
+                return await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item/totals", userToken);
         }
 
-        public async Task<ApiResp> GetPaginatedItemsAsync(int page, string userToken, int[]? situationIds)
+        public async Task<ApiResp> GetPaginatedItemsAsync(int page, string userToken, ItemSearchParams? itemSearchParams = null)
         {
-            if (situationIds is not null && situationIds.Length > 0)
-            {
-                string querySituationIds = string.Join(",", situationIds);
-
-                return await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item?page=" + page + "&situationIds=" + querySituationIds, userToken);
-            }
-
-            return await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item?page=" + page, userToken);
+            if (itemSearchParams is not null)
+                return await httpClientFunctions.RequestAsync(RequestsTypes.Post, ApiKeys.ApiAddress + "/Inventory/item/search?page=" + page, userToken, itemSearchParams);
+            else
+                return await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item?page=" + page, userToken);
         }
+
+        public async Task<ApiResp> GetConfigs(string userToken) =>
+            await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item/configs", userToken);
 
         public async Task<ApiResp> GetItemByIdAsync(string id, string userToken) =>
            await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item/" + id, userToken);

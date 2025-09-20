@@ -211,11 +211,12 @@
             <div class="camera-section">
                 @if (string.IsNullOrEmpty(imageDataUrl))
                 {
-                    @*          <h4 class="mb-3">Tirar Foto do Item</h4>
- *@
-                    <div class="d-flex justify-content-center flex-wrap gap-2 mb-3">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
                         <a data-bs-toggle="modal" data-bs-target="#ModalCamera" class="btn btn-primary" @onclick="StartCamera" disabled="@isCameraActive">
                             <i class="fas fa-video"></i> Iniciar Câmera
+                        </a>
+                        <a data-bs-toggle="modal" data-bs-target="#ModalCamera" class="btn btn-primary" disabled="@isCameraActive">
+                            <i class="fas fa-folder-open"></i> Escolher Arquivo
                         </a>
                     </div>
                 }
@@ -241,7 +242,7 @@
                 }
                 else
                 {
-                    <button type="submit" class="btn btn-warning">
+                    <button type="submit" class="btn btn-warning btn-lg">
                         <i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Alterar
                     </button>
                 }
@@ -475,6 +476,8 @@
 
     private string? userToken;
 
+    private IBrowserFile? selectedFile;
+
     private List<Models.DTO.CategoryDTO> _categories = new List<Models.DTO.CategoryDTO>();
 
     List<ItemSituation> ItemSituationList = new List<ItemSituation>();
@@ -530,12 +533,7 @@
 
                 var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
 
-                //to do, criar uma rota no backend que retorne todos estes parametros em um unico get.
-                await SetAcquisitionType(userToken);
-
-                await SetItemSituation(userToken);
-
-                await SetCategory(userToken);
+                await SetItemConfigs(userToken);
 
                 Item.PurchaseValue = ""; // Default for new items
 
@@ -632,6 +630,56 @@
         catch (Exception ex) { throw ex; }
     }
 
+    private async Task SetItemConfigs(string userToken)
+    {
+        var configs = await itemService.GetItemConfigs(userToken);
+
+        if (configs is not null && configs.Success)
+        {
+            var itemConfigs = configs.Content as ItemConfigsApiResp;
+            if (itemConfigs is not null)
+            {
+
+                if (itemConfigs.AcquisitionTypes is not null)
+                    AcquisitionTypeList = itemConfigs.AcquisitionTypes;
+
+                var noAcquisitionTypeList = new AcquisitionType() { Id = -1, Name = "Selecione" };
+
+                AcquisitionTypeList.Insert(0, noAcquisitionTypeList);
+
+                if (itemConfigs.ItemSituations is not null)
+                    ItemSituationList = itemConfigs.ItemSituations;
+
+                var noSituation = new ItemSituation() { Id = -1, Name = "Selecione" };
+
+                ItemSituationList.Insert(0, noSituation);
+
+
+                if (itemConfigs.Categories is not null)
+                {
+                    _categories = itemConfigs.Categories;
+                }
+
+                // Cria uma nova categoria para ser o primeiro item
+                var unCategorized = new Models.DTO.CategoryDTO
+                {
+                    Id = -1,
+                    Name = "[Sem Categoria]",
+                    Color = "#2F9300",
+                    SystemDefault = true,
+                    SubCategory = null
+                };
+
+                // Adiciona a categoria no início da lista
+                _categories.Insert(0, unCategorized);
+
+                SelectedCaregory = unCategorized;
+                BtnCategoryText = SelectedCaregory.Name;
+            }
+        }
+
+    }
+
     private async Task StartCamera()
     {
         try
@@ -650,26 +698,22 @@
         }
     }
 
-    // private async Task HandleFileSelection(InputFileChangeEventArgs e)
-    // {
-    //     var file = e.File;
-    //     if (file is not null)
-    //     {
-    //         try
-    //         {
-    //             // Processa o arquivo como um stream de dados
-    //             var stream = file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024); // 5 MB
+    private async Task HandleFileSelection(InputFileChangeEventArgs e)
+    {
+        // Pega o primeiro arquivo selecionado (pode ser ajustado para múltiplos)
+        selectedFile = e.File;
+        if (selectedFile != null)
+        {
+            // Opcional: Mostre uma pré-visualização da imagem
+            var format = "image/jpeg";
+            var imageBytes = new byte[selectedFile.Size];
+            await selectedFile.OpenReadStream().ReadAsync(imageBytes);
+            tempImageDataUrl = $"data:{format};base64,{Convert.ToBase64String(imageBytes)}";
+            // Opcional: Se quiser pré-visualizar antes de salvar
 
-    //             // Você pode ler o stream e enviá-lo para a API
-    //             // A sua classe HttpClientWithFileFunctions já está pronta para isso.
-    //             // Exemplo: await itemService.UploadItemImageAsync(itemId, userToken, stream);
-    //         }
-    //         catch (Exception ex)
-    //         {
-    //             // Lidar com o erro
-    //         }
-    //     }
-    // }
+            SavePhoto();
+        }
+    }
 
     private async Task StopCamera()
     {
@@ -746,56 +790,6 @@
     public void SetSubCategoryToShow(int categoryId)
     {
         SelectedCaregory = _categories.Where(x => x.Id == categoryId).First();
-    }
-
-    private async Task SetAcquisitionType(string userToken)
-    {
-        ServResp? respAcquisitionTypeList = await acquisitionTypeService.GetAcquisitionType(userToken);
-
-        if (respAcquisitionTypeList is not null && respAcquisitionTypeList.Success)
-            AcquisitionTypeList = respAcquisitionTypeList.Content as List<Models.Item.AcquisitionType>;
-
-        var noAcquisitionTypeList = new AcquisitionType() { Id = -1, Name = "Selecione" };
-
-        AcquisitionTypeList.Insert(0, noAcquisitionTypeList);
-    }
-
-    private async Task SetItemSituation(string userToken)
-    {
-        ServResp? respItemSituationList = await itemSituationService.GetItemSituation(userToken);
-
-        if (respItemSituationList is not null && respItemSituationList.Success)
-            ItemSituationList = respItemSituationList.Content as List<ItemSituation>;
-
-        var noSituation = new ItemSituation() { Id = -1, Name = "Selecione" };
-
-        ItemSituationList.Insert(0, noSituation);
-    }
-
-    private async Task SetCategory(string userToken)
-    {
-        ServResp resp = await categoryService.GetCategoriesWithSubCategoriesAsync(userToken);
-
-        if (resp is not null && resp.Success)
-        {
-            _categories = resp.Content as List<Models.DTO.CategoryDTO>;
-        }
-
-        // Cria uma nova categoria para ser o primeiro item
-        var unCategorized = new Models.DTO.CategoryDTO
-        {
-            Id = -1,
-            Name = "[Sem Categoria]",
-            Color = "#2F9300",
-            SystemDefault = true,
-            SubCategory = null
-        };
-
-        // Adiciona a categoria no início da lista
-        _categories.Insert(0, unCategorized);
-
-        SelectedCaregory = unCategorized;
-        BtnCategoryText = SelectedCaregory.Name;
     }
 
     public bool Validate()
@@ -911,7 +905,7 @@
             }
             else if (!string.IsNullOrEmpty(imageDataUrl) && itemDTO is not null && itemDTO.Id.HasValue)
             {
-               await UpInsertImage(itemDTO);
+                await UpInsertImage(itemDTO);
             }
 
             string styleMessage = "text-bg-success";

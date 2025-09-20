@@ -9,170 +9,350 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IItemService itemService
 @inject IItemSituationService itemSituationService
+@inject IJSRuntime JSRuntime
 
 <PageTitle>Principal</PageTitle>
 
 <style>
-    .linked-card {
-        transition: filter 0.2s;
-    }
+	.linked-card {
+		transition: filter 0.2s;
+	}
 
-        .linked-card:hover {
-            cursor: pointer;
-            filter: brightness(1.08);
-        }
+		.linked-card:hover {
+			cursor: pointer;
+			filter: brightness(1.18);
+		}
 
-    .category-circle-md {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: #29A0B1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 5px;
-        margin-right: 5px;
-    }
+	.category-circle-md {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		background: #29A0B1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin-top: 5px;
+		margin-right: 5px;
+	}
 </style>
 
-<div class="col-lg-12" style="margin-bottom: 10px; margin-top:20px;">
-    <button type="button" class="btn btn-primary mb-3" @onclick='() => Navigation.NavigateTo("/item/edit")'><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Adicionar Item</button>
+<div class="col-lg-12 row">
+	<div class="col-sm-6 mb-3">
+		<button type="button" class="btn btn-primary mb-3" @onclick='() => Navigation.NavigateTo("/item/edit")'><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Adicionar Item</button>
+	</div>
+	<div class="col-sm-6 mb-3" style="display: flex; justify-content: flex-end">
+		@if (searchPanelIsVisible)
+		{
+			<a @onclick='() => TogleSearchPanel()' class="btn btn-outline-danger mb-3" style="margin-bottom: 10px; width: fit-content; height: fit-content"><i class="fa-solid fa-filter-circle-xmark"></i></a>
+		}
+		else
+		{
+			<a @onclick='() => TogleSearchPanel()' class="btn btn-outline-light mb-3" style="margin-bottom: 10px; width: fit-content; height: fit-content"><i class="fa-solid fa-filter"></i></a>
+		}
+	</div>
+
+	@if (searchPanelIsVisible)
+	{
+		<div class="row g-2 mb-4">
+			<div class="col-lg-12">
+				@foreach (var situation in ItemsSituationObsList)
+				{
+					<span class="badge rounded-pill mb-3" style="background-color:@situation.BackgoundColor; color: white; font-size: 14px; width: 110px; margin: 5px; padding: 6px;"
+						  @onclick='() => SetSelectedItemSituation(situation.Id.Value)'>@situation.Name</span>
+				}
+			</div>
+			<div class="col-lg-6">
+				<InputText type="text" class="form-control" id="inputName" @bind-Value="@searchText" placeholder="Nome do Item" />
+			</div>
+			<div class="col-auto">
+				<a class="btn btn-primary" @onclick='() => LoadItemsBySearch()'><i class="fa-solid fa-magnifying-glass"></i></a>
+			</div>
+		</div>
+	}
 </div>
-<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-    @foreach (var item in items)
-    {
-        <div class="col">
-            <div class="card h-100 linked-card" @onclick='() => Navigation.NavigateTo("/item/edit?x=" + item.Id)'>
-                <div class="card-header">
-                    @item.Name
-                </div>
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-2">
-                        <div class="category-circle-md me-2" style="background: @item.Category.Color">
-                            <i class="fa-solid fa-@item.SubCategoryIcon" style="font-size: 20px;"></i>
-                        </div>
-                        <div>
-                            <p class="card-subtitle mb-1 text-body-secondary">@item.CategoryAndSubCategory</p>
-                            <p class="card-text mb-0">@item.Situation.Name</p>
-                            <p class="card-text mb-0">@string.Format("{0:C}", @item.PurchaseValue)</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
-</div>
+@if (items is not null)
+{
+	<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+		@foreach (var item in items)
+		{
+			<div class="col">
+				<div class="card h-100 linked-card" @onclick='() => Navigation.NavigateTo("/item/edit?x=" + item.Id)'>
+			@* 		<div class="card-header">
+						@item.Name
+					</div> *@
+					<div class="card-body">
+						<div>
+							<p class="fw-bold">@item.Name</p>
+							
+						</div>
+						<div class="d-flex align-items-center mb-2">
+							<div class="category-circle-md me-2" style="background: @item.Category.Color">
+								<i class="fa-solid fa-@item.SubCategoryIcon" style="font-size: 20px;"></i>
+							</div>
+							<div>
+								<p class="card-subtitle mb-1 text-body-secondary">@item.CategoryAndSubCategory</p>
+								<p class="card-text mb-0">@item.Situation.Name</p>
+								<p class="card-text mb-0">@string.Format("{0:C}", @item.PurchaseValue)</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+}
+else
+{
+	<div class="col-lg-12 text-center my-3">
+		<p>Não há itens nesta condição</p>
+	</div>
+}
 @if (LoadingList)
 {
-    <div class="col-lg-12">
-        <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
+	<div class="col-lg-12">
+		<div class="spinner-border text-primary" role="status">
+			<span class="visually-hidden">Loading...</span>
+		</div>
+	</div>
+}
+@if (items?.Count > 0 && !LoadingList && CurrentPage < TotalPages)
+{
+	<div class="col-lg-12 text-center my-3">
+		<p>Rolando para carregar mais itens...</p>
+	</div>
 }
 
-
 @code {
-    private string? userEmail;
-    private string? userToken;
-    // private List<int> SelectetSituationIds = [1]; // Situação "Em Uso" padrão
 
-    List<Models.DTO.ItemDTO> items = new List<Models.DTO.ItemDTO>();
+	private string? userEmail;
+	private string? userToken;
+	private string? searchText;
+	private int CurrentPage = 1;
+	private bool searchPanelIsVisible = false;
+	private List<Models.DTO.ItemDTO> items = new List<Models.DTO.ItemDTO>();
+	List<UIItemSituation> ItemsSituationObsList = new List<UIItemSituation>();
+	private List<int> SelectedSituationIds = []; // Situação "Em Uso" padrão
+	bool LoadingList = true;
+	int TotalPages = 0;
+	private CancellationTokenSource? _setSituationCts;
 
-    List<UIItemSituation> ItemsSituationObsList = new List<UIItemSituation>();
+	private DotNetObjectReference<Home>? objRef;
+	private bool isLoadingMore = false;
 
-    bool LoadingList = true;
-    int TotalPages = 0;
+	protected async Task TogleSearchPanel()
+	{
+		if (searchPanelIsVisible)
+		{
+			searchPanelIsVisible = false;
+			searchText = "";
+			SelectedSituationIds = [];
+			LoadItemsBySearch(true);
 
-    private CancellationTokenSource? _setSituationCts;
+		}
+		else
+		{
+			searchPanelIsVisible = true;
+			await SetItemSituation();
+		}
+	}
 
-    protected override async Task OnInitializedAsync()
-    {
-        // Obtém o estado de autenticação atual
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User; // O ClaimsPrincipal do usuário
+	protected override async Task OnInitializedAsync()
+	{
+		objRef = DotNetObjectReference.Create(this);
+		var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User;
+		if (user.Identity?.IsAuthenticated == true)
+		{
+			userEmail = user.FindFirst(ClaimTypes.Email)?.Value;
+			userToken = user.FindFirst("Token")?.Value;
 
-        // Verifica se o usuário está autenticado
-        if (user.Identity?.IsAuthenticated == true)
-        {
-            // Recupera o nome de usuário (geralmente do ClaimTypes.Name)
-            // userEmail = user.Identity.Name;
-            // Ou você pode usar uma claim específica, se necessário
-            userEmail = user.FindFirst(ClaimTypes.Email)?.Value;
-            userToken = user.FindFirst("Token")?.Value;
+			await LoadItems();
 
-            try
-            {
-                // await SetItemSituation();
+		}
+		else
+		{
+			Navigation.NavigateTo("/signin");
+		}
+	}
 
-                var totals = await itemService.GetItemsTotalPages(userToken, null);
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await JSRuntime.InvokeVoidAsync("setupInfiniteScroll", objRef, "loadMoreItems");
+		}
+	}
 
-                if (totals is not null && totals.Success)
-                {
-                    var _totals = totals.Content as ItemTotals;
+	async void LoadItemsBySearch(bool reset = false)
+	{
+		ItemSearchParams? itemSearchParams = null;
 
-                    if (_totals is not null)
-                    {
-                        TotalPages = _totals.TotalPages;
-                    }
-                }
+		if (searchText is not null || (SelectedSituationIds is not null && SelectedSituationIds.Count > 0))
+			itemSearchParams = new ItemSearchParams(searchText, SelectedSituationIds?.ToArray(), null);
 
-                if (TotalPages > 0)
-                {
-                    _ = GetItemsList(TotalPages);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Erro ao obter itens: {ex.Message}");
-            }
-            // Verifica se o usuário pertence a um papel
-            // isAdmin = user.IsInRole("Admin");
+		if (itemSearchParams is not null)
+		{
+			var totals = await itemService.GetItemsTotalPages(userToken, itemSearchParams);
 
-            // Você pode acessar outras claims assim:
-            // var userEmail = user.FindFirst(ClaimTypes.Email)?.Value;
-            // var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        }
-        else
-        {
-            Navigation.NavigateTo("/signin");
-            // userName = "Visitante"; // Ou qualquer lógica para usuário não logado
-            // isAdmin = false;
-        }
-    }
+			if (totals is not null && totals.Success)
+			{
+				var _totals = totals.Content as ItemTotals;
+				if (_totals is not null)
+				{
+					TotalPages = _totals.TotalPages;
+				}
+			}
 
-    async Task GetItemsList(int page)
-    {
-        LoadingList = true;
+			if (TotalPages > 0)
+			{
+				await GetItemsList(CurrentPage, itemSearchParams);
+			}
+			else items = null;
 
-        items = await itemService.GetItemsPaginatedAsync(userToken, null, page);
+			await InvokeAsync(StateHasChanged);
+		}
+		//não carregar novamente caso ele repita a ação de resetar o filtro
+		else if (reset)
+		{
+			LoadItems();
+			return;
+		}
+	}
 
-        foreach (var itemDTO in items)
-        {
-            itemDTO.CategoryAndSubCategory = itemDTO.Category.Name;
+	async Task LoadItems()
+	{
+		try
+		{
+			var totals = await itemService.GetItemsTotalPages(userToken);
 
-            if (itemDTO.Category?.SubCategory?.Name is not null)
-            {
-                itemDTO.CategoryAndSubCategory += "/" + itemDTO.Category.SubCategory.Name;
-            }
+			if (totals is not null && totals.Success)
+			{
+				var _totals = totals.Content as ItemTotals;
+				if (_totals is not null)
+				{
+					TotalPages = _totals.TotalPages;
+				}
 
-            if (itemDTO.Category?.SubCategory?.IconName is not null)
-                itemDTO.SubCategoryIcon = SubCategoryIconsList.GetIconFaName(itemDTO.Category.SubCategory.IconName);
-            else
-                itemDTO.SubCategoryIcon = "tag"; // Ícone padrão se não houver ícone definido
-        }
+				if (TotalPages > 0)
+				{
+					await GetItemsList(CurrentPage);
+				}
+			}
+			else if (totals?.Error == Models.Resps.ErrorTypes.TokenExpired)
+			{
+				Navigation.NavigateTo("/signin");
+				return;
+			}
+		}
+		catch (Exception ex)
+		{
+			Console.WriteLine($"Erro ao obter itens: {ex.Message}");
+		}
+	}
 
-        LoadingList = false;
+	[JSInvokable("loadMoreItems")]
+	public async Task LoadMoreItems()
+	{
+		if (LoadingList || isLoadingMore || CurrentPage >= TotalPages)
+		{
+			return;
+		}
 
-        await InvokeAsync(StateHasChanged);
-    }
+		isLoadingMore = true;
+		CurrentPage++;
 
-    string GetImageSrc(string fileName, int itemId)
-    {
-        var imageFile = itemService.GetItemImages(itemId, fileName, userToken).Result;
+		await GetItemsList(CurrentPage);
+		isLoadingMore = false;
+	}
 
-        if (imageFile?.ImageBytes is null) return null;
-        string base64 = Convert.ToBase64String(imageFile.ImageBytes);
-        return $"data:image/png;base64,{base64}";
-    }
+	async Task GetItemsList(int page, ItemSearchParams? itemSearchParams = null)
+	{
+		LoadingList = true;
+		var newItems = await itemService.GetItemsPaginatedAsync(userToken, page, itemSearchParams);
+
+		foreach (var itemDTO in newItems)
+		{
+			itemDTO.CategoryAndSubCategory = itemDTO.Category.Name;
+
+			if (itemDTO.Category?.SubCategory?.Name is not null)
+			{
+				itemDTO.CategoryAndSubCategory += "/" + itemDTO.Category.SubCategory.Name;
+			}
+
+			if (itemDTO.Category?.SubCategory?.IconName is not null)
+				itemDTO.SubCategoryIcon = SubCategoryIconsList.GetIconFaName(itemDTO.Category.SubCategory.IconName);
+			else
+				itemDTO.SubCategoryIcon = "tag";
+		}
+
+		if (page == 1)
+		{
+			items = newItems;
+		}
+		else
+		{
+			items.AddRange(newItems);
+		}
+
+		LoadingList = false;
+		await InvokeAsync(StateHasChanged);
+	}
+
+	string GetImageSrc(string fileName, int itemId)
+	{
+		var imageFile = itemService.GetItemImages(itemId, fileName, userToken).Result;
+
+		if (imageFile?.ImageBytes is null) return null;
+		string base64 = Convert.ToBase64String(imageFile.ImageBytes);
+		return $"data:image/png;base64,{base64}";
+	}
+
+	async Task SetSelectedItemSituation(int situationid)
+	{
+		// Cancela a execução anterior, se houver
+		_setSituationCts?.Cancel();
+		_setSituationCts = new CancellationTokenSource();
+		var token = _setSituationCts.Token;
+
+		if (SelectedSituationIds.Contains(situationid))
+		{
+			ItemsSituationObsList.Where(x => x.Id == situationid).First().BackgoundColor = "#919191";
+
+
+			SelectedSituationIds.Remove(situationid);
+		}
+		else
+		{
+			SelectedSituationIds.Add(situationid);
+			ItemsSituationObsList.Where(x => x.Id == situationid).First().BackgoundColor = "#29A0B1";
+		}
+	}
+
+	async Task SetItemSituation()
+	{
+		List<ItemSituation> itemSituationList = [];
+
+		var respItemSituation = await itemSituationService.GetItemSituation(userToken);
+
+		if (respItemSituation is not null && respItemSituation.Success)
+			itemSituationList = respItemSituation.Content as List<ItemSituation>;
+
+		if (itemSituationList is not null && itemSituationList.Count > 0)
+		{
+
+			ItemsSituationObsList = [];
+			string textSituationItem;
+			string backgoundColor;
+
+			for (int i = 0; i < itemSituationList.Count; i++)
+			{
+				// backgoundColor = itemSituationList[i].Sequence is 1 ? "#29A0B1" : "#919191";
+				backgoundColor = "#919191";
+
+				textSituationItem = $"{itemSituationList[i].Name}";
+
+				ItemsSituationObsList.Add(new UIItemSituation() { Id = itemSituationList[i].Id.Value, Name = textSituationItem, BackgoundColor = backgoundColor });
+			}
+		}
+	}
 }
