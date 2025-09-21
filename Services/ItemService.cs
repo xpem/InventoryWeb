@@ -49,35 +49,6 @@ namespace Services
             return items;
         }
 
-        //public async Task<List<ItemDTO>> GetItemsAsync(string userToken)
-        //{
-        //    ApiResp totalsResp = await itemApiRepo.GetTotalItensAsync(userToken);
-        //    List<ItemDTO> items = [];
-
-        //    ServResp itemTotalsBLLResponse = ApiRespHandler.Handler<ItemTotals>(totalsResp);
-
-        //    if (itemTotalsBLLResponse.Success)
-        //    {
-        //        ItemTotals? itemTotals = itemTotalsBLLResponse.Content as ItemTotals;
-
-        //        for (int i = 1; i <= itemTotals?.TotalPages; i++)
-        //        {
-        //            ApiResp resp = await itemApiRepo.GetPaginatedItemsAsync(i, userToken);
-        //            ServResp paginatedItemsBLLResponse = ApiRespHandler.Handler<List<ItemDTO>>(resp);
-
-        //            if (paginatedItemsBLLResponse.Success)
-        //                if (paginatedItemsBLLResponse.Content is List<ItemDTO> pageItems)
-        //                    items.AddRange(pageItems);
-        //        }
-
-        //        return items;
-        //    }
-        //    else
-        //    {
-        //        throw new ServerOffException("totalsResp success false, error:" + itemTotalsBLLResponse.Error);
-        //    }
-        //}
-
         public async Task<ServResp> GetItemConfigs(string userToken)
         {
             ApiResp resp = await itemApiRepo.GetConfigs(userToken);
@@ -176,21 +147,6 @@ namespace Services
 
                     if (itemFileNames is not null)
                     {
-                        //if (itemFileNames.Image1 is not null)
-                        //{
-                        //    string newPath = Path.Combine(FilePaths.ImagesPath, itemFileNames.Image1);
-
-                        //    itemFilesToUpload.Image1.ImageFilePath = Path.Combine(FilePaths.ImagesPath, itemFileNames.Image1);
-                        //}
-
-                        //if (itemFileNames.Image2 is not null)
-                        //{
-                        //    string newPath = Path.Combine(FilePaths.ImagesPath, itemFileNames.Image2);
-                        //    System.IO.File.Move(itemFilesToUpload.Image2.ImageFilePath, newPath);
-
-                        //    itemFilesToUpload.Image2.ImageFilePath = Path.Combine(FilePaths.ImagesPath, itemFileNames.Image2);
-                        //}
-
                         return new ServResp() { Success = true };
                     }
                 }
@@ -198,44 +154,5 @@ namespace Services
 
             return new ServResp() { Success = false };
         }
-
-        //private async Task<ImageFile?> GetImageItemAsync(int id, int idx, string fileName, string filePath, string userToken)
-        //{
-        //    bool exists = System.IO.Directory.Exists(filePath);
-
-        //    if (!exists)
-        //        System.IO.Directory.CreateDirectory(filePath);
-
-        //    string filePathAndName = Path.Combine(filePath, fileName);
-        //    ImageFile imageFile;
-
-        //    if (File.Exists(filePathAndName))
-        //    {
-        //        using FileStream fs = new FileStream(filePathAndName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-
-        //        using MemoryStream memoryStream = new();
-        //        fs.CopyTo(memoryStream);
-        //        imageFile = new() { FileName = fileName, FileId = idx, ImageFilePath = filePathAndName };
-
-        //        return imageFile;
-        //    }
-
-        //    ApiResp resp = await itemApiRepo.GetItemImageAsync(id, userToken, fileName);
-
-        //    if (resp is not null && resp.Content is not null and Stream)
-        //    {
-        //        using FileStream fs = new FileStream(filePathAndName, FileMode.OpenOrCreate, FileAccess.ReadWrite);
-
-        //        ((Stream)resp.Content).CopyTo(fs);
-
-        //        imageFile = new() { FileName = fs.Name, FileId = idx, ImageFilePath = filePathAndName };
-
-        //        await ((Stream)resp.Content).DisposeAsync();
-
-        //        return imageFile;
-        //    }
-
-        //    return null;
-        //}
     }
 }
