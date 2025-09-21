@@ -40,7 +40,7 @@
 	<div class="col-sm-6 mb-3">
 		<button type="button" class="btn btn-primary mb-3" @onclick='() => Navigation.NavigateTo("/item/edit")'><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Adicionar Item</button>
 	</div>
-	<div class="col-sm-6 mb-3" style="display: flex; justify-content: flex-end">
+	<div class="col-sm-6 mb-3 d-flex justify-content-end">
 		@if (searchPanelIsVisible)
 		{
 			<a @onclick='() => TogleSearchPanel()' class="btn btn-outline-danger mb-3" style="margin-bottom: 10px; width: fit-content; height: fit-content"><i class="fa-solid fa-filter-circle-xmark"></i></a>

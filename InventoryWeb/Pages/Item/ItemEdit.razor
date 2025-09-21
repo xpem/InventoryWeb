@@ -157,9 +157,15 @@
 						<div class="col-lg-6 mb-1">
 							<div class="form-group">
 								<label for="inputStore">Loja</label>
-								<InputText class="form-control" @bind-Value="@Item.PurchaseStore">
+								<InputText class="form-control" @bind-Value="@Item.PurchaseStore" list="storesList">
 									<ValidationMessage For="@(() => Item.PurchaseStore)" />
 								</InputText>
+								<datalist id="storesList">
+									@foreach (var store in LastPurchaseStores)
+									{
+										<option value="@store"></option>
+									}
+								</datalist>
 							</div>
 						</div>
 					</div>
@@ -186,7 +192,7 @@
 				@if (string.IsNullOrEmpty(imageDataUrl))
 				{
 					<div class="d-grid gap-2 d-md-flex justify-content-md-center">
-						<a data-bs-toggle="modal" data-bs-target="#ModalCamera" class="btn btn-primary" @onclick="StartCamera" disabled="@isCameraActive">
+						<a data-bs-toggle="modal" data-bs-target="#ModalCamera" class="btn btn-primary" @onclick="OnStartCameraClick" disabled="@isCameraActive">
 							<i class="fas fa-video"></i> Iniciar Câmera
 						</a>
 						<a data-bs-toggle="modal" data-bs-target="#ModalSelectFile" class="btn btn-primary" disabled="@isCameraActive">
@@ -230,102 +236,17 @@
 		</EditForm>
 	}
 </div>
-<!-- Modal Select File-->
-<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="ModalSelectFile" tabindex="-1" aria-labelledby="ModalSelectFile" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-scrollable">
-		<div class="modal-content">
-			<div class="modal-header" style="background-color: var(--bs-primary-bg-subtle); color: #fff ">
-				<h1 class="modal-title fs-5">Seleção de arquivo</h1>
-			</div>
-			<div class="modal-body">
-				@if (!isPhotoTaked)
-				{
-					<div class="mb-3">
-						<InputFile id="fileInput" class="form-control" OnChange="HandleFileSelection" accept="image/*" />
-					</div>
-				}
+<InventoryWeb.Pages.Item.Components.ModalSelectFile ImageDataUrl="imageDataUrl"
+													ImageDataUrlChanged="@OnImageDataUrlChanged" />
 
-				@if (!string.IsNullOrEmpty(tempImageDataUrl))
-				{
-					<div class="d-flex justify-content-center mb-3">
-						<img src="@tempImageDataUrl" class="img-fluid"
-							 style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
-					</div>
-					<div class="d-flex justify-content-center flex-wrap gap-2">
-						<button class="btn btn-info" @onclick="ClearPhoto">
-							<i class="fas fa-trash"></i> Limpar Imagem
-						</button>
-						<button class="btn btn-success" @onclick="SavePhoto" data-bs-dismiss="modal">
-							<i class="fas fa-save"></i> Salvar Imagem
-						</button>
-					</div>
-				}
+<InventoryWeb.Pages.Item.Components.ModalCamera ImageDataUrl="imageDataUrl"
+												ImageDataUrlChanged="@OnImageDataUrlChanged"
+												@ref="modalCameraRef" />
 
-				<canvas id="photoCanvas" style="display: none;"></canvas>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" @onclick="StopCamera" data-bs-dismiss="modal" style="color: #fff"><i class="bi bi-arrow-left-short"></i> Voltar</button>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- Modal Camera-->
-<div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="ModalCamera" tabindex="-1" aria-labelledby="ModalCamera" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-scrollable">
-		<div class="modal-content">
-			<div class="modal-header" style="background-color: var(--bs-primary-bg-subtle); color: #fff ">
-				<h1 class="modal-title fs-5" id="exampleModalLabel">Captura de imagem</h1>
-			</div>
-			<div class="modal-body">
-				@if (!isPhotoTaked)
-				{
-					<div class="d-flex justify-content-center align-items-center mb-3" style="display:flex; flex-direction: column; align-items: center;">
-						<video id="videoFeed" autoplay playsinline class="img-fluid"
-							   data-bs-dismiss="modal"
-							   @onclick="TakePhoto"
-							   style="max-width: 400px; border: 1px solid #ccc; background-color: #f0f0f0;"></video>
-						<a class="btn btn-success" @onclick="TakePhoto" disabled="@(!isCameraActive)" style="max-width:400px; width: 100%;" data-bs-dismiss="modal">
-							<i class="fas fa-camera"></i> Capturar Foto
-						</a>
-					</div>
-					@*    <div class="d-flex justify-content-center flex-wrap gap-2 mb-3"> *@
-					@*                         <a class="btn btn-danger" @onclick="StopCamera" disabled="@(!isCameraActive)" data-bs-dismiss="modal">
-                            <i class="fas fa-stop"></i>
-                        </a> *@
+<InventoryWeb.Pages.Item.Components.ModalCategories Categories="_categories"
+													OnSelectCategory="SetSelectedCategory"
+													OnShowSubCategory="SetSubCategoryToShow" />
 
-					@* </div> *@
-				}
-
-				@if (!string.IsNullOrEmpty(tempImageDataUrl))
-				{
-					<div class="d-flex justify-content-center mb-3">
-						<img src="@tempImageDataUrl" class="img-fluid"
-							 style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
-					</div>
-					<div class="d-flex justify-content-center flex-wrap gap-2">
-						<button class="btn btn-info" @onclick="ClearPhoto">
-							<i class="fas fa-trash"></i> Limpar Foto
-						</button>
-						<button class="btn btn-success" @onclick="SavePhoto" data-bs-dismiss="modal">
-							<i class="fas fa-save"></i> Salvar Foto
-						</button>
-					</div>
-				}
-
-				<canvas id="photoCanvas" style="display: none;"></canvas>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" @onclick="StopCamera" data-bs-dismiss="modal" style="color: #fff"><i class="bi bi-arrow-left-short"></i> Voltar</button>
-			</div>
-		</div>
-	</div>
-</div>
-<!-- Modal Categories-->
-<InventoryWeb.Pages.Item.Components.ModalCategories 
-    Categories="_categories" 
-    OnSelectCategory="SetSelectedCategory" 
-    OnShowSubCategory="SetSubCategoryToShow" />
-<!-- Modal Sub Categories-->
 <InventoryWeb.Pages.Item.Components.ModalSubCategories SelectedCategory="SelectedCaregory"
 													   OnSelectSubCategory="SetSelectedSubCategory" />
 <script type="text/javascript">
@@ -406,8 +327,6 @@
 
 	private string? userToken;
 
-	private IBrowserFile? selectedFile;
-
 	private List<Models.DTO.CategoryDTO> _categories = new List<Models.DTO.CategoryDTO>();
 
 	List<ItemSituation> ItemSituationList = new List<ItemSituation>();
@@ -415,6 +334,8 @@
 	int? SelectedItemSituationId { get; set; } = null;
 
 	List<AcquisitionType> AcquisitionTypeList = new List<AcquisitionType>();
+
+	List<string> LastPurchaseStores = new();
 
 	int? SelectedAcquisitionTypeId { get; set; }
 
@@ -432,11 +353,11 @@
 
 	private bool isPhotoTaked = false;
 
-	private string? tempImageDataUrl; // Para armazenar a imagem em Base64
-
 	private string? imageDataUrl; // Para armazenar a imagem em Base64
 
 	private bool isLoading = true;
+
+	private ModalCamera? modalCameraRef;
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
@@ -560,6 +481,12 @@
 		catch (Exception ex) { throw ex; }
 	}
 
+	private void OnImageDataUrlChanged(string _imageDataUrl)
+	{
+		imageDataUrl = _imageDataUrl;
+		StateHasChanged();
+	}
+
 	private async Task SetItemConfigs(string userToken)
 	{
 		var configs = await itemService.GetItemConfigs(userToken);
@@ -605,69 +532,17 @@
 
 				SelectedCaregory = unCategorized;
 				BtnCategoryText = SelectedCaregory.Name;
+
+				LastPurchaseStores = itemConfigs.LastPurchaseStores ?? new List<string>();
 			}
 		}
 
 	}
 
-	private async Task StartCamera()
+	private async Task OnStartCameraClick()
 	{
-		try
-		{
-			// Invoca a função JavaScript para iniciar o feed da câmera
-			await JS.InvokeVoidAsync("cameraInterop.startCameraFeed", "videoFeed");
-			isCameraActive = true;
-			tempImageDataUrl = null; // Limpa qualquer foto capturada anteriormente
-									 // Força a atualização da UI para refletir o novo estado dos botões
-			StateHasChanged();
-		}
-		catch (Exception ex)
-		{
-			Console.WriteLine($"Erro ao iniciar câmera: {ex.Message}");
-			// Considere exibir uma mensagem de erro amigável ao usuário
-		}
-	}
-
-	private async Task HandleFileSelection(InputFileChangeEventArgs e)
-	{
-		// Pega o primeiro arquivo selecionado (pode ser ajustado para múltiplos)
-		selectedFile = e.File;
-		if (selectedFile != null)
-		{
-			// Opcional: Mostre uma pré-visualização da imagem
-			var format = "image/jpeg";
-			var imageBytes = new byte[selectedFile.Size];
-			await selectedFile.OpenReadStream().ReadAsync(imageBytes);
-			tempImageDataUrl = $"data:{format};base64,{Convert.ToBase64String(imageBytes)}";
-			// Opcional: Se quiser pré-visualizar antes de salvar
-
-			// SavePhoto();
-		}
-	}
-
-	private async Task StopCamera()
-	{
-		// Invoca a função JavaScript para parar o feed da câmera
-		await JS.InvokeVoidAsync("cameraInterop.stopCameraFeed", "videoFeed");
-		isCameraActive = false;
-		ClearPhoto();
-		// Força a atualização da UI para refletir o novo estado dos botões
-		StateHasChanged();
-	}
-
-	private async Task TakePhoto()
-	{
-		if (isCameraActive) // Garante que a câmera está ativa antes de tentar capturar
-		{
-			// Invoca a função JavaScript para capturar a foto do feed de vídeo
-			// E recebe a imagem em Base64 de volta
-			tempImageDataUrl = await JS.InvokeAsync<string>("cameraInterop.capturePhoto", "videoFeed", "photoCanvas");
-
-			SavePhoto();
-
-			await StopCamera();
-			isPhotoTaked = true;
-		}
+		if (modalCameraRef is not null)
+			await modalCameraRef.StartCamera();
 	}
 
 	private void DeletePhoto()
@@ -675,32 +550,6 @@
 		isPhotoTaked = false;
 		imageDataUrl = null;
 		StateHasChanged(); // Force UI update if needed
-	}
-
-	private void ClearPhoto()
-	{
-		tempImageDataUrl = null;
-		StateHasChanged(); // Força a atualização da UI
-		isPhotoTaked = false;
-	}
-
-	public async ValueTask DisposeAsync()
-	{
-		if (isCameraActive)
-		{
-			await StopCamera();
-		}
-	}
-
-	private void SavePhoto()
-	{
-		if (!string.IsNullOrEmpty(tempImageDataUrl))
-		{
-			isPhotoTaked = false;
-			imageDataUrl = tempImageDataUrl;
-			tempImageDataUrl = null;
-			StateHasChanged(); // Force UI update if needed
-		}
 	}
 
 	public void SetSelectedCategory(int categoryId)

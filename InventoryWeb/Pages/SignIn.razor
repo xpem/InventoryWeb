@@ -16,105 +16,101 @@
 
 <PageTitle>Cadastrar usuário</PageTitle>
 
-<div class="main-layout">
-    <div class="col-lg-12" style="display: flex; justify-content: center; margin-bottom: 30px; margin-top: 30px;">
-        <i class="fa-solid fa-clipboard-list" style="color: white; font-size: 70px;"></i>
-    </div>
+<div class="col-lg-12" style="display: flex; justify-content: center; margin-bottom: 30px; margin-top: 30px;">
+	<i class="fa-solid fa-clipboard-list" style="color: white; font-size: 70px;"></i>
+</div>
+<div class="d-flex justify-content-center my-5">
+	<EditForm Model="_UIUserSignIn" OnValidSubmit="SignInCommand" class="col-lg-6 col-12" style="max-width:700px;">
+		<DataAnnotationsValidator />
 
-    <div class="col-lg-12" style="display: flex; justify-content:center; flex-wrap: wrap; align-content: center; width: 100%;">
-        <EditForm Model="_UIUserSignIn" OnValidSubmit="SignInCommand" style="min-width:400px;">
-            <DataAnnotationsValidator />
+		<div class="row mb-3">
+			<div class="form-group">
+				<label for="inputEmail">Email</label>
+				<InputText type="email" class="form-control" id="inputEmail" @bind-Value="@_UIUserSignIn.Email" disabled=@ReadOnlyMode />
+				<ValidationMessage For="@(() => _UIUserSignIn.Email)" />
+			</div>
+		</div>
+		<div class="row mb-3">
+			<div class="form-group">
+				<label for="inputPassword">Senha</label>
+				<InputText type="password" class="form-control" id="inputPassword" @bind-Value="@_UIUserSignIn.Password" disabled=@ReadOnlyMode />
+				<ValidationMessage For="@(() => _UIUserSignIn.Password)" />
+			</div>
+		</div>
+		<div class="d-grid gap">
+			<button type="submit" class="btn btn-primary" disabled=@ReadOnlyMode><i class="fa-solid fa-arrow-right-to-bracket"></i>&nbsp;&nbsp;@BtnSignInText</button>
+		</div>
 
-            <div class="row mb-3">
-                <div class="form-group">
-                    <label for="inputEmail">Email</label>
-                    <InputText type="email" class="form-control" id="inputEmail" @bind-Value="@_UIUserSignIn.Email" disabled=@ReadOnlyMode />
-                    <ValidationMessage For="@(() => _UIUserSignIn.Email)" />
-                </div>
-            </div>
-            <div class="row mb-3">
-                <div class="form-group">
-                    <label for="inputPassword">Senha</label>
-                    <InputText type="password" class="form-control" id="inputPassword" @bind-Value="@_UIUserSignIn.Password" disabled=@ReadOnlyMode />
-                    <ValidationMessage For="@(() => _UIUserSignIn.Password)" />
-                </div>
-            </div>
-            <div class="d-grid gap">
-                <button type="submit" class="btn btn-primary" disabled=@ReadOnlyMode><i class="fa-solid fa-arrow-right-to-bracket"></i>&nbsp;&nbsp;@BtnSignInText</button>
-            </div>
+		<div class="col-lg-12" style="margin-top: 20px">Não tem conta? <a href="/signup">Criar Conta</a></div>
+		<div class="col-lg-12" style="margin-top: 5px; margin-bottom: 20px;">Esqueceu sua Senha? <a href="/updatepassword">Atualizar Senha</a></div>
 
-            <div class="col-lg-12" style="margin-top: 20px">Não tem conta? <a href="/signup">Criar Conta</a></div>
-            <div class="col-lg-12" style="margin-top: 5px; margin-bottom: 20px;">Esqueceu sua Senha? <a href="/updatepassword">Atualizar Senha</a></div>
-
-        </EditForm>
-    </div>
-
+	</EditForm>
 </div>
 
 @code {
 
-    [Parameter] public UIUserSignIn _UIUserSignIn { get; set; } = new UIUserSignIn() { Email = string.Empty, Password = string.Empty };
+	[Parameter] public UIUserSignIn _UIUserSignIn { get; set; } = new UIUserSignIn() { Email = string.Empty, Password = string.Empty };
 
-    [Parameter] public bool ReadOnlyMode { get; set; }
+	[Parameter] public bool ReadOnlyMode { get; set; }
 
-    [Parameter] public string BtnSignInText { get; set; } = "Acessar";
+	[Parameter] public string BtnSignInText { get; set; } = "Acessar";
 
-    private ClaimsPrincipal? usuario;
+	private ClaimsPrincipal? usuario;
 
-    protected override async Task OnInitializedAsync()
-    {
-        // Obtém o estado de autenticação atual
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User; // O ClaimsPrincipal do usuário
+	protected override async Task OnInitializedAsync()
+	{
+		// Obtém o estado de autenticação atual
+		var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+		var user = authState.User; // O ClaimsPrincipal do usuário
 
-        // Verifica se o usuário está autenticado
-        if (user.Identity?.IsAuthenticated == true)
-        {
-                    Navigation.NavigateTo("/");            
-        }
-    }
+		// Verifica se o usuário está autenticado
+		if (user.Identity?.IsAuthenticated == true)
+		{
+			Navigation.NavigateTo("/");
+		}
+	}
 
-    private async Task SignInCommand()
-    {
-        ReadOnlyMode = true;
+	private async Task SignInCommand()
+	{
+		ReadOnlyMode = true;
 
-        try
-        {
-            BtnSignInText = "Acessando...";
+		try
+		{
+			BtnSignInText = "Acessando...";
 
-            Models.Resps.ServResp resp = await userService.SignIn(_UIUserSignIn.Email, _UIUserSignIn.Password);
+			Models.Resps.ServResp resp = await userService.SignIn(_UIUserSignIn.Email, _UIUserSignIn.Password);
 
-            if (resp.Success)
-            {
-                if (resp.Content is not null and User _user)
-                {
-                    await customAuthenticationService.Login(_user);
+			if (resp.Success)
+			{
+				if (resp.Content is not null and User _user)
+				{
+					await customAuthenticationService.Login(_user);
 
-                }
-                NavigationManager.NavigateTo("/");
+				}
+				NavigationManager.NavigateTo("/");
 
-            }
-            else
-            {
-                string errorMessage = resp.Error == Models.Resps.ErrorTypes.WrongEmailOrPassword
-                    ? "Email/senha incorretos"
-                    : resp.Error == Models.Resps.ErrorTypes.ServerUnavaliable
-                    ? "Servidor indisponível, favor entrar em contato com o desenvolvedor."
-                    : "Erro não mapeado, favor entrar em contato com o desenvolvedor.";
+			}
+			else
+			{
+				string errorMessage = resp.Error == Models.Resps.ErrorTypes.WrongEmailOrPassword
+					? "Email/senha incorretos"
+					: resp.Error == Models.Resps.ErrorTypes.ServerUnavaliable
+					? "Servidor indisponível, favor entrar em contato com o desenvolvedor."
+					: "Erro não mapeado, favor entrar em contato com o desenvolvedor.";
 
-                ToastService.ShowToast(new ToastComponent(errorMessage, "text-bg-danger"));
-            }
+				ToastService.ShowToast(new ToastComponent(errorMessage, "text-bg-danger"));
+			}
 
-            BtnSignInText = "Acessar";
+			BtnSignInText = "Acessar";
 
-        }
-        catch (Exception ex)
-        {
-            throw;
-        }
+		}
+		catch (Exception ex)
+		{
+			throw;
+		}
 
-        ReadOnlyMode = false;
-    }
+		ReadOnlyMode = false;
+	}
 
 }
 

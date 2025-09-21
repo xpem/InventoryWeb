@@ -14,5 +14,10 @@ namespace Models.DTO
         public List<ItemSituation> ItemSituations { get; set; }
 
         public List<CategoryDTO> Categories { get; set; }
+
+        /// <summary>
+        /// for auto complete in the purchase store field
+        /// </summary>
+        public List<string> LastPurchaseStores { get; set; }
     }
 }
