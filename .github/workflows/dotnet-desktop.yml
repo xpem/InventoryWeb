@@ -1,56 +1,68 @@
-name: Deploy Blazor WASM to Ubuntu Serveron:Allows you to run this workflow manually from the Actions tab in GitHubworkflow_dispatch:Triggers the workflow on a push to the 'main' branchpush:branches:- mainjobs:build-and-deploy:# This job runs on the latest version of Ubunturuns-on: ubuntu-lateststeps:
-  # Step 1: Checks out your repository code so the workflow can access it
-  - name: Checkout code
-    uses: actions/checkout@v4
+name: Deploy Blazor WASM to Ubuntu Server
 
-  # Step 2: Sets up the .NET SDK version 9.0
-  - name: Setup .NET
-    uses: actions/setup-dotnet@v4
-    with:
-      dotnet-version: '9.0.x'
-      
-  # Step 3: Generates the ApiKeys.cs file using secrets from GitHub
-  # This is an excellent way to keep sensitive API keys out of your source code
-  - name: Generate ApiKeys.cs with secrets
-    env:
-      API_ADDRESS: ${{ secrets.API_ADDRESS }}
-      API_KEY32: ${{ secrets.API_KEY32 }}
-      API_IV16: ${{ secrets.API_IV16 }}
-    run: |
-      mkdir -p ApiRepos
-      cat <<EOF > ApiRepos/ApiKeys.cs
-namespace ApiRepos{public static class ApiKeys{public const string ApiAddress = "API_ADDRESS";publicconststringKEY32="{API_KEY32}";public const string IV16 = "${API_IV16}";}}EOF  # Step 4: Restores all project dependencies
-  - name: Restore dependencies
-    run: dotnet restore
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
 
-  # Step 5: Builds the project in Release configuration
-  - name: Build project
-    run: dotnet build --configuration Release
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
-  # Step 6: Publishes the project for deployment, creating the output files
-  - name: Publish project
-    run: dotnet publish -c Release -o publish
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
 
-  # Step 7: Copies the published files to the remote server using SCP
-  # This step uses the secrets for the SSH connection details
-  - name: Copy files to server via SCP
-    uses: appleboy/scp-action@v0.1.7
-    with:
-      host: ${{ secrets.SSH_HOST }}
-      username: ${{ secrets.SSH_USER }}
-      key: ${{ secrets.SSH_KEY }}
-      port: 22
-      source: "publish/*"
-      target: "/var/www/inventory-front"
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+          
+      - name: Gerar ApiKeys.cs com secrets
+        env:
+          API_ADDRESS: ${{ secrets.API_ADDRESS }}
+          API_KEY32: ${{ secrets.API_KEY32 }}
+          API_IV16: ${{ secrets.API_IV16 }}
+        run: |
+          mkdir -p ApiRepos
+          cat <<EOF > ApiRepos/ApiKeys.cs
+namespace ApiRepos
+{
+    public static class ApiKeys
+    {
+        public const string ApiAddress = "${API_ADDRESS}";
+        public const string KEY32 = "${API_KEY32}";
+        public const string IV16 = "${API_IV16}";
+    }
+}
+EOF
 
-  # Step 8: Runs a remote command on the server to restart the Nginx service
-  # This ensures the new files are served immediately
-  - name: Run remote commands (optional)
-    uses: appleboy/ssh-action@v1.0.3
-    with:
-      host: ${{ secrets.SSH_HOST }}
-      username: ${{ secrets.SSH_USER }}
-      key: ${{ secrets.SSH_KEY }}
-      port: 22
-      script: |
-        sudo systemctl restart nginx
+      - name: Restore dependências
+        run: dotnet restore
+
+      - name: Build projeto
+        run: dotnet build --configuration Release
+
+      - name: Publicar projeto
+        run: dotnet publish -c Release -o publish
+
+      - name: Copiar arquivos para o servidor via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          source: "publish/*"
+          target: "/var/www/inventory-front"
+
+      - name: Rodar comandos remotos (opcional)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            sudo systemctl restart nginx
