@@ -2,13 +2,15 @@
 @using InventoryWeb.Infra.Services
 @inject NavigationManager NavigationManager
 @inject CustomAuthenticationService customAuthenticationService
+@inject NavMenuService NavMenuService
+
 @* @inject CustomAuthStateProvider AuthStateProvider *@
 
 <div class="top-row ps-3 navbar navbar-dark">
 	<div class="container-fluid">
 		<NavLink class="navbar-brand" href=""> XPEM Inventário </NavLink>
 		<button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-			<span class="navbar-toggler-icon"></span>
+			<i class="fa-solid fa-bars"></i>
 		</button>
 	</div>
 </div>
@@ -36,12 +38,13 @@
 			</NavLink>
 		</div>
 		<div class="nav-item" style=" display: flex; flex-direction: row-reverse; margin-right: 20px;">
-			<spam>Versão 1.4</spam>
+			<spam>Versão 1.5</spam>
 		</div>
 	</nav>
 </div>
 
 @code {
+
 	private bool collapseNavMenu = true;
 
 	private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
@@ -56,5 +59,16 @@
 		await customAuthenticationService.Logout();
 		// AuthStateProvider.NotifyUserLogout(); // Garante que o estado seja limpo imediatamente
 		NavigationManager.NavigateTo("/signin", forceLoad: true); // Redireciona para a página inicial
+	}
+
+	//para chamadas externas
+	protected override void OnInitialized()
+	{
+		NavMenuService.OnToggle += ToggleNavMenu;
+	}
+
+	public void Dispose()
+	{
+		NavMenuService.OnToggle -= ToggleNavMenu;
 	}
 }

@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using System.Security.Claims
+@using InventoryWeb.Infra.Services
 @using InventoryWeb.Utils
 @using Models
 @using Models.Item
@@ -10,6 +11,7 @@
 @inject IItemService itemService
 @inject IItemSituationService itemSituationService
 @inject IJSRuntime JSRuntime
+@inject NavMenuService NavMenuService
 
 <PageTitle>Principal</PageTitle>
 
@@ -37,6 +39,11 @@
 </style>
 
 <div class="col-lg-12 row">
+@* 	<div class="col-sm-12 mb-3">
+		<button title="Navigation menu" class="navbar-toggler" @onclick="NavMenuService.ToggleNavMenu">
+			<i class="fa-solid fa-bars"></i>
+		</button>
+	</div> *@
 	<div class="col-sm-6 mb-3">
 		<button type="button" class="btn btn-primary mb-3" @onclick='() => Navigation.NavigateTo("/item/edit")'><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Adicionar Item</button>
 	</div>

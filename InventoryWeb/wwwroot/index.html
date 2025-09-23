@@ -36,8 +36,29 @@
         <a href="." class="reload">Reload</a>
         <span class="dismiss">🗙</span>
     </div>
-     <script src="js/interop.js"></script>
+    <script src="js/interop.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>
     <script>navigator.serviceWorker.register('service-worker.js');</script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js')
+                .then(registration => {
+                    registration.onupdatefound = () => {
+                        const installingWorker = registration.installing;
+                        installingWorker.onstatechange = () => {
+                            if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // Nova versão instalada e pronta para ativar
+                                if (confirm('Uma nova versão está disponível. Deseja atualizar agora?')) {
+                                    window.location.reload();
+                                }
+                            }
+                        };
+                    };
+                })
+                .catch(error => {
+                    console.error('Falha ao registrar o service worker:', error);
+                });
+        }
+    </script>
 </body>
 </html>

@@ -19,11 +19,15 @@ builder.Services.AddAuthorizationCore();
 //builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddBlazoredLocalStorage();
+
 builder.Services.AddScoped<CustomAuthenticationService>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 builder.Services.AddScoped<CustomAuthorizationMessageHandler>();
 
+//front services
 builder.Services.AddSingleton<ToastService>();
+builder.Services.AddSingleton<NavMenuService>();
+
 
 builder.Services.AddScoped<IHttpClientFunctions, HttpClientFunctions>();
 builder.Services.AddScoped<IHttpClientWithFileFunctions, HttpClientWithFileFunctions>();

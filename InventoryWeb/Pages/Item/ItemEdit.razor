@@ -615,8 +615,7 @@
 			else
 				throw new FormatException(input + " could not be parsed to decimal.");
 		}
-		else
-			throw new ArgumentException(input + " cannot be empty.");
+		else return 0;
 	}
 
 	async Task UpInsertItemCommand()
@@ -628,6 +627,7 @@
 			Models.DTO.ItemDTO itemDTO = new();
 
 			decimal? purchaseValue = ParseCurrency(Item.PurchaseValue);
+		
 			decimal? resaleValue = null;
 			DateTime? withdrawalDate = null;
 
