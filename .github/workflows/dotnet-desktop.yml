@@ -18,7 +18,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
-          
       - name: Gerar ApiKeys.cs com secrets
         env:
           API_ADDRESS: ${{ secrets.API_ADDRESS }}
@@ -27,16 +26,16 @@ jobs:
         run: |
           mkdir -p ApiRepos
           cat <<EOF > ApiRepos/ApiKeys.cs
-namespace ApiRepos
-{
-    public static class ApiKeys
-    {
-        public const string ApiAddress = "${API_ADDRESS}";
-        public const string KEY32 = "${API_KEY32}";
-        public const string IV16 = "${API_IV16}";
-    }
-}
-EOF
+          namespace ApiRepos
+          {
+              public static class ApiKeys
+              {
+                  public const string ApiAddress = "${API_ADDRESS}";
+                  public const string KEY32 = "${API_KEY32}";
+                  public const string IV16 = "${API_IV16}";
+              }
+          }
+          EOF
 
       - name: Restore dependências
         run: dotnet restore
