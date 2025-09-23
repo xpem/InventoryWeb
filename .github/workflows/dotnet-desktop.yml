@@ -27,9 +27,9 @@ namespace ApiRepos
 {
     public static class ApiKeys
     {
-        public const string ApiAddress = "${{ secrets.API_ADDRESS }}";
-        public const string KEY32 = "${{ secrets.API_KEY32 }}";
-        public const string IV16 = "${{ secrets.API_IV16 }}";
+        public const string ApiAddress = "${ secrets.API_ADDRESS }";
+        public const string KEY32 = "${ secrets.API_KEY32 }";
+        public const string IV16 = "${ secrets.API_IV16 }";
     }
 }
 EOF
