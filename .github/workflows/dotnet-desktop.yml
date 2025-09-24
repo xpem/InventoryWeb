@@ -43,8 +43,8 @@ jobs:
 
       - name: Publicar projeto
         run: |
-          cd InventoryWeb/InventoryWeb
-          dotnet publish -c Release -o ../../publish
+          cd InventoryWeb
+          dotnet publish -c Release -o ../publish
 
       - name: Limpar a pasta de deploy no servidor
         uses: appleboy/ssh-action@v1.0.3
