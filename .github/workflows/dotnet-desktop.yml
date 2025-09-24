@@ -64,6 +64,17 @@ jobs:
           source: "publish/wwwroot/*"
           target: "/var/www/inventory-front"
 
+      - name: Mudar permissões e proprietário dos arquivos
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            sudo chown -R www-data:www-data /var/www/inventory-front
+            sudo chmod -R 755 /var/www/inventory-front
+
       - name: Rodar comandos remotos (opcional)
         uses: appleboy/ssh-action@v1.0.3
         with:
