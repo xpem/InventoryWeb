@@ -44,7 +44,7 @@ jobs:
       - name: Publicar projeto
         run: |
           cd InventoryWeb
-          dotnet publish -c Release -o ../publish
+          dotnet publish -c Release -o publish
 
       - name: Limpar a pasta de deploy no servidor
         uses: appleboy/ssh-action@v1.0.3
@@ -64,30 +64,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: 22
           source: "InventoryWeb/publish/wwwroot/"
-          target: "/var/www/inventory-front"
-
-      - name: Mudar permissões e proprietário dos arquivos
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: 22
-          script: |
-                # Adicione permissão de execução (x) para 'outros' nos diretórios pais.
-                # Isso é necessário para que o Nginx possa navegar até a pasta da aplicação.
-                sudo chmod o+x /var/www
-                sudo chmod o+x ${TARGET_DIR}
-        
-                # Define o proprietário e o grupo para o usuário 'www-data'.
-                sudo chown -R www-data:www-data ${TARGET_DIR}
-        
-                # Define as permissões de leitura e execução para o proprietário, grupo e outros.
-                sudo chmod -R 755 ${TARGET_DIR}
-        
-                # Comando de depuração: lista as permissões da pasta de destino
-                echo "Permissões atuais da pasta de destino:"
-                ls -ld ${TARGET_DIR}
+          target: "var/www/inventory-front"
 
       - name: Rodar comandos remotos (opcional)
         uses: appleboy/ssh-action@v1.0.3
