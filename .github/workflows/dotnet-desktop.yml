@@ -44,7 +44,7 @@ jobs:
       - name: Publicar projeto
         run: |
           cd InventoryWeb
-          dotnet publish -c Release -o ../../publish
+          dotnet publish -c Release -o ../publish
 
       - name: Limpar a pasta de deploy no servidor
         uses: appleboy/ssh-action@v1.0.3
@@ -63,7 +63,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
-          source: "publish/wwwroot/"
+          source: "InventoryWeb/publish/wwwroot/"
           target: "/var/www/inventory-front"
 
       - name: Mudar permissões e proprietário dos arquivos
