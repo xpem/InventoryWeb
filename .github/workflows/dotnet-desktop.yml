@@ -44,6 +44,16 @@ jobs:
       - name: Publicar projeto
         run: dotnet publish -c Release -o publish
 
+      - name: Limpar a pasta de deploy no servidor
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            sudo rm -rf /var/www/inventory-front/*
+            
       - name: Copiar arquivos para o servidor via SCP
         uses: appleboy/scp-action@v0.1.7
         with:
