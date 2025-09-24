@@ -56,16 +56,15 @@ jobs:
           script: |
             sudo rm -rf /var/www/inventory-front/*
             
-      - name: Sincronizar arquivos para o servidor via Rsync
-        uses: appleboy/rsync-action@v0.1.3
+      - name: Copiar arquivos para o servidor via SCP
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
-          source: "./publish/wwwroot/"
+          source: "./publish/wwwroot/" 
           target: "/var/www/inventory-front/"
-          args: "-avz --delete" # O --delete garante que arquivos antigos sejam removidos.
 
       - name: Rodar comandos remotos (opcional)
         uses: appleboy/ssh-action@v1.0.3
