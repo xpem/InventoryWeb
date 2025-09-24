@@ -1,81 +1,98 @@
-name: Deploy Blazor WASM to Ubuntu Serveron:workflow_dispatch:# Permite a execução manual do fluxo de trabalho a partir da interface do GitHub.jobs:build-and-deploy:runs-on: ubuntu-latest# Especifica que o trabalho será executado no último runner do Ubuntu.steps:
-  - name: Checkout código
-    uses: actions/checkout@v4
-    # Faz o checkout do código do seu repositório no runner.
+name: Deploy Blazor WASM to Ubuntu Server
 
-  - name: Setup .NET
-    uses: actions/setup-dotnet@v4
-    with:
-      dotnet-version: '9.0.x'
-    # Instala a versão especificada do SDK .NET.
+on:
+  workflow_dispatch:
 
-  - name: Gerar ApiKeys.cs com secrets
-    env:
-      API_ADDRESS: ${{ secrets.API_ADDRESS }}
-      API_KEY32: ${{ secrets.API_KEY32 }}
-      API_IV16: ${{ secrets.API_IV16 }}
-    run: |
-      # Cria um arquivo C# com chaves de API a partir dos secrets do repositório.
-      # Esta é uma forma segura de injetar a configuração durante o processo de build.
-      mkdir -p ApiRepos
-      cat <<EOF > ApiRepos/ApiKeys.cs
-      namespace ApiRepos
-      {
-          public static class ApiKeys
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+          
+      - name: Gerar ApiKeys.cs com secrets
+        env:
+          API_ADDRESS: ${{ secrets.API_ADDRESS }}
+          API_KEY32: ${{ secrets.API_KEY32 }}
+          API_IV16: ${{ secrets.API_IV16 }}
+        run: |
+          mkdir -p ApiRepos
+          cat <<EOF > ApiRepos/ApiKeys.cs
+          namespace ApiRepos
           {
-              public const string ApiAddress = "${API_ADDRESS}";
-              public const string KEY32 = "${API_KEY32}";
-              public const string IV16 = "${API_IV16}";
+              public static class ApiKeys
+              {
+                  public const string ApiAddress = "${API_ADDRESS}";
+                  public const string KEY32 = "${API_KEY32}";
+                  public const string IV16 = "${API_IV16}";
+              }
           }
-      }
-      EOF
+          EOF
 
-  - name: Restore dependências
-    run: dotnet restore
-    # Restaura os pacotes NuGet necessários para o projeto.
+      - name: Restore dependências
+        run: dotnet restore
 
-  - name: Build projeto
-    run: dotnet build --configuration Release
-    # Constrói o projeto na configuração Release.
+      - name: Build projeto
+        run: dotnet build --configuration Release
 
-  - name: Publicar projeto
-    run: dotnet publish -c Release -o publish
-    # Publica a aplicação Blazor WASM. O resultado estará no diretório 'publish'.
+      - name: Publicar projeto
+        run: dotnet publish -c Release -o publish
 
-  - name: Copiar arquivos para o servidor via SCP
-    uses: appleboy/scp-action@v0.1.7
-    with:
-      host: ${{ secrets.SSH_HOST }}
-      username: ${{ secrets.SSH_USER }}
-      key: ${{ secrets.SSH_KEY }}
-      port: 22
-      source: "publish/wwwroot/*"
-      target: "/var/www/inventory-front"
+      - name: Limpar a pasta de deploy no servidor
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            sudo rm -rf /var/www/inventory-front/*
+            
+      - name: Copiar arquivos para o servidor via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          source: "publish/wwwroot/*"
+          target: "/var/www/inventory-front"
 
-  - name: Mudar permissões e proprietário dos arquivos
-    uses: appleboy/ssh-action@v1.0.3
-    env:
-      TARGET_DIR: /var/www/inventory-front
-    with:
-      host: ${{ secrets.SSH_HOST }}
-      username: ${{ secrets.SSH_USER }}
-      key: ${{ secrets.SSH_KEY }}
-      port: 22
-      script: |
-        # Adicione permissão de execução (x) para 'outros' nos diretórios pais.
-        # Isso é necessário para que o Nginx possa navegar até a pasta da aplicação.
-        sudo chmod o+x /var/www
-        sudo chmod o+x ${TARGET_DIR}
+      - name: Mudar permissões e proprietário dos arquivos
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+                # Adicione permissão de execução (x) para 'outros' nos diretórios pais.
+                # Isso é necessário para que o Nginx possa navegar até a pasta da aplicação.
+                sudo chmod o+x /var/www
+                sudo chmod o+x ${TARGET_DIR}
+        
+                # Define o proprietário e o grupo para o usuário 'www-data'.
+                sudo chown -R www-data:www-data ${TARGET_DIR}
+        
+                # Define as permissões de leitura e execução para o proprietário, grupo e outros.
+                sudo chmod -R 755 ${TARGET_DIR}
+        
+                # Comando de depuração: lista as permissões da pasta de destino
+                echo "Permissões atuais da pasta de destino:"
+                ls -ld ${TARGET_DIR}
 
-        # Define o proprietário e o grupo para o usuário 'www-data'.
-        sudo chown -R www-data:www-data ${TARGET_DIR}
-
-        # Define as permissões de leitura e execução para o proprietário, grupo e outros.
-        sudo chmod -R 755 ${TARGET_DIR}
-
-        # Comando de depuração: lista as permissões da pasta de destino
-        echo "Permissões atuais da pasta de destino:"
-        ls -ld ${TARGET_DIR}
-
-        # Reinicia o Nginx para garantir que as novas permissões e arquivos sejam carregados.
-        sudo systemctl restart nginx
+      - name: Rodar comandos remotos (opcional)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script: |
+            sudo systemctl restart nginx
