@@ -63,7 +63,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
-          source: "./publish/wwwroot/"
+          source: "./publish/"
           target: "/var/www/inventory-front"
 
       - name: Rodar comandos remotos (opcional)
