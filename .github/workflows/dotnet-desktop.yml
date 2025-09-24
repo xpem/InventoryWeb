@@ -2,9 +2,6 @@ name: Deploy Blazor WASM to Ubuntu Server
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
 
 jobs:
   build-and-deploy:
