@@ -6,7 +6,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-
+    env:
+      API_ADDRESS: ${{ secrets.API_ADDRESS }}
+      
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -15,10 +17,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
-
-      - name: Definir ApiAddress no appsettings.json
-        run: |
-          echo "{ \"ApiAddress\": \"${{ secrets.API_ADDRESS }}\" }" > InventoryWeb/wwwroot/appsettings.json
 
       - name: Restore dependências
         run: dotnet restore
