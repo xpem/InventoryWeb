@@ -63,19 +63,8 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
-          source: "./publish/wwwroot/*" 
+          source: "/publish/wwwroot/*" 
           target: "/var/www/inventory-front/"
-
-      - name: Mover conteúdo para o lugar certo (caso publish/wwwroot foi copiado)
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: 22
-          script: |
-            sudo mv /var/www/inventory-front/publish/wwwroot/* /var/www/inventory-front/
-            sudo rm -rf /var/www/inventory-front/publish
 
       - name: Rodar comandos remotos (opcional)
         uses: appleboy/ssh-action@v1.0.3
