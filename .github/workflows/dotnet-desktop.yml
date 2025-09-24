@@ -16,6 +16,10 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
+      - name: Definir ApiAddress no appsettings.json
+        run: |
+          echo "{ \"ApiAddress\": \"${{ secrets.API_ADDRESS }}\" }" > InventoryWeb/wwwroot/appsettings.json
+
       - name: Restore dependências
         run: dotnet restore
 
