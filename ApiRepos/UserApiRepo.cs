@@ -10,9 +10,9 @@ namespace ApiRepos
         Task<ApiResp> RecoverPasswordAsync(string email);
     }
 
-    public class UserApiRepo : IUserApiRepo
+    public class UserApiRepo(string ApiAddress) : IUserApiRepo
     {
-        private readonly UsersManagement.UserService userService = new(ApiKeys.ApiAddress);
+        private readonly UsersManagement.UserService userService = new(ApiAddress);
 
         public async Task<ApiResp> AddUserAsync(string name, string email, string password)
         {

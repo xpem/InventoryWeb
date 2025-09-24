@@ -26,40 +26,40 @@ namespace ApiRepos
     {
         public async Task<ApiResp> GetTotalItensAsync(string userToken, ItemSearchParams? itemSearchParams = null)
         {
-            if(itemSearchParams is not null)
-                return await httpClientFunctions.RequestAsync(RequestsTypes.Post, ApiKeys.ApiAddress + "/Inventory/item/totals/search", userToken, itemSearchParams);
+            if (itemSearchParams is not null)
+                return await httpClientFunctions.RequestAsync(RequestsTypes.Post, "Inventory/item/totals/search", userToken, itemSearchParams);
             else
-                return await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item/totals", userToken);
+                return await httpClientFunctions.RequestAsync(RequestsTypes.Get, "Inventory/item/totals", userToken);
         }
 
         public async Task<ApiResp> GetPaginatedItemsAsync(int page, string userToken, ItemSearchParams? itemSearchParams = null)
         {
             if (itemSearchParams is not null)
-                return await httpClientFunctions.RequestAsync(RequestsTypes.Post, ApiKeys.ApiAddress + "/Inventory/item/search?page=" + page, userToken, itemSearchParams);
+                return await httpClientFunctions.RequestAsync(RequestsTypes.Post, "Inventory/item/search?page=" + page, userToken, itemSearchParams);
             else
-                return await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item?page=" + page, userToken);
+                return await httpClientFunctions.RequestAsync(RequestsTypes.Get, "Inventory/item?page=" + page, userToken);
         }
 
         public async Task<ApiResp> GetConfigs(string userToken) =>
-            await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item/configs", userToken);
+            await httpClientFunctions.RequestAsync(RequestsTypes.Get, "Inventory/item/configs", userToken);
 
         public async Task<ApiResp> GetItemByIdAsync(string id, string userToken) =>
-           await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item/" + id, userToken);
+           await httpClientFunctions.RequestAsync(RequestsTypes.Get, "Inventory/item/" + id, userToken);
 
         public async Task<ApiResp> GetItemImageAsync(int id, string userToken, string fileName) =>
-            await httpClientWithFileFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/item/" + id + "/image/" + fileName, userToken);
+            await httpClientWithFileFunctions.RequestAsync(RequestsTypes.Get, "Inventory/item/" + id + "/image/" + fileName, userToken);
 
         public async Task<ApiResp> AddItemImage(int id, string userToken, ItemFilesToUpload itemFilesToUpload) =>
-            await httpClientWithFileFunctions.RequestAsync(Models.RequestsTypes.Put, ApiKeys.ApiAddress + "/Inventory/item/" + id + "/image", userToken, itemFilesToUpload);
+            await httpClientWithFileFunctions.RequestAsync(Models.RequestsTypes.Put, "Inventory/item/" + id + "/image", userToken, itemFilesToUpload);
 
         public async Task<ApiResp> DelItemImageAsync(int id, string userToken, string fileName) =>
-           await httpClientFunctions.RequestAsync(RequestsTypes.Delete, $"{ApiKeys.ApiAddress}/Inventory/item/{id}/image/{fileName}");
+           await httpClientFunctions.RequestAsync(RequestsTypes.Delete, $"Inventory/item/{id}/image/{fileName}");
 
         public async Task<ApiResp> InsertItem(ItemDTO item, string userToken)
         {
             string json = BuildItemJson(item);
 
-            return await httpClientFunctions.RequestAsync(Models.RequestsTypes.Post, ApiKeys.ApiAddress + "/Inventory/item", userToken, json);
+            return await httpClientFunctions.RequestAsync(Models.RequestsTypes.Post, "Inventory/item", userToken, json);
         }
 
         private static string BuildItemJson(ItemDTO item) =>
@@ -84,7 +84,7 @@ namespace ApiRepos
             {
                 string json = BuildItemJson(item);
 
-                return await httpClientFunctions.RequestAsync(Models.RequestsTypes.Put, ApiKeys.ApiAddress + "/Inventory/item/" + item.Id, userToken, json);
+                return await httpClientFunctions.RequestAsync(Models.RequestsTypes.Put, "Inventory/item/" + item.Id, userToken, json);
             }
             catch (Exception ex) { throw; }
         }
@@ -93,7 +93,7 @@ namespace ApiRepos
         {
             try
             {
-                return await httpClientFunctions.RequestAsync(RequestsTypes.Delete, ApiKeys.ApiAddress + "/Inventory/item/" + id);
+                return await httpClientFunctions.RequestAsync(RequestsTypes.Delete, "Inventory/item/" + id);
             }
             catch (Exception ex) { throw; }
         }

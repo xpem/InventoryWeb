@@ -18,12 +18,12 @@ namespace ApiRepos
     public class CategoryApiRepo(IHttpClientFunctions httpClientFunctions) : ICategoryApiRepo
     {
         public async Task<ApiResp> GetCategoriesAsync(string userToken) =>
-          await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/category", userToken);
+          await httpClientFunctions.RequestAsync(RequestsTypes.Get, "Inventory/category", userToken);
 
         public async Task<ApiResp> GetCategoriesWithSubCategoriesAsync(string userToken, int? id = null)
         {
 
-            string url = ApiKeys.ApiAddress + "/Inventory/category";
+            string url = "/Inventory/category";
 
             if (id is not null)
                 url += "/" + id;
@@ -34,7 +34,7 @@ namespace ApiRepos
         }
 
         public async Task<ApiResp> GetCategoryByIdAsync(string id, string userToken) =>
-            await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/category/" + id, userToken);
+            await httpClientFunctions.RequestAsync(RequestsTypes.Get, "Inventory/category/" + id, userToken);
 
         public async Task<ApiResp> InsertCategoryAsync(CategoryDTO category, string userToken)
         {
@@ -42,7 +42,7 @@ namespace ApiRepos
             {
                 string json = JsonSerializer.Serialize(new { category.Name, category.Color });
 
-                return await httpClientFunctions.RequestAsync(RequestsTypes.Post, ApiKeys.ApiAddress + "/Inventory/category", userToken, json);
+                return await httpClientFunctions.RequestAsync(RequestsTypes.Post, "Inventory/category", userToken, json);
             }
             catch (Exception ex) { throw ex; }
         }
@@ -53,7 +53,7 @@ namespace ApiRepos
             {
                 string json = JsonSerializer.Serialize(new { category.Name, category.Color });
 
-                return await httpClientFunctions.RequestAsync(RequestsTypes.Put, ApiKeys.ApiAddress + "/Inventory/category/" + category.Id, userToken, json);
+                return await httpClientFunctions.RequestAsync(RequestsTypes.Put, "Inventory/category/" + category.Id, userToken, json);
             }
             catch (Exception ex) { throw ex; }
         }
@@ -62,7 +62,7 @@ namespace ApiRepos
         {
             try
             {
-                return await httpClientFunctions.RequestAsync(RequestsTypes.Delete, ApiKeys.ApiAddress + "/Inventory/category/" + id, userToken);
+                return await httpClientFunctions.RequestAsync(RequestsTypes.Delete, "Inventory/category/" + id, userToken);
             }
             catch (Exception ex) { throw ex; }
         }

@@ -10,25 +10,24 @@ using System.Threading.Tasks;
 
 namespace ApiRepos
 {
-    public class HttpClientFunctions() : HttpClient, IHttpClientFunctions
+    public class HttpClientFunctions(HttpClient httpClient) : IHttpClientFunctions
     {
-        protected static readonly HttpClient httpClient = new();
 
-        public async Task<bool> CheckServerAsync()
-        {
-            try
-            {
-                HttpResponseMessage httpResponse = await httpClient.GetAsync(ApiKeys.ApiAddress + "/imalive");
+        //public async Task<bool> CheckServerAsync()
+        //{
+        //    try
+        //    {
+        //        HttpResponseMessage httpResponse = await httpClient.GetAsync("imalive");
 
-                return httpResponse != null && httpResponse.IsSuccessStatusCode && !string.IsNullOrEmpty(await httpResponse.Content.ReadAsStringAsync());
-            }
-            catch (Exception ex)
-            {
-                return ex.InnerException is not null && (ex.InnerException.Message == "Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente." || ex.InnerException.Message.Contains("Este host não é conhecido."))
-                    ? false
-                    : throw ex;
-            }
-        }
+        //        return httpResponse != null && httpResponse.IsSuccessStatusCode && !string.IsNullOrEmpty(await httpResponse.Content.ReadAsStringAsync());
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return ex.InnerException is not null && (ex.InnerException.Message == "Nenhuma conexão pôde ser feita porque a máquina de destino as recusou ativamente." || ex.InnerException.Message.Contains("Este host não é conhecido."))
+        //            ? false
+        //            : throw ex;
+        //    }
+        //}
 
         public virtual async Task<ApiResp> RequestAsync(RequestsTypes requestsType, string url, string? userToken = null, Object? content = null)
         {
@@ -45,7 +44,7 @@ namespace ApiRepos
                 HttpResponseMessage httpResponse = new();
 
                 switch (requestsType)
-                {
+                                    {
                     case RequestsTypes.Get:
                         httpResponse = await httpClient.GetAsync(url);
                         break;

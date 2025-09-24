@@ -47,10 +47,10 @@
                         const installingWorker = registration.installing;
                         installingWorker.onstatechange = () => {
                             if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                // Nova versão instalada e pronta para ativar
-                                if (confirm('Uma nova versão está disponível. Deseja atualizar agora?')) {
+                                //// Nova versão instalada e pronta para ativar
+                                //if (confirm('Uma nova versão está disponível. Deseja atualizar agora?')) {
                                     window.location.reload();
-                                }
+                                //}
                             }
                         };
                     };

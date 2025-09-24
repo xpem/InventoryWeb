@@ -10,7 +10,7 @@ namespace ApiRepos
 {
     public interface IHttpClientFunctions
     {
-        Task<bool> CheckServerAsync();
+        //Task<bool> CheckServerAsync();
         Task<ApiResp> RequestAsync(RequestsTypes requestsType, string url, string? userToken = null, Object? content = null);
     }
 }

@@ -15,6 +15,6 @@ namespace ApiRepos
     public class ItemSituationApiRepo(IHttpClientFunctions httpClientFunctions) : IItemSituationApiRepo
     {
         public async Task<ApiResp> GetItemSituation(string userToken)
-            => await httpClientFunctions.RequestAsync(Models.RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/itemsituation", userToken);
+            => await httpClientFunctions.RequestAsync(Models.RequestsTypes.Get, "Inventory/itemsituation", userToken);
     }
 }

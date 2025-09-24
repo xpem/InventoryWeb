@@ -7,7 +7,7 @@ namespace ApiRepos
 {
     public interface IHttpClientWithFileFunctions : IHttpClientFunctions;
 
-    public class HttpClientWithFileFunctions() : HttpClientFunctions(), IHttpClientFunctions, IHttpClientWithFileFunctions
+    public class HttpClientWithFileFunctions(HttpClient httpClient) : HttpClientFunctions(httpClient), IHttpClientFunctions, IHttpClientWithFileFunctions
     {
         public override async Task<ApiResp> RequestAsync(RequestsTypes requestsType, string url, string? userToken = null, Object? content = null)
         {

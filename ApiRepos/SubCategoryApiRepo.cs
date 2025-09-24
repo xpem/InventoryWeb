@@ -20,10 +20,10 @@ namespace ApiRepos
     public class SubCategoryApiRepo(IHttpClientFunctions httpClientFunctions) : ISubCategoryApiRepo
     {
         public async Task<ApiResp> GetSubCategoriesByCategoryId(string subCategoryId, string userToken) =>
-            await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/subcategory/category/" + subCategoryId, userToken);
+            await httpClientFunctions.RequestAsync(RequestsTypes.Get, "Inventory/subcategory/category/" + subCategoryId, userToken);
 
         public async Task<ApiResp> GetSubCategoryById(string id, string userToken) =>
-            await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/subcategory/" + id, userToken);
+            await httpClientFunctions.RequestAsync(RequestsTypes.Get, "Inventory/subcategory/" + id, userToken);
 
         public async Task<ApiResp> UpdateAsync(SubCategoryDTO subCategory, string userToken)
         {
@@ -31,7 +31,7 @@ namespace ApiRepos
             {
                 string json = JsonSerializer.Serialize(new { subCategory.Name, subCategory.IconName, subCategory.CategoryId });
 
-                return await httpClientFunctions.RequestAsync(RequestsTypes.Put, ApiKeys.ApiAddress + "/Inventory/subcategory/" + subCategory.Id, userToken, json);
+                return await httpClientFunctions.RequestAsync(RequestsTypes.Put, "Inventory/subcategory/" + subCategory.Id, userToken, json);
             }
             catch (Exception ex) { throw ex; }
         }
@@ -42,19 +42,19 @@ namespace ApiRepos
             {
                 string json = JsonSerializer.Serialize(new { subCategory.Name, subCategory.IconName, subCategory.CategoryId });
 
-                return await httpClientFunctions.RequestAsync(RequestsTypes.Post, ApiKeys.ApiAddress + "/Inventory/subcategory", userToken, json);
+                return await httpClientFunctions.RequestAsync(RequestsTypes.Post, "Inventory/subcategory", userToken, json);
             }
             catch (Exception ex) { throw ex; }
         }
 
         public async Task<ApiResp> DelSubCategory(int id, string userToken) =>
-            await httpClientFunctions.RequestAsync(RequestsTypes.Delete, ApiKeys.ApiAddress + "/Inventory/subCategory/" + id, userToken);
+            await httpClientFunctions.RequestAsync(RequestsTypes.Delete, "Inventory/subCategory/" + id, userToken);
 
         public async Task<ApiResp> GetByLastUpdateAsync(DateTime lastUpdate, int page, string userToken) =>
-            await httpClientFunctions.RequestAsync(RequestsTypes.Get, $"{ApiKeys.ApiAddress}/Inventory/subCategory/byAfterUpdatedAt/{lastUpdate:yyyy-MM-ddThh:mm:ss.fff}/{page}", userToken);
+            await httpClientFunctions.RequestAsync(RequestsTypes.Get, $"Inventory/subCategory/byAfterUpdatedAt/{lastUpdate:yyyy-MM-ddThh:mm:ss.fff}/{page}", userToken);
 
         public async Task<ApiResp> GetById(string id, string userToken) =>
-            await httpClientFunctions.RequestAsync(RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/subcategory/" + id, userToken);
+            await httpClientFunctions.RequestAsync(RequestsTypes.Get, "Inventory/subcategory/" + id, userToken);
 
     }
 }

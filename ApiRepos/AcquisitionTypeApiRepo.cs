@@ -15,6 +15,6 @@ namespace ApiRepos
     public class AcquisitionTypeApiRepo(IHttpClientFunctions httpClientFunctions) : IAcquisitionTypeApiRepo
     {
         public async Task<ApiResp> GetAcquisitionType(string userToken) =>
-            await httpClientFunctions.RequestAsync(Models.RequestsTypes.Get, ApiKeys.ApiAddress + "/Inventory/acquisitiontype", userToken);
+            await httpClientFunctions.RequestAsync(Models.RequestsTypes.Get, "Inventory/acquisitiontype", userToken);
     }
 }
