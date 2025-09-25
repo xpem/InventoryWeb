@@ -6,8 +6,6 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    env:
-      API_ADDRESS: ${{ secrets.API_ADDRESS }}
       
     steps:
       - name: Checkout código
@@ -18,6 +16,13 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
+      - name: Create appsettings.json
+        run: |
+          # The appsettings.json file is created with the API_ADDRESS from the GitHub secret.
+          # This file will be included in the published output.
+          echo '{ "API_ADDRESS": "${{ secrets.API_ADDRESS }}" }' > wwwroot/appsettings.json
+
+  
       - name: Restore dependências
         run: dotnet restore
 
