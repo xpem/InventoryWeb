@@ -14,7 +14,16 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(Environment.GetEnvironmentVariable("API_ADDRESS") ?? builder.Configuration["ApiAddress"]) });
+var apiAddress = builder.Configuration["ApiAddress"];
+
+// Verifique se o valor não é nulo antes de usá-lo
+if (string.IsNullOrEmpty(apiAddress))
+{
+    // Lance uma exceção com uma mensagem clara se a configuração não for encontrada
+    throw new InvalidOperationException("A configuração 'API_ADDRESS' não foi encontrada. Verifique o seu arquivo appsettings.json.");
+}
+
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiAddress) });
 
 builder.Services.AddAuthorizationCore();
 //builder.Services.AddCascadingAuthenticationState();
@@ -33,7 +42,7 @@ builder.Services.AddSingleton<NavMenuService>();
 builder.Services.AddScoped<IHttpClientFunctions, HttpClientFunctions>();
 builder.Services.AddScoped<IHttpClientWithFileFunctions, HttpClientWithFileFunctions>();
 
-builder.Services.AddScoped<IUserApiRepo, UserApiRepo>(x => new UserApiRepo(Environment.GetEnvironmentVariable("API_ADDRESS") ?? builder.Configuration["ApiAddress"]));
+builder.Services.AddScoped<IUserApiRepo, UserApiRepo>(x => new UserApiRepo(builder.Configuration["ApiAddress"]));
 builder.Services.AddScoped<ICategoryApiRepo, CategoryApiRepo>();
 builder.Services.AddScoped<ISubCategoryApiRepo, SubCategoryApiRepo>();
 builder.Services.AddScoped<IItemSituationApiRepo, ItemSituationApiRepo>();
