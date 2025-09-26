@@ -32,7 +32,6 @@ namespace Models.UIRequests
         [MaxLength(99, ErrorMessage = "O campo Nome deve ter no máximo 99 caracteres")]
         public string? PurchaseStore { get; set; }
 
-        [RegularExpression(@"^(0|([1-9]\d{0,7}(\.\d{1,2})?))$", ErrorMessage = "O campo Valor de Compra deve ser um número decimal positivo com até 8 dígitos inteiros e 2 casas decimais, podendo ser 0")]
         [StringLength(11, ErrorMessage = "O campo Valor de Compra deve ter no máximo 11 caracteres")]
         public string? ResaleValue { get; set; }
 

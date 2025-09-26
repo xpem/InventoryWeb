@@ -5,40 +5,38 @@
 @inject ToastService ToastService
 
 <div class="page" style="height: 100%">
-    <AuthorizeView>
-        <Authorized>
-            <div class="sidebar">
-                <NavMenu />
-            </div>
-        </Authorized>
-@*         <NotAuthorized>
+	<AuthorizeView>
+		<Authorized>
+			<NavMenu />
+		</Authorized>
+		@*         <NotAuthorized>
             <p>Por favor, faça login para acessar esta seção.</p>
             <a href="/signin">Login</a>
         </NotAuthorized> *@
-    </AuthorizeView>
-    <script src="js/toast.js"></script>
-    <main style="background-color: #262D43; height:100%;">
-        <ToastContainer />
-        <article class="content px-4" style="height: 100%;">
-            @Body
-        </article>
-    </main>
+	</AuthorizeView>
+	<script src="js/toast.js"></script>
+	<main>
+		<ToastContainer />
+		<article class="content px-4" style="height: 100%;">
+			@Body
+		</article>
+	</main>
 </div>
 
 @code {
-    // private Toast toastRef;
-    // public string ToastMessage { get; set; } = string.Empty;
+	// private Toast toastRef;
+	// public string ToastMessage { get; set; } = string.Empty;
 
-    // protected override void OnInitialized()
-    // {
-    //     ToastService.OnShow += ShowToast;
-    // }
+	// protected override void OnInitialized()
+	// {
+	//     ToastService.OnShow += ShowToast;
+	// }
 
-    // public async Task ShowToast(string message)
-    // {
-    //     ToastMessage = message;
-    //     StateHasChanged();
-    //     if (toastRef != null)
-    //         await toastRef.ShowAsync();
-    // }
+	// public async Task ShowToast(string message)
+	// {
+	//     ToastMessage = message;
+	//     StateHasChanged();
+	//     if (toastRef != null)
+	//         await toastRef.ShowAsync();
+	// }
 }
