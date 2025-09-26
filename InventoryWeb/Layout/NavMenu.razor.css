@@ -55,15 +55,15 @@
         line-height: 3rem;
     }
 
-.nav-item ::deep a.active {
-    background-color: rgba(255,255,255,0.37);
-    color: white;
-}
+        .nav-item ::deep a.active {
+            background-color: rgba(255,255,255,0.37);
+            color: white;
+        }
 
-.nav-item ::deep a:hover {
-    background-color: rgba(255,255,255,0.1);
-    color: white;
-}
+        .nav-item ::deep a:hover {
+            background-color: rgba(255,255,255,0.1);
+            color: white;
+        }
 
 /*@media (min-width: 641px) {
     .navbar-toggler {
@@ -71,13 +71,13 @@
     }
 
     .collapse {*/
-        /* Never collapse the sidebar for wide screens */
-        /*display: block;
+/* Never collapse the sidebar for wide screens */
+/*display: block;
     }
 
     .nav-scrollable {*/
-        /* Allow sidebar to scroll for tall menus */
-        /*height: calc(100vh - 3.5rem);
+/* Allow sidebar to scroll for tall menus */
+/*height: calc(100vh - 3.5rem);
         overflow-y: auto;
     }
 }*/
@@ -93,7 +93,7 @@
     overflow: hidden;
 }
 
-    .sidebar.collapsed {
+    .sidebar.collapse {
         width: 70px;
     }
 
@@ -109,7 +109,7 @@
         transition: opacity 0.2s ease, width 0.2s ease;
     }
 
-    .sidebar.collapsed .sidebar-brand {
+    .sidebar.collapse .sidebar-brand {
         font-size: 0;
         overflow: hidden;
     }
@@ -167,25 +167,51 @@
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
-    .sidebar {
+
+    .sidebar.collapse {
         position: fixed;
         top: 0;
         left: -250px;
-        width: 250px;
+        width: 70vw;
         height: 100vh;
-        z-index: 1000;
         transition: left 0.3s ease;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+        overflow-y: auto;
     }
 
-        .sidebar.show {
-            left: 0;
-        }
+    .sidebar {
+        position: fixed;
+        left: 0;
+        z-index: 1000;
+    }
+
+    .sidebar-overlay {
+        /* Overlay transparente para capturar clique fora da sidebar */
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 1;
+        background: transparent;
+    }
+
+    /*    .sidebar {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.4);
+        z-index: 999;
+        transition: opacity 0.3s ease;
+        opacity: 1;
+    }*/
+
 
     .main-content {
         margin-left: 0;
-    }
-
-    .main-header {
-        font-size: 2rem;
+        transition: filter 0.3s ease;
     }
 }

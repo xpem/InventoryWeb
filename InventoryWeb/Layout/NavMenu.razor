@@ -5,7 +5,7 @@
 @inject NavMenuService NavMenuService
 
 @* @inject CustomAuthStateProvider AuthStateProvider *@
-<div class="sidebar @NavMenuCssClass" @onclick="ToggleNavMenu">
+<div class="sidebar @NavMenuCssClass">
 	<div class="p-3">
 		<div class="top-row ps-3 navbar navbar-dark">
 			<div class="container-fluid">
@@ -34,14 +34,20 @@
 				</NavLink>
 			</div>
 			<div class="nav-item" style=" display: flex; flex-direction: row-reverse; margin-right: 20px;">
-				<spam>Versão 0.7.1</spam>
+				<span>Versão 0.7.1</span>
 			</div>
 		</nav>
 	</div>
 </div>
 
-@code {
+@if (!collapseNavMenu)
+{
+    <div class="sidebar-overlay"
+		 @onclick="ToggleNavMenu">
+    </div>
+}
 
+@code {
 	private bool collapseNavMenu = false;
 
 	private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
@@ -58,6 +64,7 @@
 		// AuthStateProvider.NotifyUserLogout(); // Garante que o estado seja limpo imediatamente
 		NavigationManager.NavigateTo("/signin", forceLoad: true); // Redireciona para a página inicial
 	}
+
 
 	//para chamadas externas
 	protected override void OnInitialized()
