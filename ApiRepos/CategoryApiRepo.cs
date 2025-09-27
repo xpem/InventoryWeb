@@ -23,7 +23,7 @@ namespace ApiRepos
         public async Task<ApiResp> GetCategoriesWithSubCategoriesAsync(string userToken, int? id = null)
         {
 
-            string url = "/Inventory/category";
+            string url = "Inventory/category";
 
             if (id is not null)
                 url += "/" + id;

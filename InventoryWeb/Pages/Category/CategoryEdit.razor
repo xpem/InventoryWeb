@@ -7,45 +7,43 @@
 @using InventoryWeb.Components
 @using System.Security.Claims
 @using Models.Resps
-@using Models.UIRequests
 @using Services
 @inject ICategoryService categoryService
 @inject ToastService ToastService
 
 
 <PageTitle>Categoria</PageTitle>
-<h3>Categoria</h3>
+<h3 style="color: var(--primary-green);">Categoria</h3>
 
-<div class="main-layout">
-    <EditForm Model="_category" OnValidSubmit="UpInsertCategoryCommand" style="min-width:400px;">
-        <DataAnnotationsValidator />
+<EditForm Model="_category" OnValidSubmit="UpInsertCategoryCommand" style="min-width:400px;">
+	<DataAnnotationsValidator />
 
-        <div class="row mb-3">
-            <div class="form-group">
-                <label for="inputName">Nome</label>
-                <InputText type="text" class="form-control" id="inputName" @bind-Value="@_category.Name" />
-                <ValidationMessage For="@(() => _category.Name)" />
-            </div>
-        </div>
+	<div class="row mb-3">
+		<div class="form-group">
+			<label for="inputName">Nome</label>
+			<InputText type="text" class="form-control" id="inputName" @bind-Value="@_category.Name" />
+			<ValidationMessage For="@(() => _category.Name)" />
+		</div>
+	</div>
 
-        <div class="col-lg-12" style="margin-bottom: 10px;">
-            <label>Cor</label>
-            <div class="color-picker" style="display: flex; flex-direction: row; @(colorPickerVisible ? "" : "display:none;")">
-                <div class="category-circle" @onclick='() => SetSelectedColorPicker("#2F9300")' style="background-color: #2F9300; margin-right: 10px;"></div>
-                <div class="category-circle" @onclick='() => SetSelectedColorPicker("#0C5532")' style="background-color: #0C5532; margin-right: 10px;"></div>
-                <div class="category-circle" @onclick='() => SetSelectedColorPicker("#0E0C55")' style="background-color: #0E0C55; margin-right: 10px;"></div>
-                <div class="category-circle" @onclick='() => SetSelectedColorPicker("#BB0000")' style="background-color: #BB0000; margin-right: 10px;"></div>
-                <div class="category-circle" @onclick='() => SetSelectedColorPicker("#416986")' style="background-color: #416986; margin-right: 10px;"></div>
-                <div class="category-circle" @onclick='() => SetSelectedColorPicker("#864141")' style="background-color: #864141; margin-right: 10px;"></div>
-                <div class="category-circle" @onclick='() => SetSelectedColorPicker("#4700BB")' style="background-color: #4700BB; margin-right: 10px;"></div>
-                <div class="category-circle" @onclick='() => SetSelectedColorPicker("#B700BB")' style="background-color: #B700BB; margin-right: 10px;"></div>
-                <div class="category-circle" @onclick='() => SetSelectedColorPicker("#006CBB")' style="background-color: #006CBB; margin-right: 10px;"></div>
-                <div class="category-circle" @onclick='() => SetSelectedColorPicker("#864183")' style="background-color: #864183; margin-right: 10px;"></div>
-            </div>
+	<div class="col-lg-12" style="margin-bottom: 10px;">
+		<label>Cor</label>
+		<div class="color-picker" style="display: flex; flex-direction: row; @(colorPickerVisible ? "" : "display:none;")">
+			<div class="category-circle" @onclick='() => SetSelectedColorPicker("#2F9300")' style="background-color: #2F9300; margin-right: 10px;"></div>
+			<div class="category-circle" @onclick='() => SetSelectedColorPicker("#0C5532")' style="background-color: #0C5532; margin-right: 10px;"></div>
+			<div class="category-circle" @onclick='() => SetSelectedColorPicker("#0E0C55")' style="background-color: #0E0C55; margin-right: 10px;"></div>
+			<div class="category-circle" @onclick='() => SetSelectedColorPicker("#BB0000")' style="background-color: #BB0000; margin-right: 10px;"></div>
+			<div class="category-circle" @onclick='() => SetSelectedColorPicker("#416986")' style="background-color: #416986; margin-right: 10px;"></div>
+			<div class="category-circle" @onclick='() => SetSelectedColorPicker("#864141")' style="background-color: #864141; margin-right: 10px;"></div>
+			<div class="category-circle" @onclick='() => SetSelectedColorPicker("#4700BB")' style="background-color: #4700BB; margin-right: 10px;"></div>
+			<div class="category-circle" @onclick='() => SetSelectedColorPicker("#B700BB")' style="background-color: #B700BB; margin-right: 10px;"></div>
+			<div class="category-circle" @onclick='() => SetSelectedColorPicker("#006CBB")' style="background-color: #006CBB; margin-right: 10px;"></div>
+			<div class="category-circle" @onclick='() => SetSelectedColorPicker("#864183")' style="background-color: #864183; margin-right: 10px;"></div>
+		</div>
 
-            <div class="category-circle" style="background: @_category.Color; @(colorPickerVisible ? "display:none;" : "")" @onclick='() => SetColorPickerVisible(true)'></div>
-        </div>
-        @*     <div class="row mb-3">
+		<div class="category-circle" style="background: @_category.Color; @(colorPickerVisible ? "display:none;" : "")" @onclick='() => SetColorPickerVisible(true)'></div>
+	</div>
+	@*     <div class="row mb-3">
                     <div class="form-group">
                         <label for="inputEmail">Email</label>
                         <InputText type="email" class="form-control" id="inputEmail" @bind-Value="@_UIUserSignUp.Email" />
@@ -68,25 +66,25 @@
                     </div>
                 </div> *@
 
-        <div class="d-grid" disabled=@BtnEnabled>
-            @if (isInsert)
-            {
-                <button type="submit" class="btn btn-primary">
-                    <i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Cadastrar
-                </button>
-            }
-            else
-            {
-                <button type="submit" class="btn btn-warning">
-                    <i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Alterar
-                </button>
-            }
-        </div>
+	<div class="d-grid" disabled=@BtnEnabled>
+		@if (isInsert)
+		{
+			<button type="submit" class="btn btn-primary">
+				<i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Cadastrar
+			</button>
+		}
+		else
+		{
+			<button type="submit" class="btn btn-warning">
+				<i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Alterar
+			</button>
+		}
+	</div>
 
-        <div class="col-lg-12" style="margin-top: 20px"><a href="/category/list"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
+	<div class="col-lg-12" style="margin-top: 20px"><a href="/category/list"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
 
-    </EditForm>
-</div>
+</EditForm>
+
 @* 
 <script>
     const options = document.querySelectorAll('.color-option');
@@ -104,139 +102,139 @@
 </script> *@
 
 @code {
-    UICategory _category { get; set; } = new UICategory() { Name = "", Color = "#a3e4d7" };
+	UICategory _category { get; set; } = new UICategory() { Name = "", Color = "#a3e4d7" };
 
-    bool colorPickerVisible { get; set; } = false;
+	bool colorPickerVisible { get; set; } = false;
 
-    private bool BtnEnabled { get; set; } = true;
+	private bool BtnEnabled { get; set; } = true;
 
-    private string? userToken;
+	private string? userToken;
 
-    private bool isInsert { get; set; } = true;
+	private bool isInsert { get; set; } = true;
 
-    public void SetColorPickerVisible(bool isVisible)
-    {
-        colorPickerVisible = isVisible;
-    }
+	public void SetColorPickerVisible(bool isVisible)
+	{
+		colorPickerVisible = isVisible;
+	}
 
-    public void SetSelectedColorPicker(string color)
-    {
-        _category.Color = color;
-        SetColorPickerVisible(false);
-    }
+	public void SetSelectedColorPicker(string color)
+	{
+		_category.Color = color;
+		SetColorPickerVisible(false);
+	}
 
-    protected override async Task OnInitializedAsync()
-    {
-        BtnEnabled = true;
-        try
-        {
-            // Obtém o estado de autenticação atual
-            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User; // O ClaimsPrincipal do usuário
+	protected override async Task OnInitializedAsync()
+	{
+		BtnEnabled = true;
+		try
+		{
+			// Obtém o estado de autenticação atual
+			var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+			var user = authState.User; // O ClaimsPrincipal do usuário
 
-            // Verifica se o usuário está autenticado
-            if (user.Identity?.IsAuthenticated == true)
-            {
-                userToken = user.FindFirst("Token")?.Value;
+			// Verifica se o usuário está autenticado
+			if (user.Identity?.IsAuthenticated == true)
+			{
+				userToken = user.FindFirst("Token")?.Value;
 
-                var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+				var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
 
-                // Use QueryHelpers para uma forma mais robusta de parsear a query string
-                // Você precisará adicionar o pacote NuGet Microsoft.AspNetCore.WebUtilities
-                // se ainda não o tiver.
-                var queryParameters = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+				// Use QueryHelpers para uma forma mais robusta de parsear a query string
+				// Você precisará adicionar o pacote NuGet Microsoft.AspNetCore.WebUtilities
+				// se ainda não o tiver.
+				var queryParameters = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
 
-                if (queryParameters.TryGetValue("x", out var _queryId))
-                {
-                    if (int.TryParse(_queryId, out int _categoryId))
-                    {
-                        _category.Id = _categoryId;
+				if (queryParameters.TryGetValue("x", out var _queryId))
+				{
+					if (int.TryParse(_queryId, out int _categoryId))
+					{
+						_category.Id = _categoryId;
 
-                        var resp = await categoryService.GetCategoryByIdAsync(_category.Id.ToString(), userToken);
+						var resp = await categoryService.GetCategoryByIdAsync(_category.Id.ToString(), userToken);
 
-                        if (resp.Success)
-                        {
-                            var category = resp.Content as Models.DTO.CategoryDTO;
+						if (resp.Success)
+						{
+							var category = resp.Content as Models.DTO.CategoryDTO;
 
-                            _category.Name = category.Name;
-                            _category.Color = category.Color;
-                            isInsert = false;
-                        }
+							_category.Name = category.Name;
+							_category.Color = category.Color;
+							isInsert = false;
+						}
 
-                        Console.WriteLine($"Valor de x: {_queryId}");
-                    }
+						Console.WriteLine($"Valor de x: {_queryId}");
+					}
 
-                }
-            }
-            else
-            {
-                Navigation.NavigateTo("/");
-                // userName = "Visitante"; // Ou qualquer lógica para usuário não logado
-                // isAdmin = false;
-            }
-        }
-        catch (Exception ex) { throw ex; }
+				}
+			}
+			else
+			{
+				Navigation.NavigateTo("/");
+				// userName = "Visitante"; // Ou qualquer lógica para usuário não logado
+				// isAdmin = false;
+			}
+		}
+		catch (Exception ex) { throw ex; }
 
-        BtnEnabled = false;
-    }
+		BtnEnabled = false;
+	}
 
-    public async Task UpInsertCategoryCommand()
-    {
-        try
-        {
-            BtnEnabled = false;
-            string message = "";
-            // if (Id > 0)
-            // {
-            //     category.Id = Id;
+	public async Task UpInsertCategoryCommand()
+	{
+		try
+		{
+			BtnEnabled = false;
+			string message = "";
+			// if (Id > 0)
+			// {
+			//     category.Id = Id;
 
-            //     ServResp resp = await categoryService.AltCategoryAsync(category);
+			//     ServResp resp = await categoryService.AltCategoryAsync(category);
 
-            //     if (resp.Success)
-            //         message = "Categoria Atualizada!";
-            // }
-            // else
-            // {
+			//     if (resp.Success)
+			//         message = "Categoria Atualizada!";
+			// }
+			// else
+			// {
 
-            CategoryDTO categoryDTO = new() { Name = _category.Name, Color = _category.Color };
-            ServResp? resp = null;
-            bool isSuccess = true;
+			CategoryDTO categoryDTO = new() { Name = _category.Name, Color = _category.Color };
+			ServResp? resp = null;
+			bool isSuccess = true;
 
-            if (_category.Id > 0)
-            {
-                categoryDTO.Id = _category.Id;
+			if (_category.Id > 0)
+			{
+				categoryDTO.Id = _category.Id;
 
-                resp = await categoryService.UpdateCategoryAsync(categoryDTO, userToken);
+				resp = await categoryService.UpdateCategoryAsync(categoryDTO, userToken);
 
-                if (resp.Success)
-                    message = "Categoria Atualizada!";
-                else throw new Exception(resp.ErrorMessage);
-            }
-            else
-            {
-                resp = await categoryService.InsertCategoryAsync(categoryDTO, userToken);
+				if (resp.Success)
+					message = "Categoria Atualizada!";
+				else throw new Exception(resp.ErrorMessage);
+			}
+			else
+			{
+				resp = await categoryService.InsertCategoryAsync(categoryDTO, userToken);
 
-                if (resp.Success)
-                    message = "Categoria Adicionada!";
-                else if (resp.Content is not null)
-                {
-                    message = resp.Content as string;
-                    isSuccess = false;
-                }
+				if (resp.Success)
+					message = "Categoria Adicionada!";
+				else if (resp.Content is not null)
+				{
+					message = resp.Content as string;
+					isSuccess = false;
+				}
 
-                // throw new Exception(resp.ErrorMessage);
-            }
-            string styleMessage = "text-bg-success";
+				// throw new Exception(resp.ErrorMessage);
+			}
+			string styleMessage = "text-bg-success";
 
-            if (!isSuccess)
-                styleMessage = "text-bg-danger";
+			if (!isSuccess)
+				styleMessage = "text-bg-danger";
 
-            ToastService.ShowToast(new ToastComponent(message, styleMessage));
+			ToastService.ShowToast(new ToastComponent(message, styleMessage));
 
-            Navigation.NavigateTo("/category/list");
+			Navigation.NavigateTo("/category/list");
 
-            BtnEnabled = true;
-        }
-        catch (Exception ex) { throw ex; }
-    }
+			BtnEnabled = true;
+		}
+		catch (Exception ex) { throw ex; }
+	}
 }

@@ -7,14 +7,11 @@
 @* @inject CustomAuthStateProvider AuthStateProvider *@
 <div class="sidebar @NavMenuCssClass">
 	<div class="p-3">
-		<div class="top-row ps-3 navbar navbar-dark">
+@* 		<div class="top-row ps-3 navbar navbar-dark">
 			<div class="container-fluid">
 				<NavLink class="navbar-brand" href=""> XPEM Inventário </NavLink>
-				@* 		<button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-			<i class="fa-solid fa-bars"></i>
-		</button> *@
 			</div>
-		</div>
+		</div> *@
 
 		<nav class="nav flex-column">
 			<div class="nav-item px-3">
@@ -48,7 +45,7 @@
 }
 
 @code {
-	private bool collapseNavMenu = false;
+	private bool collapseNavMenu = true;
 
 	private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
