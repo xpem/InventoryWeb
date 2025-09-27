@@ -5,46 +5,46 @@
 @inject NavMenuService NavMenuService
 
 @* @inject CustomAuthStateProvider AuthStateProvider *@
+<div class="sidebar @NavMenuCssClass">
+	<div class="p-3">
+@* 		<div class="top-row ps-3 navbar navbar-dark">
+			<div class="container-fluid">
+				<NavLink class="navbar-brand" href=""> XPEM Inventário </NavLink>
+			</div>
+		</div> *@
 
-<div class="top-row ps-3 navbar navbar-dark">
-	<div class="container-fluid">
-		<NavLink class="navbar-brand" href=""> XPEM Inventário </NavLink>
-		<button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-			<i class="fa-solid fa-bars"></i>
-		</button>
+		<nav class="nav flex-column">
+			<div class="nav-item px-3">
+				<NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+					<i class="fa-solid fa-rectangle-list"></i>&nbsp;&nbsp; Home
+				</NavLink>
+			</div>
+			<div class="nav-item px-3">
+				<NavLink class="nav-link" href="/category/list" Match="NavLinkMatch.All">
+					<i class="fa-solid fa-tags"></i>&nbsp;&nbsp; Categorias
+				</NavLink>
+			</div>
+			@*         style="position: absolute; bottom: 5px; width: 100%;" *@
+			<div class="nav-item px-3">
+				<NavLink class="nav-link" style="background-color: var(--bs-danger);" @onclick="Logout">
+					<i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>&nbsp;&nbsp;Sair
+				</NavLink>
+			</div>
+			<div class="nav-item" style=" display: flex; flex-direction: row-reverse; margin-right: 20px;">
+				<span>Versão 0.7.1</span>
+			</div>
+		</nav>
 	</div>
 </div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-	@*     <div class="bg-dark p-4">
-        <h5 class="text-body-emphasis h4">Collapsed content</h5>
-        <span class="text-body-secondary">Toggleable via the navbar brand.</span>
-    </div> *@
-	<nav class="nav flex-column">
-		<div class="nav-item px-3">
-			<NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-				<i class="fa-solid fa-rectangle-list"></i>&nbsp;&nbsp; Home
-			</NavLink>
-		</div>
-		<div class="nav-item px-3">
-			<NavLink class="nav-link" href="/category/list" Match="NavLinkMatch.All">
-				<i class="fa-solid fa-tags"></i>&nbsp;&nbsp; Categorias
-			</NavLink>
-		</div>
-		@*         style="position: absolute; bottom: 5px; width: 100%;" *@
-		<div class="nav-item px-3">
-			<NavLink class="nav-link" style="background-color: var(--bs-danger);" @onclick="Logout">
-				<i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>&nbsp;&nbsp;Sair
-			</NavLink>
-		</div>
-		<div class="nav-item" style=" display: flex; flex-direction: row-reverse; margin-right: 20px;">
-			<spam>Versão 0.6.3</spam>
-		</div>
-	</nav>
-</div>
+@if (!collapseNavMenu)
+{
+    <div class="sidebar-overlay"
+		 @onclick="ToggleNavMenu">
+    </div>
+}
 
 @code {
-
 	private bool collapseNavMenu = true;
 
 	private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
@@ -52,6 +52,7 @@
 	private void ToggleNavMenu()
 	{
 		collapseNavMenu = !collapseNavMenu;
+		InvokeAsync(StateHasChanged);
 	}
 
 	private async Task Logout()
@@ -60,6 +61,7 @@
 		// AuthStateProvider.NotifyUserLogout(); // Garante que o estado seja limpo imediatamente
 		NavigationManager.NavigateTo("/signin", forceLoad: true); // Redireciona para a página inicial
 	}
+
 
 	//para chamadas externas
 	protected override void OnInitialized()

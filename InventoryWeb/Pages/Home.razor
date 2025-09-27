@@ -15,39 +15,11 @@
 
 <PageTitle>Principal</PageTitle>
 
-<style>
-	.linked-card {
-		transition: filter 0.2s;
-	}
-
-		.linked-card:hover {
-			cursor: pointer;
-			filter: brightness(1.18);
-		}
-
-	.category-circle-md {
-		width: 40px;
-		height: 40px;
-		border-radius: 50%;
-		background: #29A0B1;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		margin-top: 5px;
-		margin-right: 5px;
-	}
-</style>
-
-<div class="col-lg-12 row">
-@* 	<div class="col-sm-12 mb-3">
-		<button title="Navigation menu" class="navbar-toggler" @onclick="NavMenuService.ToggleNavMenu">
-			<i class="fa-solid fa-bars"></i>
-		</button>
-	</div> *@
-	<div class="col-sm-6 mb-3">
-		<button type="button" class="btn btn-primary mb-3" @onclick='() => Navigation.NavigateTo("/item/edit")'><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Adicionar Item</button>
+<div class="col-12 row">
+	<div class="col-6 mb-4">
+		<button type="button" class="btn btn-success mr-3" @onclick='() => Navigation.NavigateTo("/item/edit")'><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Adicionar Item</button>
 	</div>
-	<div class="col-sm-6 mb-3 d-flex justify-content-end">
+	<div class="col-6 mb-4 d-flex justify-content-end">
 		@if (searchPanelIsVisible)
 		{
 			<a @onclick='() => TogleSearchPanel()' class="btn btn-outline-danger mb-3" style="margin-bottom: 10px; width: fit-content; height: fit-content"><i class="fa-solid fa-filter-circle-xmark"></i></a>
@@ -83,23 +55,22 @@
 		@foreach (var item in items)
 		{
 			<div class="col">
-				<div class="card h-100 linked-card" @onclick='() => Navigation.NavigateTo("/item/edit?x=" + item.Id)'>
-			@* 		<div class="card-header">
+				<div class="card h-100 linked-card card-custom" @onclick='() => Navigation.NavigateTo("/item/edit?x=" + item.Id)'>
+					@* 		<div class="card-header">
 						@item.Name
 					</div> *@
 					<div class="card-body">
-						<div>
+						<div class="card-title">
 							<p class="fw-bold">@item.Name</p>
-							
 						</div>
-						<div class="d-flex align-items-center mb-2">
-							<div class="category-circle-md me-2" style="background: @item.Category.Color">
+						<div class="d-flex mb-2">
+							<div class="category-circle-md" style="background: @item.Category.Color;">
 								<i class="fa-solid fa-@item.SubCategoryIcon" style="font-size: 20px;"></i>
 							</div>
-							<div>
-								<p class="card-subtitle mb-1 text-body-secondary">@item.CategoryAndSubCategory</p>
-								<p class="card-text mb-0">@item.Situation.Name</p>
-								<p class="card-text mb-0">@string.Format("{0:C}", @item.PurchaseValue)</p>
+							<div style="width: 90%">
+								<p class="card-subtitle mb-1 text-body-secondary" style="  font-size: 0.75rem;">@item.CategoryAndSubCategory</p>
+								<p class="mb-0 status-badge">@item.Situation.Name</p>
+								<p class="card-text text-end mb-0" style="color: var(--primary-green); font-weight: 600;">@string.Format("{0:C}", @item.PurchaseValue)</p>
 							</div>
 						</div>
 					</div>
@@ -194,7 +165,7 @@ else
 	{
 		ItemSearchParams? itemSearchParams = null;
 
-		if (searchText is not null || (SelectedSituationIds is not null && SelectedSituationIds.Count > 0))
+		if (!string.IsNullOrEmpty(searchText) || (SelectedSituationIds is not null && SelectedSituationIds.Count > 0))
 			itemSearchParams = new ItemSearchParams(searchText, SelectedSituationIds?.ToArray(), null);
 
 		if (itemSearchParams is not null)

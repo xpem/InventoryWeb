@@ -11,121 +11,119 @@
 @inject CustomAuthenticationService customAuthenticationService
 
 <style>
-    .table td {
-        vertical-align: middle;
-    }
+	.table td {
+		vertical-align: middle;
+	}
 
-    .table {
-        width: fit-content;
-        min-width: 300px;
-    }
+	.table {
+		width: fit-content;
+		min-width: 300px;
+	}
 
-        .table tr {
-            cursor: pointer; /* Muda o cursor para indicar que é clicável */
-        }
+		.table tr {
+			cursor: pointer; /* Muda o cursor para indicar que é clicável */
+		}
 
-            .table tr:hover {
-                background-color: #e0e0e0; /* Muda a cor de fundo ao passar o mouse */
-            }
+			.table tr:hover {
+				background-color: #e0e0e0; /* Muda a cor de fundo ao passar o mouse */
+			}
 
 </style>
 
 @if (categories.Count == 0 && !ReadOnlyMode)
 {
-    <p>Nenhuma categoria encontrada.</p>
+	<p>Nenhuma categoria encontrada.</p>
 }
 else if (ReadOnlyMode)
 {
-    <p>Carregando...</p>
+	<p>Carregando...</p>
 }
 else
 {
-    <div class="main-layout">
-        <div class="row">
-            <a href="/category/edit" class="btn btn-primary" style="margin-bottom: 10px; width: fit-content;"><i class="fa-solid fa-plus"></i></a>
-        </div>
-        <div class="row">
-            <table class="table">
-                <tbody>
-                    @foreach (var cat in categories)
-                    {
-                        <tr @onclick='() => Navigation.NavigateTo("/category/display?x=" + cat.Id)'>
-                            <td>
-                                <div class="category-circle" style="background: @cat.Color"></div>
-                            </td>
-                            <td>@cat.Name</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
+	<div class="row">
+		<a href="/category/edit" class="btn btn-primary" style="margin-bottom: 10px; width: fit-content;"><i class="fa-solid fa-plus"></i></a>
+	</div>
+	<div class="row">
+		<table class="table">
+			<tbody>
+				@foreach (var cat in categories)
+				{
+					<tr @onclick='() => Navigation.NavigateTo("/category/display?x=" + cat.Id)'>
+						<td>
+							<div class="category-circle" style="background: @cat.Color"></div>
+						</td>
+						<td>@cat.Name</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
 
 }
 
 
 @code {
-    private string? userToken;
+	private string? userToken;
 
-    List<UICategory> categories = new List<UICategory>();
+	List<UICategory> categories = new List<UICategory>();
 
-    [Parameter] public bool ReadOnlyMode { get; set; }
+	[Parameter] public bool ReadOnlyMode { get; set; }
 
-    // UICategory selectedUICategory;
+	// UICategory selectedUICategory;
 
-    protected override async Task OnInitializedAsync()
-    {
-        ReadOnlyMode = true;
-        try
-        {
-            // Obtém o estado de autenticação atual
-            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User; // O ClaimsPrincipal do usuário
+	protected override async Task OnInitializedAsync()
+	{
+		ReadOnlyMode = true;
+		try
+		{
+			// Obtém o estado de autenticação atual
+			var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+			var user = authState.User; // O ClaimsPrincipal do usuário
 
-            // Verifica se o usuário está autenticado
-            if (user.Identity?.IsAuthenticated == true)
-            {
-                // Recupera o nome de usuário (geralmente do ClaimTypes.Name)
-                // userEmail = user.Identity.Name;
-                // Ou você pode usar uma claim específica, se necessário
-                userToken = user.FindFirst("Token")?.Value;
+			// Verifica se o usuário está autenticado
+			if (user.Identity?.IsAuthenticated == true)
+			{
+				// Recupera o nome de usuário (geralmente do ClaimTypes.Name)
+				// userEmail = user.Identity.Name;
+				// Ou você pode usar uma claim específica, se necessário
+				userToken = user.FindFirst("Token")?.Value;
 
-                // Verifica se o usuário pertence a um papel
-                // isAdmin = user.IsInRole("Admin");
+				// Verifica se o usuário pertence a um papel
+				// isAdmin = user.IsInRole("Admin");
 
-                // Você pode acessar outras claims assim:
-                // var userEmail = user.FindFirst(ClaimTypes.Email)?.Value;
-                // var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				// Você pode acessar outras claims assim:
+				// var userEmail = user.FindFirst(ClaimTypes.Email)?.Value;
+				// var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-                List<Models.DTO.CategoryDTO> list = [];
-                ServResp resp = await categoryService.GetCategoriesAsync(userToken);
+				List<Models.DTO.CategoryDTO> list = [];
+				ServResp resp = await categoryService.GetCategoriesAsync(userToken);
 
-                if (resp is not null && resp.Success)
-                {
-                    list = resp.Content as List<Models.DTO.CategoryDTO>;
+				if (resp is not null && resp.Success)
+				{
+					list = resp.Content as List<Models.DTO.CategoryDTO>;
 
-                    if (list != null && list.Count > 0)
-                        foreach (var i in list)
-                        {
-                            categories.Add(new UICategory() { Id = i.Id.Value, Name = i.Name, Color = i.Color });
-                        }
-                }
-                else if (resp.Error is ErrorTypes.TokenExpired or ErrorTypes.Unauthorized)
-                {
-                    await customAuthenticationService.Logout();
-                    Navigation.NavigateTo("/signin", forceLoad: true);
+					if (list != null && list.Count > 0)
+						foreach (var i in list)
+						{
+							categories.Add(new UICategory() { Id = i.Id.Value, Name = i.Name, Color = i.Color });
+						}
+				}
+				else if (resp.Error is ErrorTypes.TokenExpired or ErrorTypes.Unauthorized)
+				{
+					await customAuthenticationService.Logout();
+					Navigation.NavigateTo("/signin", forceLoad: true);
 
-                }
-            }
-            else
-            {
-                Navigation.NavigateTo("/");
-                // userName = "Visitante"; // Ou qualquer lógica para usuário não logado
-                // isAdmin = false;
-            }
-        }
-        catch (Exception ex) { throw ex; }
+				}
+			}
+			else
+			{
+				Navigation.NavigateTo("/");
+				// userName = "Visitante"; // Ou qualquer lógica para usuário não logado
+				// isAdmin = false;
+			}
+		}
+		catch (Exception ex) { throw ex; }
 
-        ReadOnlyMode = false;
-    }
+		ReadOnlyMode = false;
+	}
 }

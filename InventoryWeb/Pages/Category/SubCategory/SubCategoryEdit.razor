@@ -15,245 +15,242 @@
 <PageTitle>Sub Categoria</PageTitle>
 
 <style>
-    .category-circle-md {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: #29A0B1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-top: 5px;
-        margin-right: 5px;
-    }
+	.category-circle-md {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		background: #29A0B1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin-top: 5px;
+		margin-right: 5px;
+	}
 </style>
 
 <h3>Sub Categoria</h3>
 
-<div class="main-layout">
+<EditForm Model="SubCategory" OnValidSubmit="UpInsertSubCategoryCommand" style="min-width:400px;">
+	<DataAnnotationsValidator />
 
-    <EditForm Model="SubCategory" OnValidSubmit="UpInsertSubCategoryCommand" style="min-width:400px;">
-        <DataAnnotationsValidator />
+	@*           <div class="row mb-3"> *@
+	<div class="form-group">
+		<label for="inputName">Categoria</label>
+		<p class="text-start">@_Category.Name</p>
+	</div>
+	@*     </div> *@
 
-        @*           <div class="row mb-3"> *@
-        <div class="form-group">
-            <label for="inputName">Categoria</label>
-            <p class="text-start">@_Category.Name</p>
-        </div>
-        @*     </div> *@
+	<div class="row mb-3">
+		<div class="form-group">
+			<label for="inputName">Nome da Sub Categoria</label>
+			<InputText type="text" class="form-control" id="inputName" @bind-Value="@SubCategory.Name" />
+			<ValidationMessage For="@(() => SubCategory.Name)" />
+		</div>
+	</div>
+	
+	<div class="col-lg-12" style="margin-bottom: 10px;">
+		<label>Ícone</label>
+		<div class="color-picker" style="display: flex; flex-direction: row; flex-wrap: wrap; max-width:400px; @(IconPickerVisible ? "" : "display:none;")">
+			@foreach (var icon in SubCategoryIconsList.Icons)
+			{
+				<div class="category-circle-md" @onclick='() => SetSelectedIconPicker(icon.faName)'>
+					<i class="fa-solid fa-@icon.faName" style="font-size: 20px;"></i>
+				</div>
+			}
+		</div>
 
-        <div class="row mb-3">
-            <div class="form-group">
-                <label for="inputName">Nome da Sub Categoria</label>
-                <InputText type="text" class="form-control" id="inputName" @bind-Value="@SubCategory.Name" />
-                <ValidationMessage For="@(() => SubCategory.Name)" />
-            </div>
-        </div>
+		<div class="category-circle-md" @onclick='() => SetIconPickerVisible(true)' style="@(IconPickerVisible ? "display:none;" : "") ">
+			<i class="fa-solid fa-@SubCategory.IconName" style="font-size: 20px;"></i>
+		</div>
+	</div>
 
-        <div class="col-lg-12" style="margin-bottom: 10px;">
-            <label>Ícone</label>
-            <div class="color-picker" style="display: flex; flex-direction: row; flex-wrap: wrap; max-width:400px; @(IconPickerVisible ? "" : "display:none;")">
-                @foreach (var icon in SubCategoryIconsList.Icons)
-                {
-                    <div class="category-circle-md" @onclick='() => SetSelectedIconPicker(icon.faName)'>
-                        <i class="fa-solid fa-@icon.faName" style="font-size: 20px;"></i>
-                    </div>
-                }
-            </div>
+	<div class="d-grid" disabled=@BtnInsertIsEnabled>
+		@if (isInsert)
+		{
+			<button type="submit" class="btn btn-primary">
+				<i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Cadastrar
+			</button>
+		}
+		else
+		{
+			<button type="submit" class="btn btn-warning">
+				<i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Alterar
+			</button>
+		}
+	</div>
 
-            <div class="category-circle-md" @onclick='() => SetIconPickerVisible(true)' style="@(IconPickerVisible ? "display:none;" : "") ">
-                <i class="fa-solid fa-@SubCategory.IconName" style="font-size: 20px;"></i>
-            </div>
-        </div>
+	<div class="col-lg-12" style="margin-top: 20px"><a href="/category/display?x=@_Category.Id"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
 
-        <div class="d-grid" disabled=@BtnInsertIsEnabled>
-            @if (isInsert)
-            {
-                <button type="submit" class="btn btn-primary">
-                    <i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Cadastrar
-                </button>
-            }
-            else
-            {
-                <button type="submit" class="btn btn-warning">
-                    <i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Alterar
-                </button>
-            }
-        </div>
+</EditForm>
 
-        <div class="col-lg-12" style="margin-top: 20px"><a href="/category/display?x=@_Category.Id"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
-
-    </EditForm>
-
-</div>
 
 @code {
-    UICategory _Category { get; set; } = new UICategory() { Name = "", Color = "#000", SystemDefault = true };
+	UICategory _Category { get; set; } = new UICategory() { Name = "", Color = "#000", SystemDefault = true };
 
-    private string? userToken;
+	private string? userToken;
 
-    Models.DTO.SubCategoryDTO SubCategory { get; set; } = new SubCategoryDTO()
-    {
-        Name = "",
-        IconName = "tag",
-        SystemDefault = true,
-        CategoryId = 0
-    };
+	Models.DTO.SubCategoryDTO SubCategory { get; set; } = new SubCategoryDTO()
+	{
+		Name = "",
+		IconName = "tag",
+		SystemDefault = true,
+		CategoryId = 0
+	};
 
-    private bool isInsert { get; set; } = true;
-
-
-    private bool BtnInsertIsEnabled { get; set; } = true;
-
-    private bool IconPickerVisible { get; set; }
-
-    private int SubCategoryID { get; set; }
-
-    public void SetIconPickerVisible(bool isVisible)
-    {
-        IconPickerVisible = isVisible;
-    }
-
-    public void SetSelectedIconPicker(string icon)
-    {
-        SubCategory.IconName = icon;
-        SetIconPickerVisible(false);
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        try
-        {
-            // Obtém o estado de autenticação atual
-            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User; // O ClaimsPrincipal do usuário
-
-            // Verifica se o usuário está autenticado
-            if (user.Identity?.IsAuthenticated == true)
-            {
-                userToken = user.FindFirst("Token")?.Value;
-
-                var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
-
-                // Use QueryHelpers para uma forma mais robusta de parsear a query string
-                // Você precisará adicionar o pacote NuGet Microsoft.AspNetCore.WebUtilities
-                // se ainda não o tiver.
-                var queryParameters = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
-
-                if (queryParameters.TryGetValue("y", out var _categoryId))
-                {
-                    ServResp servResp = await categoryService.GetCategoryByIdAsync(_categoryId, userToken);
-
-                    if (servResp.Success)
-                    {
-                        Models.DTO.CategoryDTO? category = null;
-
-                        category = servResp.Content as Models.DTO.CategoryDTO;
-                        _Category = new UICategory()
-                        {
-                            Id = category.Id.Value,
-                            Name = category.Name,
-                            Color = category.Color,
-                            SystemDefault = category.SystemDefault ?? false
-                        };
-                    }
-                }
-
-                if (queryParameters.TryGetValue("x", out var _queryId))
-                {
-                    if (int.TryParse(_queryId, out int _subCategoryId))
-                    {
-                        SubCategoryID = _subCategoryId;
+	private bool isInsert { get; set; } = true;
 
 
-                        ServResp resp = await subCategoryService.GetByIdAsync(SubCategoryID.ToString(), userToken);
+	private bool BtnInsertIsEnabled { get; set; } = true;
 
-                        if (resp.Success)
-                        {
-                            var _SubCategory = (resp.Content as SubCategoryDTO);
+	private bool IconPickerVisible { get; set; }
 
-                            SubCategory = new SubCategoryDTO()
-                            {
-                                Id = _SubCategory.Id,
-                                Name = _SubCategory.Name,
-                                IconName = SubCategoryIconsList.GetIconFaName(_SubCategory.IconName),
-                                SystemDefault = _SubCategory.SystemDefault,
-                                CategoryId = _SubCategory.CategoryId
-                            };
+	private int SubCategoryID { get; set; }
 
-                            isInsert = false;
-                        }
-                        else
-                        {
-                            Navigation.NavigateTo("/");
-                        }
+	public void SetIconPickerVisible(bool isVisible)
+	{
+		IconPickerVisible = isVisible;
+	}
 
-                        // _category.Color = category.Color;
-                        // SubCategory.Name = category.Name;
-                        // _category.SystemDefault = category.SystemDefault ?? false;
+	public void SetSelectedIconPicker(string icon)
+	{
+		SubCategory.IconName = icon;
+		SetIconPickerVisible(false);
+	}
 
-                        // foreach (var subCategory in category.SubCategories)
-                        // {
-                        //     SubCategoryObsCol.Add(new UISubCategory() { Id = subCategory.Id, Icon = "" /* SubCategoryIconsList.GetIconCode(subCategory.IconName) */, Name = subCategory.Name, SystemDefault = !subCategory.SystemDefault });
-                        // }
-                    }
+	protected override async Task OnInitializedAsync()
+	{
+		try
+		{
+			// Obtém o estado de autenticação atual
+			var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+			var user = authState.User; // O ClaimsPrincipal do usuário
 
-                    Console.WriteLine($"Valor de x: {_queryId}");
+			// Verifica se o usuário está autenticado
+			if (user.Identity?.IsAuthenticated == true)
+			{
+				userToken = user.FindFirst("Token")?.Value;
 
-                }
-            }
-            else
-            {
-                Navigation.NavigateTo("/category/display?x=" + _Category.Id);
-                // userName = "Visitante"; // Ou qualquer lógica para usuário não logado
-                // isAdmin = false;
-            }
-        }
-        catch (Exception ex) { throw ex; }
-    }
+				var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
 
-    public async Task UpInsertSubCategoryCommand()
-    {
-        try
-        {
-            BtnInsertIsEnabled = false;
+				// Use QueryHelpers para uma forma mais robusta de parsear a query string
+				// Você precisará adicionar o pacote NuGet Microsoft.AspNetCore.WebUtilities
+				// se ainda não o tiver.
+				var queryParameters = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
 
-            Models.DTO.SubCategoryDTO subCategory = new()
-            {
-                Name = SubCategory.Name,
-                IconName = SubCategoryIconsList.GetIconName(SubCategory.IconName),
-                CategoryId = _Category.Id
-            };
+				if (queryParameters.TryGetValue("y", out var _categoryId))
+				{
+					ServResp servResp = await categoryService.GetCategoryByIdAsync(_categoryId, userToken);
 
-            string message = "";
+					if (servResp.Success)
+					{
+						Models.DTO.CategoryDTO? category = null;
 
-            if (SubCategoryID > 0)
-            {
-                subCategory.Id = SubCategoryID;
+						category = servResp.Content as Models.DTO.CategoryDTO;
+						_Category = new UICategory()
+						{
+							Id = category.Id.Value,
+							Name = category.Name,
+							Color = category.Color,
+							SystemDefault = category.SystemDefault ?? false
+						};
+					}
+				}
 
-                var resp = await subCategoryService.UpdateAsync(subCategory, userToken);
+				if (queryParameters.TryGetValue("x", out var _queryId))
+				{
+					if (int.TryParse(_queryId, out int _subCategoryId))
+					{
+						SubCategoryID = _subCategoryId;
 
-                if (resp.Success)
-                    ToastService.ShowToast(new ToastComponent("Sub Categoria Atualizada!", "text-bg-success"));
-                else
-                    ToastService.ShowToast(new ToastComponent("Houve um erro ao atualizar a Sub Categoria!", "text-bg-danger"));
-            }
-            else
-            {
-                var resp = await subCategoryService.CreateAsync(subCategory, userToken);
 
-                if (resp.Success)
-                    ToastService.ShowToast(new ToastComponent("Sub Categoria Adicionada!", "text-bg-success"));
-                else
-                    ToastService.ShowToast(new ToastComponent("Houve um erro ao criar a Sub Categoria!", "text-bg-danger"));
-            }
+						ServResp resp = await subCategoryService.GetByIdAsync(SubCategoryID.ToString(), userToken);
 
-            Navigation.NavigateTo("/category/display?x=" + _Category.Id);
+						if (resp.Success)
+						{
+							var _SubCategory = (resp.Content as SubCategoryDTO);
 
-            BtnInsertIsEnabled = true;
+							SubCategory = new SubCategoryDTO()
+							{
+								Id = _SubCategory.Id,
+								Name = _SubCategory.Name,
+								IconName = SubCategoryIconsList.GetIconFaName(_SubCategory.IconName),
+								SystemDefault = _SubCategory.SystemDefault,
+								CategoryId = _SubCategory.CategoryId
+							};
 
-        }
-        catch (Exception ex) { throw ex; }
-    }
+							isInsert = false;
+						}
+						else
+						{
+							Navigation.NavigateTo("/");
+						}
+
+						// _category.Color = category.Color;
+						// SubCategory.Name = category.Name;
+						// _category.SystemDefault = category.SystemDefault ?? false;
+
+						// foreach (var subCategory in category.SubCategories)
+						// {
+						//     SubCategoryObsCol.Add(new UISubCategory() { Id = subCategory.Id, Icon = "" /* SubCategoryIconsList.GetIconCode(subCategory.IconName) */, Name = subCategory.Name, SystemDefault = !subCategory.SystemDefault });
+						// }
+					}
+
+					Console.WriteLine($"Valor de x: {_queryId}");
+
+				}
+			}
+			else
+			{
+				Navigation.NavigateTo("/category/display?x=" + _Category.Id);
+				// userName = "Visitante"; // Ou qualquer lógica para usuário não logado
+				// isAdmin = false;
+			}
+		}
+		catch (Exception ex) { throw ex; }
+	}
+
+	public async Task UpInsertSubCategoryCommand()
+	{
+		try
+		{
+			BtnInsertIsEnabled = false;
+
+			Models.DTO.SubCategoryDTO subCategory = new()
+			{
+				Name = SubCategory.Name,
+				IconName = SubCategoryIconsList.GetIconName(SubCategory.IconName),
+				CategoryId = _Category.Id
+			};
+
+			string message = "";
+
+			if (SubCategoryID > 0)
+			{
+				subCategory.Id = SubCategoryID;
+
+				var resp = await subCategoryService.UpdateAsync(subCategory, userToken);
+
+				if (resp.Success)
+					ToastService.ShowToast(new ToastComponent("Sub Categoria Atualizada!", "text-bg-success"));
+				else
+					ToastService.ShowToast(new ToastComponent("Houve um erro ao atualizar a Sub Categoria!", "text-bg-danger"));
+			}
+			else
+			{
+				var resp = await subCategoryService.CreateAsync(subCategory, userToken);
+
+				if (resp.Success)
+					ToastService.ShowToast(new ToastComponent("Sub Categoria Adicionada!", "text-bg-success"));
+				else
+					ToastService.ShowToast(new ToastComponent("Houve um erro ao criar a Sub Categoria!", "text-bg-danger"));
+			}
+
+			Navigation.NavigateTo("/category/display?x=" + _Category.Id);
+
+			BtnInsertIsEnabled = true;
+
+		}
+		catch (Exception ex) { throw ex; }
+	}
 
 }
