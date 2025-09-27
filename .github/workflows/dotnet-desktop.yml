@@ -20,7 +20,7 @@ jobs:
         run: |
           # The appsettings.json file is created with the API_ADDRESS from the GitHub secret.
           # This file will be included in the published output.
-          echo '{ "ApiAddress": "${{ secrets.API_ADDRESS }}" }' > InventoryWeb/wwwroot/appsettings.json
+          echo '{ "ApiAddress": "${{ secrets.API_ADDRESS }}" }' > InventoryWeb/InventoryWeb/wwwroot/appsettings.json
 
   
       - name: Restore dependências
