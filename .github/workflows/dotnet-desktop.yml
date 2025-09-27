@@ -16,12 +16,14 @@ jobs:
         with:
           dotnet-version: '9.0.x'
 
-      - name: Create appsettings.json
+      - name: Gerar appsettings.json
+        env:
+          API_ADDRESS: ${{ secrets.API_ADDRESS }}
         run: |
-          # The appsettings.json file is created with the API_ADDRESS from the GitHub secret.
-          # This file will be included in the published output.
-          echo '{ "ApiAddress": "${{ secrets.API_ADDRESS }}" }' > InventoryWeb/InventoryWeb/wwwroot/appsettings.json
-
+          mkdir -p InventoryWeb/wwwroot
+          cat <<EOF > InventoryWeb/wwwroot/appsettings.json
+          { "ApiAddress": "${{ secrets.API_ADDRESS }}" }
+          EOF
   
       - name: Restore dependências
         run: dotnet restore
