@@ -19,12 +19,16 @@
 	<main>
 		<ToastContainer />
 		<article class="content px-4" style="height: 100%;">
-			<div class="d-flex align-items-center">
-				<button title="Navigation menu" class="btn btn-outline-light me-3 mb-2" @onclick="NavMenuService.ToggleNavMenu">
-					<i class="fa-solid fa-bars"></i>
-				</button>
-				<h5 style="color: var(--primary-green);">Xpem Inventário</h5>
-			</div>
+			<AuthorizeView>
+				<Authorized>
+					<div class="d-flex align-items-center">
+						<button title="Navigation menu" class="btn btn-outline-light me-3 mb-2" @onclick="NavMenuService.ToggleNavMenu">
+							<i class="fa-solid fa-bars"></i>
+						</button>
+						<h5 style="color: var(--primary-green);">Xpem Inventário</h5>
+					</div>
+				</Authorized>
+			</AuthorizeView>
 			@Body
 		</article>
 	</main>

@@ -26,8 +26,13 @@ namespace ApiRepos
     {
         public async Task<ApiResp> GetTotalItensAsync(string userToken, ItemSearchParams? itemSearchParams = null)
         {
+
             if (itemSearchParams is not null)
-                return await httpClientFunctions.RequestAsync(RequestsTypes.Post, "Inventory/item/totals/search", userToken, itemSearchParams);
+            {
+                string json = JsonSerializer.Serialize(new { Name = itemSearchParams.Name, Situations = itemSearchParams.Situations, OrderBy = itemSearchParams.OrderBy });
+
+                return await httpClientFunctions.RequestAsync(RequestsTypes.Post, "Inventory/item/totals/search", userToken, json);
+            }
             else
                 return await httpClientFunctions.RequestAsync(RequestsTypes.Get, "Inventory/item/totals", userToken);
         }
@@ -35,7 +40,11 @@ namespace ApiRepos
         public async Task<ApiResp> GetPaginatedItemsAsync(int page, string userToken, ItemSearchParams? itemSearchParams = null)
         {
             if (itemSearchParams is not null)
-                return await httpClientFunctions.RequestAsync(RequestsTypes.Post, "Inventory/item/search?page=" + page, userToken, itemSearchParams);
+            {
+                string json = JsonSerializer.Serialize(new { Name = itemSearchParams.Name, Situations = itemSearchParams.Situations, OrderBy = itemSearchParams.OrderBy });
+
+                return await httpClientFunctions.RequestAsync(RequestsTypes.Post, "Inventory/item/search?page=" + page, userToken, json);
+            }
             else
                 return await httpClientFunctions.RequestAsync(RequestsTypes.Get, "Inventory/item?page=" + page, userToken);
         }

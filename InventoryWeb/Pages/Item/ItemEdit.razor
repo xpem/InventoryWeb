@@ -29,213 +29,208 @@
 	}
 </style>
 
-<div class="main-layout">
+<a href="/" class="col-lg-12 btn btn-sm btn-outline-info" style="margin-top: 20px"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a>
 
-	@*     <h1 class="mb-4">@((isInsert ? "Cadastrar" : "Alterar") + " Item")</h1> *@
+@if (isLoading)
+{
+	<div class="spinner-border text-primary" role="status">
+		<span class="visually-hidden">Loading...</span>
+	</div>
+}
+else
+{
+	<EditForm Model="Item" OnValidSubmit="UpInsertItemCommand" style="height: 100%; width: -webkit-fill-available;">
+		<DataAnnotationsValidator />
 
-	@if (isLoading)
-	{
-		<div class="spinner-border text-primary" role="status">
-			<span class="visually-hidden">Loading...</span>
+		<div class="row mb-3">
+			<div class="form-group">
+				<label for="inputName">Nome</label>
+				<InputText type="text" class="form-control" id="inputName" @bind-Value="@Item.Name" />
+				<ValidationMessage For="@(() => Item.Name)" />
+			</div>
 		</div>
-	}
-	else
-	{
-		<EditForm Model="Item" OnValidSubmit="UpInsertItemCommand" style="height: 100%; width: -webkit-fill-available;">
-			<DataAnnotationsValidator />
 
-			<div class="row mb-3">
+		<div class="col-lg-12 row">
+			<div class="col-sm-6 mb-3">
+				<label for="btnCategory">Categoria</label>
+				<button id="btnCategory" type="button" class="btn btn-success"
+						style="width: 100%;"
+						data-bs-toggle="modal" data-bs-target="#ModalCategories">
+					@BtnCategoryText
+				</button>
+				@if (!string.IsNullOrEmpty(CategoryValidationError))
+				{
+					<div class="text-danger">@CategoryValidationError</div>
+				}
+			</div>
+
+			<div class="col-sm-6 mb-3">
 				<div class="form-group">
-					<label for="inputName">Nome</label>
-					<InputText type="text" class="form-control" id="inputName" @bind-Value="@Item.Name" />
-					<ValidationMessage For="@(() => Item.Name)" />
-				</div>
-			</div>
-
-			<div class="col-lg-12 row">
-				<div class="col-sm-6 mb-3">
-					<label for="btnCategory">Categoria</label>
-					<button id="btnCategory" type="button" class="btn btn-success"
-							style="width: 100%;"
-							data-bs-toggle="modal" data-bs-target="#ModalCategories">
-						@BtnCategoryText
-					</button>
-					@if (!string.IsNullOrEmpty(CategoryValidationError))
-					{
-						<div class="text-danger">@CategoryValidationError</div>
-					}
-				</div>
-
-				<div class="col-sm-6 mb-3">
-					<div class="form-group">
-						<label for="inputSituation">Situação</label>
-						<InputSelect class="form-select" id="inputSituation" @bind-Value="@SelectedItemSituationId">
-							@foreach (var situation in ItemSituationList)
-							{
-								<option value="@situation.Id">@situation.Name</option>
-							}
-						</InputSelect>
-						@if (!string.IsNullOrEmpty(SituationValidationError))
+					<label for="inputSituation">Situação</label>
+					<InputSelect class="form-select" id="inputSituation" @bind-Value="@SelectedItemSituationId">
+						@foreach (var situation in ItemSituationList)
 						{
-							<div class="text-danger">@SituationValidationError</div>
+							<option value="@situation.Id">@situation.Name</option>
 						}
-						<ValidationMessage For="@(() => SelectedItemSituationId)" />
-					</div>
+					</InputSelect>
+					@if (!string.IsNullOrEmpty(SituationValidationError))
+					{
+						<div class="text-danger">@SituationValidationError</div>
+					}
+					<ValidationMessage For="@(() => SelectedItemSituationId)" />
 				</div>
 			</div>
+		</div>
 
-			@if (SelectedItemSituationId == ResaleStatusId)
-			{
-				<div class="card" style="background-color: transparent; margin-bottom: 10px;">
-					<div class="card-body">
-						<div class="card-title">Revenda</div>
-						<div class="col-lg-12 row">
-							<div class="col-lg-6 mb-1">
-								<div class="form-group">
-									<label for="inputResaleValue">Valor</label>
-									<div class="input-group">
-										<span class="input-group-text">R$</span>
-										<InputText type="text" class="form-control" id="inputResaleValue" @bind-Value="@Item.ResaleValue" />
-									</div>
-									<ValidationMessage For="@(() => Item.ResaleValue)" />
-								</div>
-							</div>
-							<div class="col-lg-6 mb-1">
-								<div class="form-group">
-									<label for="inputWithdrawalDate">Data</label>
-									<InputDate class="form-control" id="inputWithdrawalDate" TValue="DateOnly" @bind-Value="@Item.WithdrawalDate">
-									</InputDate>
-									<ValidationMessage For="@(() => Item.WithdrawalDate)" />
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			}
-
-			<div class="card" style="background-color: transparent">
+		@if (SelectedItemSituationId == ResaleStatusId)
+		{
+			<div class="card" style="background-color: transparent; margin-bottom: 10px;">
 				<div class="card-body">
-					<div class="card-title">Aquisição</div>
-					<div class="col-lg-12 row">
-						<div class="col-sm-6 mb-2">
-							<div class="form-group">
-								<label for="inputAcquisitionType">Tipo</label>
-								<InputSelect class="form-select" id="inputAcquisitionType" @bind-Value="@SelectedAcquisitionTypeId">
-									@foreach (var acquisitionType in AcquisitionTypeList)
-									{
-										<option value="@acquisitionType.Id">@acquisitionType.Name</option>
-									}
-								</InputSelect>
-								@if (!string.IsNullOrEmpty(AcquisitionTypeValidationError))
-								{
-									<div class="text-danger">@AcquisitionTypeValidationError</div>
-								}
-								<ValidationMessage For="@(() => SelectedAcquisitionTypeId)" />
-							</div>
-						</div>
-						<div class="col-sm-6 mb-1">
-							<div class="form-group">
-								<label for="inputAcquisitionDate">Data</label>
-								<InputDate class="form-control" id="inputAcquisitionDate" TValue="DateOnly" @bind-Value="@Item.AcquisitionDate">
-
-								</InputDate>
-								<ValidationMessage For="@(() => Item.AcquisitionDate)" />
-							</div>
-						</div>
-					</div>
+					<div class="card-title">Revenda</div>
 					<div class="col-lg-12 row">
 						<div class="col-lg-6 mb-1">
 							<div class="form-group">
-								<label for="inputPurchaseValue">Valor</label>
+								<label for="inputResaleValue">Valor</label>
 								<div class="input-group">
 									<span class="input-group-text">R$</span>
-									<InputText type="text" class="form-control" id="inputPurchaseValue" @bind-Value="@Item.PurchaseValue" />
+									<InputText type="text" class="form-control" id="inputResaleValue" @bind-Value="@Item.ResaleValue" />
 								</div>
-								<ValidationMessage For="@(() => Item.PurchaseValue)" />
+								<ValidationMessage For="@(() => Item.ResaleValue)" />
 							</div>
 						</div>
 						<div class="col-lg-6 mb-1">
 							<div class="form-group">
-								<label for="inputStore">Loja</label>
-								<InputText class="form-control" @bind-Value="@Item.PurchaseStore" list="storesList">
-									<ValidationMessage For="@(() => Item.PurchaseStore)" />
-								</InputText>
-								<datalist id="storesList">
-									@foreach (var store in LastPurchaseStores)
-									{
-										<option value="@store"></option>
-									}
-								</datalist>
+								<label for="inputWithdrawalDate">Data</label>
+								<InputDate class="form-control" id="inputWithdrawalDate" TValue="DateOnly" @bind-Value="@Item.WithdrawalDate">
+								</InputDate>
+								<ValidationMessage For="@(() => Item.WithdrawalDate)" />
 							</div>
 						</div>
 					</div>
 				</div>
 			</div>
+		}
 
-			<div class="row mb-3" style="margin-top: 10px;">
-				<div class="form-group">
-					<label for="inputDescription">Descrição técnica</label>
-					<InputTextArea type="text" class="form-control" id="inputDescription" @bind-Value="@Item.TechnicalDescription" rows="2" />
-					<ValidationMessage For="@(() => Item.TechnicalDescription)" />
+		<div class="card" style="background-color: transparent">
+			<div class="card-body">
+				<div class="card-title">Aquisição</div>
+				<div class="col-lg-12 row">
+					<div class="col-sm-6 mb-2">
+						<div class="form-group">
+							<label for="inputAcquisitionType">Tipo</label>
+							<InputSelect class="form-select" id="inputAcquisitionType" @bind-Value="@SelectedAcquisitionTypeId">
+								@foreach (var acquisitionType in AcquisitionTypeList)
+								{
+									<option value="@acquisitionType.Id">@acquisitionType.Name</option>
+								}
+							</InputSelect>
+							@if (!string.IsNullOrEmpty(AcquisitionTypeValidationError))
+							{
+								<div class="text-danger">@AcquisitionTypeValidationError</div>
+							}
+							<ValidationMessage For="@(() => SelectedAcquisitionTypeId)" />
+						</div>
+					</div>
+					<div class="col-sm-6 mb-1">
+						<div class="form-group">
+							<label for="inputAcquisitionDate">Data</label>
+							<InputDate class="form-control" id="inputAcquisitionDate" TValue="DateOnly" @bind-Value="@Item.AcquisitionDate">
+							</InputDate>
+							<ValidationMessage For="@(() => Item.AcquisitionDate)" />
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-12 row">
+					<div class="col-lg-6 mb-1">
+						<div class="form-group">
+							<label for="inputPurchaseValue">Valor</label>
+							<div class="input-group">
+								<span class="input-group-text">R$</span>
+								<InputText type="text" class="form-control" id="inputPurchaseValue" @bind-Value="@Item.PurchaseValue" />
+							</div>
+							<ValidationMessage For="@(() => Item.PurchaseValue)" />
+						</div>
+					</div>
+					<div class="col-lg-6 mb-1">
+						<div class="form-group">
+							<label for="inputStore">Loja</label>
+							<InputText class="form-control" @bind-Value="@Item.PurchaseStore" list="storesList">
+								<ValidationMessage For="@(() => Item.PurchaseStore)" />
+							</InputText>
+							<datalist id="storesList">
+								@foreach (var store in LastPurchaseStores)
+								{
+									<option value="@store"></option>
+								}
+							</datalist>
+						</div>
+					</div>
 				</div>
 			</div>
+		</div>
 
-			<div class="row mb-3" style="margin-top: 10px;">
-				<div class="form-group">
-					<label for="inputComment">Comentários</label>
-					<InputTextArea type="text" class="form-control" id="inputComment" @bind-Value="@Item.Comment" rows="2" />
-					<ValidationMessage For="@(() => Item.Comment)" />
-				</div>
+		<div class="row mb-3" style="margin-top: 10px;">
+			<div class="form-group">
+				<label for="inputDescription">Descrição técnica</label>
+				<InputTextArea type="text" class="form-control" id="inputDescription" @bind-Value="@Item.TechnicalDescription" rows="2" />
+				<ValidationMessage For="@(() => Item.TechnicalDescription)" />
 			</div>
-			<hr class="mt-4" />
-			<div class="camera-section">
-				@if (string.IsNullOrEmpty(imageDataUrl))
-				{
-					<div class="d-grid gap-2 d-md-flex justify-content-md-center">
-						<a data-bs-toggle="modal" data-bs-target="#ModalCamera" class="btn btn-primary" @onclick="OnStartCameraClick" disabled="@isCameraActive">
-							<i class="fas fa-video"></i> Iniciar Câmera
-						</a>
-						<a data-bs-toggle="modal" data-bs-target="#ModalSelectFile" class="btn btn-primary" disabled="@isCameraActive">
-							<i class="fas fa-folder-open"></i> Escolher Arquivo
-						</a>
-						@* 						<div class="mb-3">
+		</div>
+
+		<div class="row mb-3" style="margin-top: 10px;">
+			<div class="form-group">
+				<label for="inputComment">Comentários</label>
+				<InputTextArea type="text" class="form-control" id="inputComment" @bind-Value="@Item.Comment" rows="2" />
+				<ValidationMessage For="@(() => Item.Comment)" />
+			</div>
+		</div>
+		<hr class="mt-4" />
+		<div class="camera-section">
+			@if (string.IsNullOrEmpty(imageDataUrl))
+			{
+				<div class="d-grid gap-2 d-md-flex justify-content-md-center">
+					<a data-bs-toggle="modal" data-bs-target="#ModalCamera" class="btn btn-primary" @onclick="OnStartCameraClick" disabled="@isCameraActive">
+						<i class="fas fa-video"></i> Iniciar Câmera
+					</a>
+					<a data-bs-toggle="modal" data-bs-target="#ModalSelectFile" class="btn btn-primary" disabled="@isCameraActive">
+						<i class="fas fa-folder-open"></i> Escolher Arquivo
+					</a>
+					@* 						<div class="mb-3">
 							<label for="formFile" class="form-label">Default file input example</label>
 							<InputFile id="fileInput" class="form-control" OnChange="HandleFileSelection" accept="image/*" />
 						</div> *@
-					</div>
-				}
-				else
-				{
-					@*     <h5 class="mt-4 mb-3">Foto Capturada:</h5> *@
-					<div class="d-flex justify-content-center mb-3" style="display:flex; flex-direction: column; align-items: center;">
-						<img src="@imageDataUrl" class="img-fluid"
-							 style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
-						<button class="btn btn-danger" @onclick="DeletePhoto" style="max-width:400px; width: 100%;">
-							<i class="fas fa-trash"></i>
-						</button>
-					</div>
-				}
-			</div>
-
-			<div class="d-grid" style="position: fixed; bottom: 10px; right:10px;" disabled=@BtnInsertIsEnabled>
-				@if (isInsert)
-				{
-					<button type="submit" class="btn btn-primary">
-						<i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Cadastrar
+				</div>
+			}
+			else
+			{
+				@*     <h5 class="mt-4 mb-3">Foto Capturada:</h5> *@
+				<div class="d-flex justify-content-center mb-3" style="display:flex; flex-direction: column; align-items: center;">
+					<img src="@imageDataUrl" class="img-fluid"
+						 style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
+					<button class="btn btn-danger" @onclick="DeletePhoto" style="max-width:400px; width: 100%;">
+						<i class="fas fa-trash"></i>
 					</button>
-				}
-				else
-				{
-					<button type="submit" class="btn btn-warning btn-lg">
-						<i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Alterar
-					</button>
-				}
-			</div>
-			<div class="col-lg-12" style="margin-top: 20px"><a href="/"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
+				</div>
+			}
+		</div>
 
-		</EditForm>
-	}
-</div>
+		<div class="d-grid" style="position: fixed; bottom: 10px; right:10px;" disabled=@BtnInsertIsEnabled>
+			@if (isInsert)
+			{
+				<button type="submit" class="btn btn-primary">
+					<i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Cadastrar
+				</button>
+			}
+			else
+			{
+				<button type="submit" class="btn btn-warning btn-lg">
+					<i class="fa-solid fa-pen"></i>&nbsp;&nbsp;Alterar
+				</button>
+			}
+		</div>
+		<a href="/" class="btn btn-sm btn-outline-info" style="margin-top: 20px"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a>
+	</EditForm>
+}
 <InventoryWeb.Pages.Item.Components.ModalSelectFile ImageDataUrl="imageDataUrl"
 													ImageDataUrlChanged="@OnImageDataUrlChanged" />
 
@@ -627,7 +622,7 @@
 			Models.DTO.ItemDTO itemDTO = new();
 
 			decimal? purchaseValue = ParseCurrency(Item.PurchaseValue);
-		
+
 			decimal? resaleValue = null;
 			DateTime? withdrawalDate = null;
 

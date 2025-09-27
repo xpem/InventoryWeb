@@ -16,10 +16,10 @@
 <PageTitle>Principal</PageTitle>
 
 <div class="col-12 row">
-	<div class="col-6 mb-4">
+	<div class="col-lg-9 col-sm-12 mb-4">
 		<button type="button" class="btn btn-success mr-3" @onclick='() => Navigation.NavigateTo("/item/edit")'><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Adicionar Item</button>
 	</div>
-	<div class="col-6 mb-4 d-flex justify-content-end">
+	<div class="col-3 mb-4 d-flex justify-content-end">
 		@if (searchPanelIsVisible)
 		{
 			<a @onclick='() => TogleSearchPanel()' class="btn btn-outline-danger mb-3" style="margin-bottom: 10px; width: fit-content; height: fit-content"><i class="fa-solid fa-filter-circle-xmark"></i></a>
@@ -70,7 +70,10 @@
 							<div style="width: 90%">
 								<p class="card-subtitle mb-1 text-body-secondary" style="  font-size: 0.75rem;">@item.CategoryAndSubCategory</p>
 								<p class="mb-0 status-badge">@item.Situation.Name</p>
-								<p class="card-text text-end mb-0" style="color: var(--primary-green); font-weight: 600;">@string.Format("{0:C}", @item.PurchaseValue)</p>
+								<div class="d-flex justify-content-between">
+									<p class="card-text text-end mb-0 text-body-secondary">@string.Format("{0:dd/MM/yyyy}", @item.AcquisitionDate)</p>
+									<p class="card-text text-end mb-0" style="color: var(--primary-green); font-weight: 600;">@string.Format("{0:C}", @item.PurchaseValue)</p>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -269,7 +272,8 @@ else
 		}
 		else
 		{
-			items.AddRange(newItems);
+			if (items is not null && newItems is not null)
+				items.AddRange(newItems);
 		}
 
 		LoadingList = false;
