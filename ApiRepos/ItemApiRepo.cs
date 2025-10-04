@@ -19,7 +19,6 @@ namespace ApiRepos
         Task<ApiResp> GetPaginatedItemsAsync(int page, string userToken, ItemSearchParams? itemSearchParams = null);
         Task<ApiResp> GetTotalItensAsync(string userToken, ItemSearchParams? itemSearchParams = null);
         Task<ApiResp> GetConfigs(string userToken);
-
     }
 
     public class ItemApiRepo(IHttpClientFunctions httpClientFunctions, IHttpClientWithFileFunctions httpClientWithFileFunctions) : IItemApiRepo

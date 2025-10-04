@@ -1,4 +1,4 @@
-﻿@page "/item/edit"
+﻿@page "/XpemInventory/item/edit"
 @using InventoryWeb.Utils
 @using Components
 @using Models.DTO
@@ -29,7 +29,30 @@
 	}
 </style>
 
-<a href="/" class="col-lg-12 btn btn-sm btn-outline-info" style="margin-top: 20px"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a>
+<div class="col-lg-12 d-flex justify-content-between">
+	<a href="/XpemInventory/Home" class="btn btn-sm btn-outline-info mb-1" style="margin-top: 20px"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a>
+
+	@if (isInsert)
+	{
+		<div class="btn-group" role="group">
+			<button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+				<img src="/images/icons/gear.svg" /> Configurações
+			</button>
+			<ul class="dropdown-menu">
+				<li>
+					<a class="dropdown-item" href="#">
+						<img src="/images/icons/copy.svg" /> Duplicar
+					</a>
+				</li>
+				<li>
+					<a class="dropdown-item" href="#">
+						<img src="/images/icons/trash.svg" /> Excluir
+					</a>
+				</li>
+			</ul>
+		</div>
+	}
+</div>
 
 @if (isLoading)
 {
@@ -195,17 +218,12 @@ else
 					<a data-bs-toggle="modal" data-bs-target="#ModalSelectFile" class="btn btn-primary" disabled="@isCameraActive">
 						<i class="fas fa-folder-open"></i> Escolher Arquivo
 					</a>
-					@* 						<div class="mb-3">
-							<label for="formFile" class="form-label">Default file input example</label>
-							<InputFile id="fileInput" class="form-control" OnChange="HandleFileSelection" accept="image/*" />
-						</div> *@
 				</div>
 			}
 			else
 			{
-				@*     <h5 class="mt-4 mb-3">Foto Capturada:</h5> *@
 				<div class="d-flex justify-content-center mb-3" style="display:flex; flex-direction: column; align-items: center;">
-					<img src="@imageDataUrl" class="img-fluid"
+					<img src="@imageDataUrl" class="img-thumbnail"
 						 style="max-width: 400px; height: auto; border: 1px solid #ccc;" />
 					<button class="btn btn-danger" @onclick="DeletePhoto" style="max-width:400px; width: 100%;">
 						<i class="fas fa-trash"></i>
@@ -228,7 +246,7 @@ else
 				</button>
 			}
 		</div>
-		<a href="/" class="btn btn-sm btn-outline-info" style="margin-top: 20px"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a>
+		<a href="/XpemInventory" class="btn btn-sm btn-outline-info" style="margin-top: 20px"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a>
 	</EditForm>
 }
 <InventoryWeb.Pages.Item.Components.ModalSelectFile ImageDataUrl="imageDataUrl"
@@ -244,6 +262,8 @@ else
 
 <InventoryWeb.Pages.Item.Components.ModalSubCategories SelectedCategory="SelectedCaregory"
 													   OnSelectSubCategory="SetSelectedSubCategory" />
+
+
 <script type="text/javascript">
 	function formatCurrency(inputElementId) {
 		const input = document.getElementById(inputElementId);
@@ -468,7 +488,7 @@ else
 			}
 			else
 			{
-				Navigation.NavigateTo("/");
+				Navigation.NavigateTo("/XpemInventory/Home");
 				// userName = "Visitante"; // Ou qualquer lógica para usuário não logado
 				// isAdmin = false;
 			}
@@ -694,7 +714,7 @@ else
 
 			ToastService.ShowToast(new ToastComponent(message, styleMessage));
 
-			Navigation.NavigateTo("/");
+			Navigation.NavigateTo("/XpemInventory/Home");
 		}
 	}
 

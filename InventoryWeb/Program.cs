@@ -16,6 +16,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 var apiAddress = builder.Configuration["ApiAddress"];
 
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
 // Verifique se o valor não é nulo antes de usá-lo
 if (string.IsNullOrEmpty(apiAddress))
 {

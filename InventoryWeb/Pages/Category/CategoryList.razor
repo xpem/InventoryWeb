@@ -1,4 +1,4 @@
-﻿@page "/category/list"
+﻿@page "/XpemInventory/category/list"
 @using System.Security.Claims
 @using InventoryWeb.Infra
 @using InventoryWeb.Infra.Services
@@ -41,14 +41,14 @@ else if (ReadOnlyMode)
 else
 {
 	<div class="row">
-		<a href="/category/edit" class="btn btn-primary" style="margin-bottom: 10px; width: fit-content;"><i class="fa-solid fa-plus"></i></a>
+		<a href="/XpemInventory/category/edit" class="btn btn-primary" style="margin-bottom: 10px; width: fit-content;"><i class="fa-solid fa-plus"></i></a>
 	</div>
 	<div class="row">
 		<table class="table">
 			<tbody>
 				@foreach (var cat in categories)
 				{
-					<tr @onclick='() => Navigation.NavigateTo("/category/display?x=" + cat.Id)'>
+					<tr @onclick='() => Navigation.NavigateTo("/XpemInventory/category/display?x=" + cat.Id)'>
 						<td>
 							<div class="category-circle" style="background: @cat.Color"></div>
 						</td>
@@ -111,13 +111,13 @@ else
 				else if (resp.Error is ErrorTypes.TokenExpired or ErrorTypes.Unauthorized)
 				{
 					await customAuthenticationService.Logout();
-					Navigation.NavigateTo("/signin", forceLoad: true);
+					Navigation.NavigateTo("/XpemInventory/signin", forceLoad: true);
 
 				}
 			}
 			else
 			{
-				Navigation.NavigateTo("/");
+				Navigation.NavigateTo("/XpemInventory/home");
 				// userName = "Visitante"; // Ou qualquer lógica para usuário não logado
 				// isAdmin = false;
 			}

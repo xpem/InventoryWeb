@@ -1,4 +1,5 @@
-﻿@page "/"
+﻿@page "/XpemInventory/Home"
+
 @using System.Security.Claims
 @using InventoryWeb.Infra.Services
 @using InventoryWeb.Utils
@@ -12,12 +13,13 @@
 @inject IItemSituationService itemSituationService
 @inject IJSRuntime JSRuntime
 @inject NavMenuService NavMenuService
+@inject CustomAuthenticationService customAuthenticationService
 
 <PageTitle>Principal</PageTitle>
 
 <div class="col-12 row">
 	<div class="col-lg-9 col-sm-12 mb-4">
-		<button type="button" class="btn btn-success mr-3" @onclick='() => Navigation.NavigateTo("/item/edit")'><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Adicionar Item</button>
+		<button type="button" class="btn btn-success mr-3" @onclick='() => Navigation.NavigateTo("/XpemInventory/item/edit")'><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Adicionar Item</button>
 	</div>
 	<div class="col-3 mb-4 d-flex justify-content-end">
 		@if (searchPanelIsVisible)
@@ -36,8 +38,11 @@
 			<div class="col-lg-12">
 				@foreach (var situation in ItemsSituationObsList)
 				{
-					<span class="badge rounded-pill mb-3" style="background-color:@situation.BackgoundColor; color: white; font-size: 14px; width: 110px; margin: 5px; padding: 6px;"
-						  @onclick='() => SetSelectedItemSituation(situation.Id.Value)'>@situation.Name</span>
+					<button type="button" class="btn btn-primary" @onclick='() => SetSelectedItemSituation(situation.Id.Value)'>
+						@situation.Name <span class="badge text-bg-secondary">4</span>
+					</button>
+				@* 	<span class="badge rounded-pill mb-3" style="background-color:@situation.BackgoundColor; color: white; font-size: 14px; width: 110px; margin: 5px; padding: 6px;"
+						  @onclick='() => SetSelectedItemSituation(situation.Id.Value)'>@situation.Name</span> *@
 				}
 			</div>
 			<div class="col-lg-6">
@@ -49,13 +54,13 @@
 		</div>
 	}
 </div>
-@if (items is not null)
+@if (items is not null && items?.Count > 0)
 {
 	<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
 		@foreach (var item in items)
 		{
 			<div class="col">
-				<div class="card h-100 linked-card card-custom" @onclick='() => Navigation.NavigateTo("/item/edit?x=" + item.Id)'>
+				<div class="card h-100 linked-card card-custom" @onclick='() => Navigation.NavigateTo("/XpemInventory/item/edit?x=" + item.Id)'>
 					@* 		<div class="card-header">
 						@item.Name
 					</div> *@
@@ -82,12 +87,13 @@
 		}
 	</div>
 }
-else
+else if (!LoadingList && items?.Count == 0)
 {
 	<div class="col-lg-12 text-center my-3">
-		<p>Não há itens nesta condição</p>
+		<p>Não há items nesta condição!</p>
 	</div>
 }
+
 @if (LoadingList)
 {
 	<div class="col-lg-12">
@@ -96,12 +102,14 @@ else
 		</div>
 	</div>
 }
+
 @if (items?.Count > 0 && !LoadingList && CurrentPage < TotalPages)
 {
 	<div class="col-lg-12 text-center my-3">
 		<p>Rolando para carregar mais itens...</p>
 	</div>
 }
+
 
 @code {
 
@@ -152,7 +160,7 @@ else
 		}
 		else
 		{
-			Navigation.NavigateTo("/signin");
+			Navigation.NavigateTo("/XpemInventory/SignIn");
 		}
 	}
 
@@ -218,11 +226,15 @@ else
 				{
 					await GetItemsList(CurrentPage);
 				}
+				else
+				{
+					items = new();
+				}
 			}
 			else if (totals?.Error == Models.Resps.ErrorTypes.TokenExpired)
 			{
-				Navigation.NavigateTo("/signin");
-				return;
+				await customAuthenticationService.Logout();
+				Navigation.NavigateTo("/XpemInventory/SignIn");
 			}
 		}
 		catch (Exception ex)

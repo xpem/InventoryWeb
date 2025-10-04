@@ -1,4 +1,4 @@
-﻿@page "/signin"
+﻿@page "/XpemInventory/SignIn"
 @using InventoryWeb.Infra
 @using InventoryWeb.Infra.Services
 @using Models
@@ -13,6 +13,7 @@
 @inject CustomAuthenticationService customAuthenticationService
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
+@inject IConfiguration Configuration
 
 <PageTitle>Cadastrar usuário</PageTitle>
 
@@ -66,7 +67,18 @@
 		// Verifica se o usuário está autenticado
 		if (user.Identity?.IsAuthenticated == true)
 		{
-			Navigation.NavigateTo("/");
+			Navigation.NavigateTo("/XpemInventory/Home");
+		}
+
+		var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+
+		var queryParameters = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
+		if (queryParameters.TryGetValue("Auth", out var token))
+		{
+			await customAuthenticationService.Login(new User() { Token = token });
+
+			NavigationManager.NavigateTo("/XpemInventory/Home");
 		}
 	}
 
@@ -85,9 +97,9 @@
 				if (resp.Content is not null and User _user)
 				{
 					await customAuthenticationService.Login(_user);
-
 				}
-				NavigationManager.NavigateTo("/");
+
+				NavigationManager.NavigateTo("/XpemInventory/Home");
 
 			}
 			else
