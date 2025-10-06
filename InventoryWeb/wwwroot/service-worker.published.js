@@ -44,7 +44,7 @@ async function onFetch(event) {
         const url = new URL(event.request.url);
 
         if (url.pathname.startsWith('/api/')) {
-            return; // Ignora as rotas do backend
+            return fetch(event.request);
         }
 
         // For all navigation requests, try to serve index.html from cache,
