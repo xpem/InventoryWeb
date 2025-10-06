@@ -41,6 +41,8 @@ async function onFetch(event) {
     let cachedResponse = null;
     if (event.request.method === 'GET') {
 
+        const url = new URL(event.request.url);
+
         if (url.pathname.startsWith('/api/')) {
             return; // Ignora as rotas do backend
         }
