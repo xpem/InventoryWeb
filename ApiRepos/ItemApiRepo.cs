@@ -19,6 +19,8 @@ namespace ApiRepos
         Task<ApiResp> GetPaginatedItemsAsync(int page, string userToken, ItemSearchParams? itemSearchParams = null);
         Task<ApiResp> GetTotalItensAsync(string userToken, ItemSearchParams? itemSearchParams = null);
         Task<ApiResp> GetConfigs(string userToken);
+
+        Task<ApiResp> GetItemSituationsGroupingWithQuantities(string userToken);
     }
 
     public class ItemApiRepo(IHttpClientFunctions httpClientFunctions, IHttpClientWithFileFunctions httpClientWithFileFunctions) : IItemApiRepo
@@ -96,6 +98,9 @@ namespace ApiRepos
             }
             catch (Exception ex) { throw; }
         }
+
+        public async Task<ApiResp> GetItemSituationsGroupingWithQuantities(string userToken) =>
+            await httpClientFunctions.RequestAsync(RequestsTypes.Get, "Inventory/item/GetItemsSituationsGroupingWithQuantities", userToken);
 
         public async Task<ApiResp> DelItemAsync(int id)
         {

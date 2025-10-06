@@ -13,6 +13,8 @@ namespace Models.Item
         public string? Name { get; set; }
 
         public int Sequence { get; set; }
+
+        public int Quantity { get; set; }
     }
 
     /// <summary>
