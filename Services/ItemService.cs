@@ -24,6 +24,8 @@ namespace Services
 
         Task<List<ItemDTO>> GetItemsPaginatedAsync(string userToken, int page, ItemSearchParams? itemSearchParams = null);
         Task<ServResp> GetItemConfigs(string userToken);
+        Task<ServResp> GetItemSituationsGroupingWithQuantities(string userToken);
+
     }
 
     public class ItemService(IItemApiRepo itemApiRepo) : IItemService
@@ -55,6 +57,12 @@ namespace Services
             return ApiRespHandler.Handler<ItemConfigsApiResp>(resp);
         }
 
+        public async Task<ServResp> GetItemSituationsGroupingWithQuantities(string userToken)
+        {
+            ApiResp resp = await itemApiRepo.GetItemSituationsGroupingWithQuantities(userToken);
+            return ApiRespHandler.Handler<List<ItemSituation>>(resp);
+        }
+
         public async Task<ServResp> GetItemByIdAsync(string id, string userToken)
         {
             ApiResp resp = await itemApiRepo.GetItemByIdAsync(id, userToken);
@@ -70,7 +78,8 @@ namespace Services
                 return resp is not null && resp.Success && resp.Content is not null and string
                     ? ApiRespHandler.Handler<ItemDTO>(resp)
                     : new ServResp() { Success = false, Content = null };
-            }catch(Exception ex) { throw ex; }
+            }
+            catch (Exception ex) { throw ex; }
         }
 
         public async Task<ServResp> UpdateItem(ItemDTO item, string userToken)

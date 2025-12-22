@@ -22,7 +22,7 @@
 
 /* Card styles */
 .card-custom {
-    background: linear-gradient(145deg, rgba(26, 26, 27, 0.5), rgba(10, 10, 11, 0.8));
+    background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     transition: all 0.3s ease;
@@ -74,7 +74,7 @@
         background: var(--text-muted);
     }
 
-.status-badge {
+/*.status-badge {
     border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 600;
@@ -83,4 +83,17 @@
     background-color: #166534;
     color: white;
     width: fit-content;
+}*/
+
+
+.rounded-button {
+    background-color: var(--bg-card);
+    color: white;
+    border-radius: 30rem;
 }
+
+    .rounded-button:hover {
+       /* background-color: #16a34a;*/
+        color: white;
+        border-radius: 30rem;
+    }

@@ -1,8 +1,8 @@
 {
   "name": "InventoryWeb",
   "short_name": "InventoryWeb",
-  "id": "./",
-  "start_url": "./",
+  "id": "./XpemInventory/Home",
+  "start_url": "./XpemInventory/Home",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#03173d",

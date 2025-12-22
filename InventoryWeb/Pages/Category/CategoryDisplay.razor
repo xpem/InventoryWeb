@@ -1,4 +1,4 @@
-﻿@page "/category/display"
+﻿@page "/XpemInventory/category/display"
 
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
@@ -60,7 +60,7 @@
 	}
 </div>
 <div class="col-lg-12" style="margin-bottom: 10px; margin-top:20px;">
-	<button type="button" class="btn btn-primary btn-sml" @onclick='() => Navigation.NavigateTo("/category/subcategory/edit?y=" + CategoryId)'><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Adicionar Sub Categoria</button>
+	<button type="button" class="btn btn-primary btn-sml" @onclick='() => Navigation.NavigateTo("/XpemInventory/category/subcategory/edit?y=" + CategoryId)'><i class="fa-solid fa-plus"></i>&nbsp;&nbsp;Adicionar Sub Categoria</button>
 </div>
 
 <div class="col-lg-12" style="margin-top: 10px;">
@@ -82,7 +82,7 @@
 							@if (!subCategory.SystemDefault)
 							{
 								<div style="display: flex; align-items: center;">
-									<button type="button" class="btn btn-warning btn-sml" style="margin-right: 10px;" @onclick='() => Navigation.NavigateTo($"/category/subcategory/edit?x={subCategory.Id}&y={CategoryId}")'>
+									<button type="button" class="btn btn-warning btn-sml" style="margin-right: 10px;" @onclick='() => Navigation.NavigateTo($"/XpemInventory/category/subcategory/edit?x={subCategory.Id}&y={CategoryId}")'>
 										<i class="fa-solid fa-pen"></i>
 									</button>
 									<button type="button" class="btn btn-danger btn-sml" data-bs-toggle="modal" data-bs-target="#deleteSubCategoryModal" @onclick='() => SetSelectedSubcategoryId(subCategory.Id)'>
@@ -98,7 +98,7 @@
 	}
 </div>
 
-<div class="col-lg-12" style="margin-top: 20px"><a href="/category/list"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
+<div class="col-lg-12" style="margin-top: 20px"><a href="/XpemInventory/category/list"><i class="fa-solid fa-arrow-left"></i>&nbsp;&nbsp;Voltar</a></div>
 
 <!-- Modal Delete Category-->
 <div class="modal fade" data-bs-backdrop="static" data-bs-keyboard="false" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModal" aria-hidden="true">
@@ -141,7 +141,7 @@
 
 	// public int CurrentPage { get; set; } = 1;
 
-	public void CallUpdateCategory() => Navigation.NavigateTo("/category/edit?x=" + CategoryId);
+	public void CallUpdateCategory() => Navigation.NavigateTo("/XpemInventory/category/edit?x=" + CategoryId);
 
 	private int? SelectedSubcategoryId { get; set; } = null;
 
@@ -171,7 +171,7 @@
 			if (success)
 			{
 				ToastService.ShowToast(new ToastComponent("Categoria excluída", "text-bg-success"));
-				Navigation.NavigateTo("/category/list");
+				Navigation.NavigateTo("/XpemInventory/category/list");
 			}
 			else
 			{
@@ -257,11 +257,11 @@
 					Console.WriteLine($"Valor de x: {_queryId}");
 
 				}
-				else Navigation.NavigateTo("/category/list");
+				else Navigation.NavigateTo("/XpemInventory/category/list");
 			}
 			else
 			{
-				Navigation.NavigateTo("/");
+				Navigation.NavigateTo("/XpemInventory/Home");
 				// userName = "Visitante"; // Ou qualquer lógica para usuário não logado
 				// isAdmin = false;
 			}
