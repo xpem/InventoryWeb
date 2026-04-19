@@ -1,5 +1,7 @@
 ﻿using Blazored.LocalStorage;
 using Models;
+using Services;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -12,10 +14,12 @@ namespace InventoryWeb.Infra.Services
 
         public event Action<User> UserChanged;
         private readonly ILocalStorageService _localStorageService;
+        private readonly IUserService _userService;
 
-        public CustomAuthenticationService(ILocalStorageService localStorageService)
+        public CustomAuthenticationService(ILocalStorageService localStorageService, IUserService userService)
         {
             _localStorageService = localStorageService;
+            _userService = userService;
             // Inicializa _currentUser como um usuário anônimo/não autenticado
             // Isso é importante para que CurrentUser nunca seja nulo.
             _currentUser = new User { Name = "", Email = "" };
@@ -57,19 +61,21 @@ namespace InventoryWeb.Infra.Services
                 // **PASSO 3: Se o token existe, tenta decodificá-lo e processá-lo**
                 //
                 var claims = new List<Claim>();
-                //var claims = ParseClaimsFromJwt(token); // Sua função para extrair claims
-
-                // Exemplo de como extrair informações (ajuste conforme suas claims)
-                //var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
-                //var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-                //var roles = claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
-                // ... outras claims (permissions, id, etc.)
 
                 // Verifica se as claims mínimas para um usuário válido estão presentes
                 if (!string.IsNullOrEmpty(token))
                 {
-                    _currentUser = new User { Email = email, Token = token };
-                    NotifyUserChanged(); // Notifica que o usuário foi restaurado
+                    var userResp = await _userService.GetUserAsync(token);
+
+                    if (userResp.Success && userResp.Content is User user)
+                    {
+                        _currentUser = user;
+                        NotifyUserChanged(); // Notifica que o usuário foi restaurado
+                    }
+                    else
+                    {
+                        await Logout();
+                    }
                 }
                 else
                 {

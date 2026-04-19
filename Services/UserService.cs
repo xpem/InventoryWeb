@@ -11,6 +11,8 @@ namespace Services
         Task<(bool, string?)> GetUserTokenAsync(string email, string password);
         Task<string?> RecoverPasswordAsync(string email);
         Task<ServResp> SignIn(string email, string password);
+
+        Task<ServResp> GetUserAsync(string token);
     }
 
     public class UserService(IUserApiRepo userApiDAL) : IUserService
@@ -61,6 +63,28 @@ namespace Services
         //public async Task<UserDTO?> GetAsync() => await userRepo.GetUserLocalAsync();
 
         //public void RemoveUserLocal() => userRepo.RemoveUserLocal();
+
+        //GetUserAsync para validação do token e obtenção de dados atuais do user.
+        public async Task<ServResp> GetUserAsync(string token)
+        {
+            ApiResp resp = await userApiDAL.GetUserAsync(token);
+            if (resp.Success && resp.Content is not null and string)
+            {
+                JsonNode? userResponse = JsonNode.Parse((string)resp.Content);
+                if (userResponse is not null)
+                {
+                    User? user = new()
+                    {
+                        Id = userResponse["id"]?.GetValue<int>() ?? 0,
+                        Name = userResponse["name"]?.GetValue<string>(),
+                        Email = userResponse["email"]?.GetValue<string>(),
+                        Token = token
+                    };
+                    return new ServResp() { Success = true, Content = user };
+                }
+            }
+            return new ServResp() { Success = false, Error = ErrorTypes.Unknown };
+        }
 
         public async Task<ServResp> SignIn(string email, string password)
         {
